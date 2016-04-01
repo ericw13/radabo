@@ -113,21 +113,22 @@ WSGI_APPLICATION = 'xfr.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-DATABASES = {
+DATABASES = {}
 #    'default': {
 #        'ENGINE': 'django.db.backends.sqlite3',
         # GETTING-STARTED: change 'db.sqlite3' to your sqlite3 database:
 #        'NAME': os.path.join(DATA_DIR, 'db.sqlite3'),
 #    }
-    'default': {
+if 'OPENSHIFT_MYSQL_DB_URL' in os.environ:
+    url = urlparse.urlparse(os.environ.get('OPENSHIFT_MYSQL_DB_URL'))
+    DATABASES['default'] = {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'xfr',
-        'USER': 'xfr',
-        'PASSWORD': 'django',
-        'HOST': 'localhost',
-        'PORT': '',
+        'NAME': os.environ['OPENSHIFT_APP_NAME'],
+        'USER': url.username,
+        'PASSWORD': url.password,
+        'HOST': url.hostname,
+        'PORT': url.port,
     }
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
