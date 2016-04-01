@@ -6,6 +6,9 @@
     <li><a href="/transfers/">Recent Transfers</a></li>
     <li><a href="/errors/">All Errors</a></li>
     <li><a href="/errors/recent/">Errors in last 24 hours</a></li>
+    {% if user.is_superuser %}
+      <li><a href="/admin/">Admin Portal</a></li>
+    {% endif %}
   </ul>
   <br><br>
   <div style="padding: 10px 0px"><a href="/logout/">Logout</a></div>
