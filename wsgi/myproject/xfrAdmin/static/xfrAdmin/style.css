@@ -1,0 +1,81 @@
+table, th, td {
+    border: 1px solid black;
+}
+body, html {
+    margin: 0;
+    padding: 0;
+    color:white;
+    background:#820000;
+}
+#container{
+    border:0px;
+    overflow:hidden;
+}
+#wrap {
+    display: table-cell;
+    width: 43%;
+    margin: 0px auto;
+    padding: 10px;
+    background:#820000;
+    color:white;
+}
+#header {
+    padding:5px 10px;
+    background:#eee;
+    height:100px;
+    line-height: 100px;
+}
+h1 {
+    margin:0;
+    color: blue;
+    font-family: "Arial"
+}
+
+h2 {
+    margin:0 4 1em;
+    font-family: "Arial"
+}
+h3 {
+    font-family: "Arial"
+}
+#nav {
+    display: table-cell;
+    border: 0px;
+    width:10%;
+    background:#820000;
+    color:white;
+    height:100%;
+    padding: 15px
+}
+#footer {
+    background:#cc9;
+    border: 1px;
+    width: 43%;
+}
+#lfoot {
+    padding:5px;
+    float: left;
+    width: 10%;
+}
+#rfoot {
+    padding:5px;
+    float: right;
+    text-align: right;
+    width: 10%;
+}
+#cfoot {
+    padding:5px 10px;
+    margin: 0 auto;
+    width: 23%;
+    text-align:center;
+    font-weight:bold;
+}
+#p {
+    margin:0;
+}
+a:link, a:active, a:visited {
+  color: white;
+}
+img{width: 15%}
+.right{float:right}
+.left{float:left; margin: 0px 20px}

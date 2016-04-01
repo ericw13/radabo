@@ -15,7 +15,16 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from xfrAdmin import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+    url(r'^accounts/login/$', auth_views.login),
+    url(r'^login/$', auth_views.login),
+    url(r'^api-auth/',include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^', include('xfrAdmin.urls')),
+    url(r'^chaining/', include('smart_selects.urls')),
+    url(r'^xfrAdmin/', include('xfrAdmin.urls')),
+
     url(r'^admin/', include(admin.site.urls)),
 ]

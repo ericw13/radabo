@@ -1,0 +1,18 @@
+{% extends 'xfrAdmin/base.html' %}
+{% block pagetitle %}Site Map{% endblock %}
+{% block title %}Welcome To PuddleJumper{% endblock %}
+{% block sidebar %}
+  <ul>
+    <li><a href="/transfers/">Recent Transfers</a></li>
+    <li><a href="/errors/">All Errors</al></li>
+    <li><a href="/errors/recent/">Errors in last 24 hours</a></li>
+    {% if user.is_superuser %}
+      <li><a href="/admin/">Admin Portal</a></li>
+    {% endif %}
+  </ul>
+  <br><br>
+  <a href="/logout/">Logout</a>
+{% endblock %}
+{% block primary %}
+<p>Choose one of the reports listed to the left to get started
+{% endblock %}
