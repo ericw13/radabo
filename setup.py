@@ -17,7 +17,7 @@ setup(
     url='http://www.redhat.com/',
     # GETTING-STARTED: define required django version:
     install_requires=[
-        'Django==1.8.4'
+        'Django==1.9.5'
     ],
     dependency_links=[
         'https://pypi.python.org/simple/django/'
