@@ -122,7 +122,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'xfr',
-        'USER': 'appl',
+        'USER': 'xfr',
         'PASSWORD': 'django',
         'HOST': 'localhost',
         'PORT': '',
