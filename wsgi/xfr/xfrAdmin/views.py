@@ -1,4 +1,4 @@
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
@@ -21,7 +21,10 @@ import datetime
 
 # Create your views here.
 
-def index(request):
+def index(request, **kwargs):
+    if request.user is not None and request.user.is_authenticated():
+        from django.conf import settings
+        return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
     t = loader.get_template('xfrAdmin/index.html')
     c = {}
     return HttpResponse(t.render(c, request))
