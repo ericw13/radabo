@@ -12,5 +12,6 @@ urlpatterns = [
     url(r'^errors/recent/$', views.RecentErrorList.as_view()),
     url(r'^transfers/(?P<pk>[0-9]+)/$', views.TransferDetail.as_view()),
     url(r'^search/$', views.search, name='search'),
+    url(r'^$', views.index, name='index'),
 ]
 
