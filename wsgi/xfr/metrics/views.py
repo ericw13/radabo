@@ -1,6 +1,6 @@
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
-from metrics.models import Sprint, Story
+from metrics.models import Sprint, Story, Release
 from django.utils import timezone
 from django.views import generic
 from django.db.models import F, Q, Avg, Count
@@ -23,6 +23,12 @@ def getStory(name):
     except Story.DoesNotExist:
         return None
 
+def getRelease(name):
+    try:
+        return Release.objects.get(name=name)
+    except Release.DoesNotExist:
+        return None
+
 def getCurrentSprint():
     now = timezone.now()
     try:
@@ -39,7 +45,7 @@ def getPriorSprint():
 
 def getReleaseList():
     try:
-        return Story.objects.filter(~Q(releaseName=None)).values_list('releaseName',flat=True).distinct()
+        return Release.objects.all().order_by('-startDate')
     except:
         return None
 

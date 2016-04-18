@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
 import requests,sys,re,os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "xfr.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rally.settings")
 import django
 django.setup()
 from metrics import rallyurls, rallycreds
 from metrics.models import Story
-from metrics.views import getSprint
+from metrics.views import getSprint, getRelease
 from django.db.models import Q, F
 
 stories = Story.objects.filter(~Q(status="A"))
@@ -33,7 +33,8 @@ for this in stories:
             this.initialSprint = this.currentSprint
 
         if story['Release']:
-            this.releaseName = story['Release']['_refObjectName']
+            this.release = getRelease(story['Release']['_refObjectName'])
+            print "Set release %s for story %s" % (this.release, this.rallyNumber)
 
         if len(story['Tags']['_tagsNameArray']) > 0:
             this.track=story['Tags']['_tagsNameArray'][0]['Name']

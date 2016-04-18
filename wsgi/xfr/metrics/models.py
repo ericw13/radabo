@@ -5,7 +5,6 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
 class Sprint(models.Model):
-    STATUS_CHOICES = ('Planning','Active','Committed')
     name = models.CharField(max_length=50,unique=True)
     startDate = models.DateTimeField()
     endDate = models.DateTimeField()
@@ -18,6 +17,14 @@ class Sprint(models.Model):
           'name': self.name,
           'velocity': self.velocity,
        }
+
+class Release(models.Model):
+    name = models.CharField(max_length=100,unique=True)
+    startDate = models.DateTimeField()
+    endDate = models.DateTimeField()
+    status = models.CharField(max_length=20,default='Planning')
+    def __str__(self):
+        return self.name
 
 class Story(models.Model):
     STATUS_CHOICES = (
@@ -43,10 +50,10 @@ class Story(models.Model):
     description = models.CharField(max_length=255)
     points = models.IntegerField(null=True, blank=True)
     businessValue = models.IntegerField(choices=BV_CHOICES, null=True, blank=True)
-    currentSprint = models.ForeignKey(Sprint, on_delete=models.CASCADE, related_name='currentSprint',null=True, blank=True)
-    initialSprint = models.ForeignKey(Sprint, on_delete=models.CASCADE, related_name='initialSprint',null=True, blank=True)
+    currentSprint = models.ForeignKey(Sprint, on_delete=models.SET_NULL, related_name='currentSprint',null=True, blank=True)
+    initialSprint = models.ForeignKey(Sprint, on_delete=models.SET_NULL, related_name='initialSprint',null=True, blank=True)
     status = models.CharField(max_length=1,choices=STATUS_CHOICES,default='B')
-    releaseName = models.CharField(max_length=100,null=True,blank=True)
+    release = models.ForeignKey(Release, on_delete=models.SET_NULL, related_name='release',null=True, blank=True)
     completionDate = models.DateTimeField(null=True, blank=True)
     rallyOID = models.BigIntegerField()
     revHistoryURL = models.CharField(max_length=500)
