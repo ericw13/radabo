@@ -43,7 +43,6 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = (
     'xfrAdmin.apps.XfradminConfig',
-    'metrics.apps.MetricsConfig',
     'admin_reorder',
     'smart_selects',
     'rest_framework',
