@@ -9,7 +9,8 @@ from metrics.models import Story
 from metrics.views import getSprint, getRelease
 from django.db.models import Q, F
 
-stories = Story.objects.filter(~Q(status="A"))
+#stories = Story.objects.filter(~Q(status="A"))
+stories = Story.objects.all()
 urlopts = "&fetch=true"
 for this in stories:
     qs = "query=(FormattedID%20%3D%20%22" + this.rallyNumber + "%22)"

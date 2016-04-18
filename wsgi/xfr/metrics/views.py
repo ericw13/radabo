@@ -45,7 +45,7 @@ def getPriorSprint():
 
 def getReleaseList():
     try:
-        return Release.objects.all().order_by('-startDate')
+        return Release.objects.all().values_list('name',flat=True).order_by('-startDate')
     except:
         return None
 
@@ -92,7 +92,7 @@ def ReleaseReport(request):
     if releaseName == None:
         releaseName=releaseList[0]
 
-    story=Story.objects.filter(releaseName=releaseName,status="A").order_by('-businessValue','rallyNumber')
+    story=Story.objects.filter(release__name=releaseName,status="A").order_by('-businessValue','rallyNumber')
     c = {'story': story, 
          'current': releaseName,
          'header': 'Enhancements released in '+ releaseName, 
