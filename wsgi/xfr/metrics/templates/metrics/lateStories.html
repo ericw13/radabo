@@ -1,0 +1,28 @@
+{% extends 'metrics/base.html' %}
+{% block pagetitle %}Late Stories{% endblock %}
+{% block title %}Report - Stories Delivered Late{% endblock %}
+{% block js %}{% endblock %}
+{% block primary %}
+    {% if story %}
+      <table cellpadding="5">
+        <tr>
+          <th>User Story</th>
+          <th class="left">Name</th>
+          <th>Initial Sprint</th>
+          <th>Current Sprint</th>
+          <th>Status</th>
+        </tr>
+        {% for x in story %}
+          <tr>
+            <td style="width: 10%">{{ x.rallyNumber }}</td>
+            <td style="width: 30%">{{ x.description }}</td>
+            <td style="width: 10%">{{ x.initialSprint }}</td>
+            <td style="width: 10%">{{ x.currentSprint }}</td>
+            <td style="width: 10%">{{ x.get_status_display }}</td>
+          </tr>
+        {% endfor %}
+        </table>
+    {% else %}
+      <p>Good news, no stories are late!
+    {% endif %}
+{% endblock %}

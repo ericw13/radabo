@@ -43,6 +43,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = (
     'xfrAdmin.apps.XfradminConfig',
+    'metrics.apps.MetricsConfig',
     'admin_reorder',
     'smart_selects',
     'rest_framework',
@@ -150,7 +151,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'EST'
+TIME_ZONE = 'EST5EDT'
 
 USE_I18N = True
 

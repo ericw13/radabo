@@ -1,4 +1,4 @@
-"""xfr URL Configuration
+"""metrics URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.9/topics/http/urls/
@@ -13,19 +13,9 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import include, url
-from rest_framework import routers
-from xfrAdmin import views
+from django.conf.urls import url
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    url(r'^accounts/login/$', auth_views.login),
-    url(r'^login/$', auth_views.login),
-    url(r'^api-auth/',include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^xfr/', include('xfrAdmin.urls')),
-    url(r'^metrics/', include('metrics.urls')),
-    url(r'^chaining/', include('smart_selects.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^.*$', views.routeToError),
 ]
