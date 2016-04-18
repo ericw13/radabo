@@ -9,7 +9,7 @@ import json
 
 # Create your views here.
 def index(request):
-    return HttpResponse("This is just the beginning...")
+    return render_to_response('metrics/index.html', {})
 
 def getSprint(name):
     try:
