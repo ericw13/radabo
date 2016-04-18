@@ -32,6 +32,9 @@ for this in stories:
         if this.initialSprint == None:
             this.initialSprint = this.currentSprint
 
+        if story['Release']:
+            this.releaseName = story['Release']['_refObjectName']
+
         if len(story['Tags']['_tagsNameArray']) > 0:
             this.track=story['Tags']['_tagsNameArray'][0]['Name']
 
