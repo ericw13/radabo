@@ -40,7 +40,7 @@
               <td style="width: 10%; text-align: center">{{ y.module }} </td>
               <td style="width: 8%; text-align: center">{{ y.solutionSize }}</td>
               <td style="width: 5%; text-align: center">{{ y.track }}</td>
-              <td style="width: 10%">{{ y.stakeholders }}</td>
+              <td style="width: 10%">{{ y.stakeholders|default_if_none:"" }}</td>
               <td style="width: 10%">{{ y.rallyNumber }}</td>
             </tr>
             {% endfor %}
