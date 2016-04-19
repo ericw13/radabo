@@ -35,6 +35,7 @@ class Story(models.Model):
         ('A', 'Accepted')
     )
     BV_CHOICES = (
+        (None, 'Undefined'),
         (0, 'IT Research'),
         (1, 'Nice to Have'),
         (3, 'Personal Productivity Improvement'),
