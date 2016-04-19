@@ -62,14 +62,16 @@ class Story(models.Model):
     stakeholders = models.CharField(max_length=255, null=True, blank=True)
     @property
     def solutionSize(self):
-        if self.points <= 3:
+        if self.points == None:
+           return "Unknown"
+        elif self.points <= 3:
            return "Small"
         elif self.points <= 8:
            return "Medium"
         elif self.points <= 99:
            return "Large"
         else:
-           return None
+           return "Unknown"
 
     def __str__(self):
         return "%s: %s" % (self.rallyNumber, self.description)
