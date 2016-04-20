@@ -1,0 +1,73 @@
+{% extends 'metrics/base.html' %}
+{% block pagetitle %}Backlog Metrics{% endblock %}
+{% block title %}&nbsp; {% endblock %}
+{% block js %}
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+      // Load the Visualization API and the corechart package.
+      google.charts.load('current', {'packages':['corechart']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+          var djangoData = JSON.parse('{{ trackcount|safe }}');
+          var data = new google.visualization.DataTable();
+          var total = 0;
+          data.addColumn('string','Track');
+          data.addColumn('number','Story Count');
+
+          if (djangoData.length == 0) {
+              document.getElementById('piebytrack').innerHTML = "Something went wrong, no data passed in.";
+          } else {
+              for (var i=0;i<djangoData.length;i++) {
+                 data.addRows([[djangoData[i].track,djangoData[i].tcount]]);
+                 total += djangoData[i].tcount;
+              }
+              var options = {
+                  width: 640, 
+                  height: 480, 
+                  title: "Backlog enhancements by module",
+                  titleFontSize: 24,
+              };
+
+              var chart = new google.visualization.PieChart(document.getElementById('piebytrack'));
+              chart.draw(data, options);
+              document.getElementById('foot').innerHTML = total + " total stories";
+          }
+          // Second chart
+          var djangoData2 = JSON.parse('{{ modcount|safe }}');
+          var data2 = new google.visualization.DataTable();
+          data2.addColumn('string','Module');
+          data2.addColumn('number','Story Count');
+
+          if (djangoData2.length == 0) {
+              document.getElementById('donutbymodule').innerHTML = "Something went wrong, no data passed in.";
+          } else {
+              for (var i=0;i<djangoData2.length;i++) {
+                 data2.addRows([[djangoData2[i].module,djangoData2[i].mcount]]);
+              }
+              var options2 = {
+                  width: 640, 
+                  height: 480, 
+                  title: "Backlog enhancements by track",
+                  titleFontSize: 24,
+                  pieHole: 0.4
+              };
+
+              var chart2 = new google.visualization.PieChart(document.getElementById('donutbymodule'));
+              chart2.draw(data2, options2);
+          }
+      }
+    </script>
+{% endblock %}
+{% block picker %}
+<p></p>
+{% endblock %}
+{% block primary %}
+  <div id="piebytrack" style="float:left"></div>
+  <div id="donutbymodule" style="float:left"></div>
+  <div id="foot"></div>
+{% endblock %}

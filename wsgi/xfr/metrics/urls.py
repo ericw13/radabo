@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^release/?$', views.ReleaseReport, name='release'),
     url(r'^sprint/?$', views.SprintReport, name='sprint'),
     url(r'^backlog/?$', views.Backlog, name='backlog'),
+    url(r'^backlog/charts/?$', views.BacklogGraphs, name='blgraphs'),
 ]
