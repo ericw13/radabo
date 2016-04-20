@@ -121,7 +121,7 @@ def Backlog(request):
     story=Story.objects.filter(initialSprint=None).order_by('-businessValue','rallyNumber')
     c = {'story': story, 
          'current': None,
-         'header': 'Backlog stories',
+         'header': 'Enhancement Backlog: ' + str(len(story)) + ' stories',
          'exception': 'No enhancements are in the backlog!',
          'list': None}
     return render(request,'metrics/release.html',c)
