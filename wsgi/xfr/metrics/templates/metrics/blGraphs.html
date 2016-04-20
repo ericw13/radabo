@@ -60,6 +60,28 @@
               var chart2 = new google.visualization.PieChart(document.getElementById('donutbymodule'));
               chart2.draw(data2, options2);
           }
+         // Third chart
+         var djangoData3 = JSON.parse('{{ sizecount|safe }}');
+         var data3 = new google.visualization.DataTable();
+         data3.addColumn('string', 'Story Size');
+         data3.addColumn('number', 'Story Count');
+
+         if (djangoData3.length == 0) {
+             document.getElementById('piebysize').innerHTML = "Something went wrong, no data pased in.";
+         } else {
+             for (var i=0;i<djangoData3.length;i++) {
+                 data3.addRows([[djangoData3[i].solutionSize,djangoData3[i].scount]]);
+             }
+             var options3 = {
+                  width: 640, 
+                  height: 480, 
+                  title: "Backlog enhancements by estimated size",
+                  titleFontSize: 24,
+             };
+
+             var chart3 = new google.visualization.PieChart(document.getElementById('piebysize'));
+             chart3.draw(data3, options3);
+         }
       }
     </script>
 {% endblock %}
@@ -67,7 +89,8 @@
 <p></p>
 {% endblock %}
 {% block primary %}
-  <div id="piebytrack" style="float:left"></div>
-  <div id="donutbymodule" style="float:left"></div>
-  <div id="foot"></div>
+  <div id="piebytrack" class="graph"></div>
+  <div id="donutbymodule" class="graph"></div>
+  <div id="foot" class="cfoot"></div>
+  <div id="piebysize" class="graph"></div>
 {% endblock %}

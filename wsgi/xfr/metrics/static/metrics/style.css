@@ -33,12 +33,12 @@ body, html {
     background:#ffffff;
 }
 #container{
-    border:0px;
+    border: 0px;
     overflow:hidden;
 }
 #wrap {
     display: table-cell;
-    width: 43%;
+    width: 60%;
     margin: 0px auto;
     padding: 10px;
     background:#ffffff;
@@ -71,7 +71,7 @@ h3 {
 }
 #nav {
     display: table-cell;
-    width:10%;
+    width:15%;
     background:#ffffff;
     color:black;
     height:100%;
@@ -82,24 +82,20 @@ h3 {
     border: 1px;
     width: 43%;
 }
-#foot {
-    padding:5px;
-    float: left;
-    font-weight: bold;
-    width: 32%;
-    text-align: center;
-}
-#rfoot {
-    padding:5px;
-    float: right;
-    text-align: right;
-    width: 10%;
-}
-#cfoot {
+.cfoot {
     padding:5px 10px;
     margin: 0 auto;
-    width: 23%;
-    text-align:center;
+    float: left;
+    font-weight: bold;
+    width: 80%;
+    text-align: center;
+    font-size:24px;
+}
+.lfoot {
+    padding:5px;
+    float: left;
+    text-align: center;
+    width: 22%;
     font-weight:bold;
 }
 #p {
@@ -112,3 +108,9 @@ img{width: 15%}
 img.right{float:right}
 img.left{float:left; margin: 0px 20px}
 
+.graph {
+    display: table-cell;
+    float: left;
+    width: 640px;
+    border: 2px black;
+}

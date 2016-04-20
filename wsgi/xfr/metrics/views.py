@@ -129,7 +129,10 @@ def Backlog(request):
 def BacklogGraphs(request):
     modcount=Story.objects.filter(release=None, status__in=['B','D']).values('module').annotate(mcount=Count('module')).order_by('-mcount','module')
     trackcount=Story.objects.filter(release=None, status__in=['B','D']).values('track').annotate(tcount=Count('track')).order_by('-tcount','track')
+    sizecount=Story.objects.filter(release=None, status__in=['B','D']).values('solutionSize').annotate(scount=Count('track')).order_by('-scount','solutionSize')
     
     c = {'modcount': json.dumps([dict(item) for item in modcount]),
-         'trackcount': json.dumps([dict(item2) for item2 in trackcount])}
+         'trackcount': json.dumps([dict(item2) for item2 in trackcount]),
+         'sizecount': json.dumps([dict(item3) for item3 in sizecount])
+        }
     return render(request,'metrics/blGraphs.html', c)
