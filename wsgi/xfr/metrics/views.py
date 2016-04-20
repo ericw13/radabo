@@ -118,7 +118,7 @@ def SprintReport(request):
     return render(request,'metrics/release.html',c)
 
 def Backlog(request):
-    story=Story.objects.filter(release=None).order_by('-businessValue','rallyNumber')
+    story=Story.objects.filter(release=None, status__in=['B','D']).order_by('-businessValue','rallyNumber')
     c = {'story': story, 
          'current': None,
          'header': 'Enhancement Backlog: ' + str(len(story)) + ' stories',

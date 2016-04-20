@@ -9,8 +9,8 @@ from metrics.models import Story
 from metrics.views import getSprint, getRelease
 from django.db.models import Q, F
 
-#stories = Story.objects.filter(~Q(status="A"))
-stories = Story.objects.all()
+stories = Story.objects.filter(~Q(status="A"))
+#stories = Story.objects.all()
 urlopts = "&fetch=true"
 for this in stories:
     qs = "query=(FormattedID%20%3D%20%22" + this.rallyNumber + "%22)"
@@ -18,7 +18,11 @@ for this in stories:
     results = requests.get(url, auth=(rallycreds.user,rallycreds.pw))
     data = results.json()
 
-    for story in data['QueryResult']['Results']:
+    if data['QueryResult']['TotalResultCount'] == 0:
+       print "Deleting story %s" % (this.rallyNumber)
+       this.delete()
+    else:
+      for story in data['QueryResult']['Results']:
 
         # This script only updates existing stories
         this.description=story['_refObjectName']
