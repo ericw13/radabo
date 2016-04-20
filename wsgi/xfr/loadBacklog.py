@@ -31,6 +31,7 @@ for story in data['QueryResult']['Results']:
                     revHistoryURL=story['RevisionHistory']['_ref'],
                     module=story['Package'],
                     stakeholders=story['c_Stakeholders'],
+                    solutionSize=story['c_SolutionSize'],
                     track=tag)
     else:
        this.description=story['_refObjectName']
@@ -39,6 +40,7 @@ for story in data['QueryResult']['Results']:
        this.status=story['ScheduleStatePrefix']
        this.module=story['Package']
        this.stakeholders=story['c_Stakeholders']
+       this.solutionSize=story['c_SolutionSize']
        this.track = tag
 
 # Look at revision history and try to get completion date

@@ -31,6 +31,7 @@ for this in stories:
         this.status=story['ScheduleStatePrefix']
         this.module=story['Package']
         this.stakeholders=story['c_Stakeholders']
+        this.solutionSize=story['c_SolutionSize']
         if story['Iteration']:
             this.currentSprint = getSprint(story['Iteration']['_refObjectName'])
 
