@@ -1,0 +1,69 @@
+{% extends 'metrics/base.html' %}
+{% block pagetitle %}Sprints{% endblock %}
+{% block title %}{% endblock %}
+{% block js %}
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+      // Load the Visualization API and the corechart package.
+      google.charts.load('current', {'packages':['gauge']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+          var djangoData = JSON.parse('{{ data|safe }}');
+          var goodCount = 0;
+          var total = 0;
+          var mySprint = "{{sprint}}";
+
+          if (djangoData.length == 0) {
+              document.getElementById('piechart').innerHTML = "Sprint \""+ mySprint + "\" is not yet accepted";
+          } else {
+              for (var i=0;i<djangoData.length;i++) {
+                 if (djangoData[i].on_schedule == "Yes") {
+                     goodCount += djangoData[i].rallyNumber__count;
+                 }
+                 total += djangoData[i].rallyNumber__count;
+              }
+              var pct = Math.round(100 * goodCount / total);
+              console.log("pct: " + pct);
+ 
+              var data = google.visualization.arrayToDataTable([
+                  ['Label', 'Value'],
+                  [ mySprint,pct]
+              ]);
+
+              var options = {
+                  width: 640, 
+                  height: 480, 
+                  redFrom: 0, redTo: 70,
+                  yellowFrom: 70, yellowTo: 90,
+                  greenFrom: 90, greenTo: 100,
+                  minorTicks: 10
+              };
+
+              var chart = new google.visualization.Gauge(document.getElementById('piechart'));
+              chart.draw(data, options);
+              document.getElementById('foot').innerHTML = total + " total stories";
+          }
+      }
+    </script>
+{% endblock %}
+{% block picker %}
+  <form name=sprintForm action="/metrics/success/" method=POST>
+  {% csrf_token %}
+    <p>
+      <select name=sprintSelect onchange="sprintForm.submit();">
+      {% for name in list %}
+        <option value="{{ name }}" {% if name == sprint %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+      </select>
+    </p>
+  </form>
+{% endblock %}
+{% block primary %}
+  <div id="piechart"></div>
+  <div id="foot"></div>
+{% endblock %}

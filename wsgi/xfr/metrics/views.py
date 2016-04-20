@@ -81,7 +81,7 @@ def Pie(request):
     c = {'data': json.dumps([dict(item) for item in story]),
          'sprint': sprintName,
          'list': sprints}
-    return render(request, 'metrics/piechart.html', c)
+    return render(request, 'metrics/speedo.html', c)
 
 def ReleaseReport(request):
     releaseList=getReleaseList()
