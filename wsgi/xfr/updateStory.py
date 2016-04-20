@@ -24,6 +24,15 @@ for this in stories:
     else:
       for story in data['QueryResult']['Results']:
 
+        if not story['PlanEstimate']:
+           solSize = story['c_SolutionSize']
+        elif story['PlanEstimate'] <= 3:
+           solSize = "Small"
+        elif story['PlanEstimate'] <= 8:
+           solSize = "Medium"
+        elif story['PlanEstimate'] <= 99:
+           solSize = "Large"
+
         # This script only updates existing stories
         this.description=story['_refObjectName']
         this.points=story['PlanEstimate']
@@ -31,7 +40,7 @@ for this in stories:
         this.status=story['ScheduleStatePrefix']
         this.module=story['Package']
         this.stakeholders=story['c_Stakeholders']
-        this.solutionSize=story['c_SolutionSize']
+        this.solutionSize=solSize
         if story['Iteration']:
             this.currentSprint = getSprint(story['Iteration']['_refObjectName'])
 
@@ -40,7 +49,7 @@ for this in stories:
 
         if story['Release']:
             this.release = getRelease(story['Release']['_refObjectName'])
-            print "Set release %s for story %s" % (this.release, this.rallyNumber)
+            #print "Set release %s for story %s" % (this.release, this.rallyNumber)
 
         if len(story['Tags']['_tagsNameArray']) > 0:
             this.track=story['Tags']['_tagsNameArray'][0]['Name']

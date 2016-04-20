@@ -19,6 +19,15 @@ for story in data['QueryResult']['Results']:
     else:
         tag=None
 
+    if not ['PlanEstimate']:
+       solSize = story['c_SolutionSize']
+    elif story['PlanEstimate'] <= 3:
+       solSize = "Small"
+    elif story['PlanEstimate'] <= 8:
+       solSize = "Medium"
+    elif story['PlanEstimate'] <= 99:
+       solSize = "Large"
+
     if this == None:
       # Create new instance
 
@@ -31,7 +40,7 @@ for story in data['QueryResult']['Results']:
                     revHistoryURL=story['RevisionHistory']['_ref'],
                     module=story['Package'],
                     stakeholders=story['c_Stakeholders'],
-                    solutionSize=story['c_SolutionSize'],
+                    solutionSize=solSize,
                     track=tag)
     else:
        this.description=story['_refObjectName']
@@ -40,7 +49,7 @@ for story in data['QueryResult']['Results']:
        this.status=story['ScheduleStatePrefix']
        this.module=story['Package']
        this.stakeholders=story['c_Stakeholders']
-       this.solutionSize=story['c_SolutionSize']
+       this.solutionSize=solSize
        this.track = tag
 
 # Look at revision history and try to get completion date
