@@ -56,6 +56,7 @@
   {% csrf_token %}
     <p>
       <select name=sprintSelect onchange="sprintForm.submit();">
+      <option value="{{ average }}" {% if average == sprint %}selected{% endif %}>{{ average }}</option>
       {% for name in list %}
         <option value="{{ name }}" {% if name == sprint %}selected{% endif %}>{{ name }}</option>
       {% endfor %}

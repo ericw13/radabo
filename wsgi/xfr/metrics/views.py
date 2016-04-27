@@ -4,7 +4,7 @@ from metrics.models import Sprint, Story, Release
 from django.utils import timezone
 from django.views import generic
 from django.db.models import F, Q, Avg, Count
-from datetime import datetime, timedelta
+from datetime import timedelta
 import json
 
 # Create your views here.
@@ -64,7 +64,7 @@ def VelocityChart(request):
     return render_to_response('metrics/velocity.html', c)
 
 def DelayedItems(request):
-    dateLimit = datetime.now() + timedelta(days=-365)
+    dateLimit = timezone.now() + timedelta(days=-365)
     results=Story.objects.filter(~Q(initialSprint=F('currentSprint')),initialSprint__startDate__gte=dateLimit).order_by('initialSprint__id')
     c = {'story': results}
     return render_to_response('metrics/lateStories.html',c)
@@ -72,14 +72,23 @@ def DelayedItems(request):
 def Pie(request):
     sprints=getSprintList()
     sprintName=None 
+    default="Last Six Months"
     if request.method == 'POST':
         if 'sprintSelect' in request.POST and request.POST['sprintSelect']:
             sprintName = request.POST['sprintSelect']
     if sprintName == None:
-        sprintName = getCurrentSprint()
-    story=Story.objects.extra(select={'on_schedule': "CASE WHEN initialSprint_id = currentSprint_id THEN 'Yes' ELSE 'No' END"}).filter(initialSprint__name=sprintName,initialSprint__status='Accepted').values('on_schedule').order_by('-on_schedule').annotate(Count('rallyNumber'))
+        sprintName = default
+
+    if sprintName == default:
+        start = timezone.now() + timedelta(days=-182)
+        l=Sprint.objects.filter(status='Accepted',startDate__gte=start)
+        story=Story.objects.extra(select={'on_schedule': "CASE WHEN initialSprint_id = currentSprint_id THEN 'Yes' ELSE 'No' END"}).filter(initialSprint__in=l).values('on_schedule').order_by('-on_schedule').annotate(Count('rallyNumber'))
+    else:
+        story=Story.objects.extra(select={'on_schedule': "CASE WHEN initialSprint_id = currentSprint_id THEN 'Yes' ELSE 'No' END"}).filter(initialSprint__name=sprintName,initialSprint__status='Accepted').values('on_schedule').order_by('-on_schedule').annotate(Count('rallyNumber'))
+
     c = {'data': json.dumps([dict(item) for item in story]),
          'sprint': sprintName,
+         'average': default,
          'list': sprints}
     return render(request, 'metrics/speedo.html', c)
 
