@@ -1,31 +1,33 @@
 #!/usr/bin/python
-import requests,os,re
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "xfr.settings")
+import requests,os,re,sys
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rally.settings")
 import django
 django.setup()
-from metrics import rallyurls, rallycreds
 from metrics.models import Release
 from metrics.views import getRelease
+from pyral import Rally, rallyWorkset
 from datetime import datetime
+from rallyUtil import get_api_key
 
-opts = "?pagesize=99"
-url = rallyurls.releaseUrl + opts
-results = requests.get(url, auth=(rallycreds.user,rallycreds.pw))
-data = results.json()
+api_key = get_api_key()
+rallyServer = rallyWorkset([])[0]
+rally = Rally(rallyServer, apikey=api_key, user=None, password=None)
 
-for release in data['QueryResult']['Results']:
-  if re.search(r'Enh Release', release['_refObjectName']) and datetime.strptime(release['ReleaseStartDate'], '%Y-%m-%dT%H:%M:%S.%fZ') > datetime(2016,1,1,0,0):
-    this=getRelease(release['Name'])
-    # TODO start here
+q = ['Name contains "Enh Release"',
+     'ReleaseStartDate > "2016-01-01T00:00:00.000Z"'
+    ]
+response = rally.get('Release',query=q,fetch="Name,ReleaseStartDate,ReleaseDate,State")
+for release in response:
+    this=getRelease(release.Name)
     if this == None:
       # Create new instance
-       this = Release(name=release['Name'],
-                     startDate=release['ReleaseStartDate'],
-                     endDate=release['ReleaseDate'],
-                     status=release['State'])
+       this = Release(name=release.Name,
+                     startDate=release.ReleaseStartDate,
+                     endDate=release.ReleaseDate,
+                     status=release.State)
     else:
-       this.startDate = release['StartDate']
-       this.endDate = release['EndDate']
-       this.status = release['State']
+       this.startDate = release.ReleaseStartDate
+       this.endDate = release.ReleaseDate
+       this.status = release.State
 
     this.save()

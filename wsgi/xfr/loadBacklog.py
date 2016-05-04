@@ -1,67 +1,57 @@
 #!/usr/bin/python
 
 import requests,sys,re,os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "xfr.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rally.settings")
 import django
 django.setup()
-from metrics import rallyurls, rallycreds
 from metrics.models import Story
 from metrics.views import getStory
+from pyral import Rally, rallyWorkset
+from rallyUtil import get_api_key
 
-url = rallyurls.storyUrl + "query=((Release%20%3D%20%22%22)%20and%20(Feature.FormattedID%20%3D%201467))&fetch=true&pagesize=200"
-results = requests.get(url, auth=(rallycreds.user,rallycreds.pw))
-data = results.json()
+api_key = get_api_key()
+print api_key
+sys.exit(0)
 
-for story in data['QueryResult']['Results']:
-    this=getStory(story['FormattedID'])
-    if len(story['Tags']['_tagsNameArray']) > 0:
-        tag=story['Tags']['_tagsNameArray'][0]['Name']
-    else:
-        tag=None
+rallyServer = rallyWorkset([])[0]
+rally = Rally(rallyServer, apikey = api_key, user=None, password=None)
 
-    if not ['PlanEstimate']:
-       solSize = story['c_SolutionSize']
-    elif story['PlanEstimate'] <= 3:
-       solSize = "Small"
-    elif story['PlanEstimate'] <= 8:
-       solSize = "Medium"
-    elif story['PlanEstimate'] <= 99:
-       solSize = "Large"
+q = [
+    'Release = null',
+    'Feature.FormattedID = 1467',
+    ]
+response = rally.get('UserStory',query=q,fetch="FormattedID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,Package,c_SolutionSize,c_Stakeholders,Tags",order="FormattedID")
 
+if response.resultCount == 0:
+    print "Cannot find any stories in the backlog!"
+    print response.errors
+    sys.exit(1)
+
+for story in response:
+
+    this=getStory(story.FormattedID)
     if this == None:
       # Create new instance
+        print "Creating story " + story.FormattedID
+        tag=story.Tags[0].Name if story.Tags else None
 
-       this = Story(rallyNumber=story['FormattedID'],
-                    description=story['_refObjectName'],
-                    points=story['PlanEstimate'],
-                    businessValue=story['c_BusinessValueBV'],
-                    status=story['ScheduleStatePrefix'],                   
-                    rallyOID=story['ObjectID'],
-                    revHistoryURL=story['RevisionHistory']['_ref'],
-                    module=story['Package'],
-                    stakeholders=story['c_Stakeholders'],
-                    solutionSize=solSize,
-                    track=tag)
-    else:
-       this.description=story['_refObjectName']
-       this.points=story['PlanEstimate']
-       this.businessValue=story['c_BusinessValueBV']
-       this.status=story['ScheduleStatePrefix']
-       this.module=story['Package']
-       this.stakeholders=story['c_Stakeholders']
-       this.solutionSize=solSize
-       this.track = tag
+        if not story.PlanEstimate:
+           solSize = story.c_SolutionSize
+        elif story.PlanEstimate <= 3:
+           solSize = "Small"
+        elif story.PlanEstimate <= 8:
+           solSize = "Medium"
+        elif story.PlanEstimate <= 99:
+           solSize = "Large"
 
-# Look at revision history and try to get completion date
 
-    if this.status in ['C','A'] and this.completionDate == None:
-        url = this.revHistoryURL + "/Revisions"
-        payload = {'pagesize': '50'}
-        res = requests.get(url,params=payload,auth=(rallycreds.user,rallycreds.pw))
-        data = res.json()
-        for rev in data['QueryResult']['Results']:
-          if re.match(r'.*?SCHEDULE STATE changed.*to \[Completed\]',rev['Description']):
-              this.completionDate = rev['CreationDate']
-              break
-
-    this.save()
+        this = Story(rallyNumber=story.FormattedID,
+                     description=story.Name,
+                     points=story.PlanEstimate,
+                     businessValue=story.c_BusinessValueBV,
+                     status=story.ScheduleStatePrefix,                   
+                     module=story.Package,
+                     stakeholders=story.c_Stakeholders,
+                     solutionSize=solSize,
+                     track=tag)
+        this.save()

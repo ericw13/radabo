@@ -16,6 +16,7 @@
           var djangoData = JSON.parse('{{ trackcount|safe }}');
           var data = new google.visualization.DataTable();
           var total = 0;
+          total += {{ nullcount }}
           data.addColumn('string','Track');
           data.addColumn('number','Story Count');
 

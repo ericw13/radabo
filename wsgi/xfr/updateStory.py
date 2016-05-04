@@ -1,68 +1,65 @@
 #!/usr/bin/python
 
 import requests,sys,re,os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "xfr.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rally.settings")
 import django
 django.setup()
-from metrics import rallyurls, rallycreds
 from metrics.models import Story
 from metrics.views import getSprint, getRelease
 from django.db.models import Q, F
+from pyral import Rally, rallyWorkset
+from rallyUtil import get_api_key
 
-stories = Story.objects.filter(~Q(status="A"))
-#stories = Story.objects.all()
-urlopts = "&fetch=true"
+api_key = get_api_key()
+rallyServer = rallyWorkset([])[0]
+rally = Rally(rallyServer, apikey = api_key, user=None, password=None)
+
+#stories = Story.objects.filter(rallyNumber="US50609")
+stories = Story.objects.filter(~Q(currentSprint__status="Accepted",status="A"))
 for this in stories:
-    qs = "query=(FormattedID%20%3D%20%22" + this.rallyNumber + "%22)"
-    url = rallyurls.storyUrl + qs + urlopts
-    results = requests.get(url, auth=(rallycreds.user,rallycreds.pw))
-    data = results.json()
+    q = [
+         'FormattedID = "%s"' % (this.rallyNumber)
+        ]
+    response = rally.get('UserStory',query=q,fetch="Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,Package,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory")
 
-    if data['QueryResult']['TotalResultCount'] == 0:
-       print "Deleting story %s" % (this.rallyNumber)
-       this.delete()
+    if response.resultCount == 0:
+        print "Deleting %s" % (this.rallyNumber)
+        this.delete()
     else:
-      for story in data['QueryResult']['Results']:
+      print "Updating %s" % (this.rallyNumber)
+      for story in response:
 
-        if not story['PlanEstimate']:
-           solSize = story['c_SolutionSize']
-        elif story['PlanEstimate'] <= 3:
+        if not story.PlanEstimate:
+           solSize = story.c_SolutionSize
+        elif story.PlanEstimate <= 3:
            solSize = "Small"
-        elif story['PlanEstimate'] <= 8:
+        elif story.PlanEstimate <= 8:
            solSize = "Medium"
-        elif story['PlanEstimate'] <= 99:
+        elif story.PlanEstimate <= 99:
            solSize = "Large"
 
         # This script only updates existing stories
-        this.description=story['_refObjectName']
-        this.points=story['PlanEstimate']
-        this.businessValue=story['c_BusinessValueBV']
-        this.status=story['ScheduleStatePrefix']
-        this.module=story['Package']
-        this.stakeholders=story['c_Stakeholders']
+        this.description=story.Name
+        this.points=story.PlanEstimate
+        this.businessValue=story.c_BusinessValueBV
+        this.status=story.ScheduleStatePrefix
+        this.module=story.Package
+        this.stakeholders=story.c_Stakeholders
         this.solutionSize=solSize
-        if story['Iteration']:
-            this.currentSprint = getSprint(story['Iteration']['_refObjectName'])
-
+        if story.Iteration:
+            this.currentSprint = getSprint(story.Iteration.Name)
         if this.initialSprint == None:
             this.initialSprint = this.currentSprint
-
-        if story['Release']:
-            this.release = getRelease(story['Release']['_refObjectName'])
-            #print "Set release %s for story %s" % (this.release, this.rallyNumber)
-
-        if len(story['Tags']['_tagsNameArray']) > 0:
-            this.track=story['Tags']['_tagsNameArray'][0]['Name']
-
-        # Look at revision history and try to get completion date
-        if this.status in ['C','A'] and this.completionDate == None:
-            url = this.revHistoryURL + "/Revisions"
-            payload = {'pagesize': '50'}
-            res = requests.get(url,params=payload,auth=(rallycreds.user,rallycreds.pw))
-            data = res.json()
-            for rev in data['QueryResult']['Results']:
-                if re.match(r'.*?SCHEDULE STATE changed.*to \[Completed\]',rev['Description']):
-                    this.completionDate = rev['CreationDate']
+        if story.Release:
+            this.release = getRelease(story.Release.Name)
+        if story.Tags:
+            this.track = story.Tags[0].Name
+        if this.status in ['B','D','P']:
+            this.completionDate = None
+        elif this.status in ['C','A'] and this.completionDate == None:
+            for rec in story.RevisionHistory.Revisions:
+                if re.match(r'.*?SCHEDULE STATE changed.*to \[Completed\]',rec.Description):
+                    this.completionDate = rec.CreationDate
                     break
 
         this.save()
