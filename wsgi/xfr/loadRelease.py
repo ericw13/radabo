@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import requests,os,re,sys
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rally.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "xfr.settings")
 import django
 django.setup()
 from metrics.models import Release
