@@ -107,7 +107,7 @@ def ReleaseReport(request):
         if 'choice' in request.POST and request.POST['choice']:
             releaseName=request.POST['choice']
     if releaseName == None:
-        releaseName=thisRelease if thisRelease else releaseList[0]
+        releaseName=str(thisRelease.name) if thisRelease else releaseList[0]
 
     story=Story.objects.filter(release__name=releaseName,status="A").order_by('-businessValue','rallyNumber')
     c = {'story': story, 
@@ -125,7 +125,7 @@ def SprintReport(request):
         if 'choice' in request.POST and request.POST['choice']:
             sprint = request.POST['choice']
     if sprint == None:
-        sprint=thisSprint if thisSprint else sprintList[0]
+        sprint=str(thisSprint.name) if thisSprint else sprintList[0]
 
     story=Story.objects.filter(currentSprint__name=sprint).order_by('-businessValue','rallyNumber')
     c = {'story': story, 
