@@ -36,6 +36,13 @@ def getCurrentSprint():
     except Sprint.DoesNotExist:
         return None
 
+def getCurrentRelease():
+    now = timezone.now()
+    try:
+        return Release.objects.get(startDate__lte=now,endDate__gte=now)
+    except Release.DoesNotExist:
+        return None
+
 def getPriorSprint():
     try:
         cur = getCurrentSprint()
@@ -95,11 +102,12 @@ def Pie(request):
 def ReleaseReport(request):
     releaseList=getReleaseList()
     releaseName = None
+    thisRelease = getCurrentRelease()
     if request.method == 'POST':
         if 'choice' in request.POST and request.POST['choice']:
             releaseName=request.POST['choice']
     if releaseName == None:
-        releaseName=releaseList[0]
+        releaseName=thisRelease if thisRelease else releaseList[0]
 
     story=Story.objects.filter(release__name=releaseName,status="A").order_by('-businessValue','rallyNumber')
     c = {'story': story, 
@@ -111,12 +119,13 @@ def ReleaseReport(request):
 
 def SprintReport(request):
     sprintList=getSprintList()
+    thisSprint=getCurrentSprint()
     sprint = None
     if request.method == 'POST':
         if 'choice' in request.POST and request.POST['choice']:
             sprint = request.POST['choice']
     if sprint == None:
-        sprint=sprintList[0]
+        sprint=thisSprint if thisSprint else sprintList[0]
 
     story=Story.objects.filter(currentSprint__name=sprint).order_by('-businessValue','rallyNumber')
     c = {'story': story, 
