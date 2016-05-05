@@ -10,9 +10,6 @@ from pyral import Rally, rallyWorkset
 from rallyUtil import get_api_key
 
 api_key = get_api_key()
-print api_key
-sys.exit(0)
-
 rallyServer = rallyWorkset([])[0]
 rally = Rally(rallyServer, apikey = api_key, user=None, password=None)
 

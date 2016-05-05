@@ -26,6 +26,12 @@ class Release(models.Model):
     def __str__(self):
         return self.name
 
+class Session(models.Model):
+    startDate = models.DateTimeField()
+    endDate = models.DateTimeField(null=True,blank=True)
+    def __str__(self):
+        return "%s: %s -> %s" % (self.id, self.startDate, self.endDate)
+
 class Story(models.Model):
     STATUS_CHOICES = (
         ('B', 'Backlog'),
@@ -56,14 +62,14 @@ class Story(models.Model):
     status = models.CharField(max_length=1,choices=STATUS_CHOICES,default='B')
     release = models.ForeignKey(Release, on_delete=models.SET_NULL, related_name='release',null=True, blank=True)
     completionDate = models.DateTimeField(null=True, blank=True)
-    rallyOID = models.BigIntegerField()
-    revHistoryURL = models.CharField(max_length=500)
     module = models.CharField(max_length=50, null=True, blank=True)
     track = models.CharField(max_length=30, null=True, blank=True)
     stakeholders = models.CharField(max_length=255, null=True, blank=True)
     solutionSize = models.CharField(max_length=20, null=True, blank=True)
+    session = models.ForeignKey(Session, on_delete=models.SET_NULL, related_name='session',null=True, blank=True)
 
     def __str__(self):
         return "%s: %s" % (self.rallyNumber, self.description)
     def _on_schedule(self):
         return self.initialSprint == self.currentSprint
+
