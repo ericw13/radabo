@@ -29,12 +29,13 @@
               var options = {
                   width: 640, 
                   height: 480, 
-                  title: "Backlog enhancements by module",
+                  title: "Backlog enhancements by track",
                   titleFontSize: 24,
               };
 
               var chart = new google.visualization.PieChart(document.getElementById('piebytrack'));
               chart.draw(data, options);
+              google.visualization.events.addListener(chart, 'select', function () {selectHandler(chart,data,'track')});
           }
           // Second chart
           var djangoData2 = JSON.parse('{{ modcount|safe }}');
@@ -52,7 +53,7 @@
               var options2 = {
                   width: 640, 
                   height: 480, 
-                  title: "Backlog enhancements by track",
+                  title: "Backlog enhancements by module",
                   titleFontSize: 24,
                   pieHole: 0.4
               };
@@ -60,28 +61,54 @@
               var chart2 = new google.visualization.PieChart(document.getElementById('donutbymodule'));
               chart2.draw(data2, options2);
               document.getElementById('foot').innerHTML = total + " total stories";
+              google.visualization.events.addListener(chart2, 'select', function () {selectHandler(chart2,data2,'module')});
           }
-         // Third chart
-         var djangoData3 = JSON.parse('{{ sizecount|safe }}');
-         var data3 = new google.visualization.DataTable();
-         data3.addColumn('string', 'Story Size');
-         data3.addColumn('number', 'Story Count');
+          // Third chart
+          var djangoData3 = JSON.parse('{{ sizecount|safe }}');
+          var data3 = new google.visualization.DataTable();
+          data3.addColumn('string', 'Story Size');
+          data3.addColumn('number', 'Story Count');
 
-         if (djangoData3.length == 0) {
-             document.getElementById('piebysize').innerHTML = "Something went wrong, no data pased in.";
-         } else {
-             for (var i=0;i<djangoData3.length;i++) {
-                 data3.addRows([[djangoData3[i].solutionSize,djangoData3[i].scount]]);
+          if (djangoData3.length == 0) {
+              document.getElementById('piebysize').innerHTML = "Something went wrong, no data pased in.";
+          } else {
+              for (var i=0;i<djangoData3.length;i++) {
+                  data3.addRows([[djangoData3[i].solutionSize,djangoData3[i].scount]]);
+              }
+              var options3 = {
+                   width: 640, 
+                   height: 480, 
+                   title: "Backlog enhancements by estimated size",
+                   titleFontSize: 24,
+              };
+
+              var chart3 = new google.visualization.PieChart(document.getElementById('piebysize'));
+              chart3.draw(data3, options3);
+              google.visualization.events.addListener(chart3, 'select', function () {selectHandler(chart3,data3,'solutionSize')});
+         }
+         function selectHandler(metaChart,metaData,option) {
+             var selection = metaChart.getSelection();
+             if (selection.length) {
+                 var pieSliceLabel = metaData.getValue(selection[0].row,0);
+                 post(option, pieSliceLabel)
              }
-             var options3 = {
-                  width: 640, 
-                  height: 480, 
-                  title: "Backlog enhancements by estimated size",
-                  titleFontSize: 24,
-             };
-
-             var chart3 = new google.visualization.PieChart(document.getElementById('piebysize'));
-             chart3.draw(data3, options3);
+         }
+         function post(tag, value) {
+             var form = document.createElement("form");
+             form.setAttribute("method", "post");
+             form.setAttribute("action", "/metrics/backlog/");
+             var hiddenField = document.createElement("input");
+             var hiddenField2 = document.createElement("input");
+             hiddenField.setAttribute("type", "hidden");
+             hiddenField.setAttribute("name", tag);
+             hiddenField.setAttribute("value", value);
+             form.appendChild(hiddenField);
+             hiddenField2.setAttribute("type", "hidden");
+             hiddenField2.setAttribute("name", "csrfmiddlewaretoken");
+             hiddenField2.setAttribute("value", "{{csrf_token}}");
+             form.appendChild(hiddenField2);
+             document.body.appendChild(form);
+             form.submit();
          }
       }
     </script>

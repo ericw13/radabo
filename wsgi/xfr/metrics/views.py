@@ -136,10 +136,37 @@ def SprintReport(request):
     return render(request,'metrics/release.html',c)
 
 def Backlog(request):
-    story=Story.objects.filter(release=None, status__in=['B','D']).order_by('-businessValue','rallyNumber')
+
+    kwargs = {
+        'release': None,
+        'status__in': ['B','D'],
+    }
+
+    filter=': '
+    if request.method == 'POST':
+        if 'track' in request.POST and request.POST['track']:
+            if request.POST['track'] == 'null':
+                kwargs.update({'track__isnull': True})
+            else:
+                kwargs.update({'track': request.POST['track']})
+            filter = " (Track = %s): " % (request.POST['track'])
+        if 'module' in request.POST and request.POST['module']:
+            if request.POST['module'] == 'null':
+                kwargs.update({'module__isnull': True})
+            else:
+                kwargs.update({'module': request.POST['module']})
+            filter = " (Module = %s): " % (request.POST['module'])
+        if 'solutionSize' in request.POST and request.POST['solutionSize']:
+            if request.POST['solutionSize'] == 'null':
+                kwargs.update({'solutionSize__isnull': True})
+            else:
+                kwargs.update({'solutionSize': request.POST['solutionSize']})
+            filter = " (Story Size = %s): " % (request.POST['solutionSize'])
+            
+    story=Story.objects.filter(**kwargs).order_by('-businessValue','rallyNumber')
     c = {'story': story, 
          'current': None,
-         'header': 'Enhancement Backlog: ' + str(len(story)) + ' stories',
+         'header': 'Enhancement Backlog' + filter + str(len(story)) + ' stories',
          'exception': 'No enhancements are in the backlog!',
          'list': None}
     return render(request,'metrics/release.html',c)
