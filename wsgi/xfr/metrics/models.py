@@ -67,6 +67,7 @@ class Story(models.Model):
     stakeholders = models.CharField(max_length=255, null=True, blank=True)
     solutionSize = models.CharField(max_length=20, null=True, blank=True)
     session = models.ForeignKey(Session, on_delete=models.SET_NULL, related_name='session',null=True, blank=True)
+    storyURL = models.CharField(max_length=200,null=True, blank=True)
 
     def __str__(self):
         return "%s: %s" % (self.rallyNumber, self.description)

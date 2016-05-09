@@ -14,7 +14,7 @@
         </tr>
         {% for x in story %}
           <tr>
-            <td style="width: 10%">{{ x.rallyNumber }}</td>
+            <td style="width: 10%"><a href="{{ x.storyURL }}" target="_blank">{{ x.rallyNumber }}</a></td>
             <td style="width: 30%">{{ x.description }}</td>
             <td style="width: 10%">{{ x.initialSprint }}</td>
             <td style="width: 10%">{{ x.currentSprint }}</td>

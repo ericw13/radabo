@@ -1,6 +1,7 @@
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from metrics.models import Sprint, Story, Release
+from metrics import utils
 from django.utils import timezone
 from django.views import generic
 from django.db.models import F, Q, Avg, Count
@@ -10,57 +11,6 @@ import json
 # Create your views here.
 def index(request):
     return render_to_response('metrics/index.html', {})
-
-def getSprint(name):
-    try:
-        return Sprint.objects.get(name=name)
-    except Sprint.DoesNotExist:
-        return None
-
-def getStory(name):
-    try:
-        return Story.objects.get(rallyNumber=name)
-    except Story.DoesNotExist:
-        return None
-
-def getRelease(name):
-    try:
-        return Release.objects.get(name=name)
-    except Release.DoesNotExist:
-        return None
-
-def getCurrentSprint():
-    now = timezone.now()
-    try:
-        return Sprint.objects.get(startDate__lte=now,endDate__gte=now)
-    except Sprint.DoesNotExist:
-        return None
-
-def getCurrentRelease():
-    now = timezone.now()
-    try:
-        return Release.objects.get(startDate__lte=now,endDate__gte=now)
-    except Release.DoesNotExist:
-        return None
-
-def getPriorSprint():
-    try:
-        cur = getCurrentSprint()
-        return Sprint.objects.filter(endDate__lt=cur.startDate).order_by('-startDate')[:1]
-    except Sprint.DoesNotExist:
-        return None
-
-def getReleaseList():
-    try:
-        return Release.objects.all().values_list('name',flat=True).order_by('-startDate')
-    except:
-        return None
-
-def getSprintList():
-    try:
-        return Story.objects.filter(~Q(initialSprint__name=None)).values_list('initialSprint__name',flat=True).distinct().order_by('-initialSprint__id')
-    except:
-        return None
 
 def VelocityChart(request):
     results=Sprint.objects.filter(status="Accepted",startDate__gte="2015-09-01 00:00:00").order_by('startDate').values('name','velocity')[:12]
@@ -77,7 +27,7 @@ def DelayedItems(request):
     return render_to_response('metrics/lateStories.html',c)
 
 def Pie(request):
-    sprints=getSprintList()
+    sprints=utils.getSprintList()
     sprintName=None 
     default="Last Six Months"
     if request.method == 'POST':
@@ -100,9 +50,9 @@ def Pie(request):
     return render(request, 'metrics/speedo.html', c)
 
 def ReleaseReport(request):
-    releaseList=getReleaseList()
+    releaseList=utils.getReleaseList()
     releaseName = None
-    thisRelease = getCurrentRelease()
+    thisRelease = utils.getCurrentRelease()
     if request.method == 'POST':
         if 'choice' in request.POST and request.POST['choice']:
             releaseName=request.POST['choice']
@@ -118,8 +68,8 @@ def ReleaseReport(request):
     return render(request,'metrics/release.html',c)
 
 def SprintReport(request):
-    sprintList=getSprintList()
-    thisSprint=getCurrentSprint()
+    sprintList=utils.getSprintList()
+    thisSprint=utils.getCurrentSprint()
     sprint = None
     if request.method == 'POST':
         if 'choice' in request.POST and request.POST['choice']:

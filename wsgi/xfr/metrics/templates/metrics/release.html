@@ -41,7 +41,7 @@
               <td style="width: 8%; text-align: center">{{ y.solutionSize }}</td>
               <td style="width: 5%; text-align: center">{{ y.track }}</td>
               <td style="width: 10%">{{ y.stakeholders|default_if_none:"" }}</td>
-              <td style="width: 10%">{{ y.rallyNumber }}</td>
+              <td style="width: 10%"><a href="{{ y.storyURL }}" target="_blank">{{ y.rallyNumber }}</a></td>
             </tr>
             {% endfor %}
         {% endfor %}

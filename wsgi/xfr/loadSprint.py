@@ -4,7 +4,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "xfr.settings")
 import django
 django.setup()
 from metrics.models import Sprint
-from metrics.views import getSprint
+from metrics.utils import getSprint
 from pyral import Rally, rallyWorkset
 from rallyUtil import get_api_key
 

@@ -4,7 +4,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "xfr.settings")
 import django
 django.setup()
 from metrics.models import Release
-from metrics.views import getRelease
+from metrics.utils import getRelease
 from pyral import Rally, rallyWorkset
 from datetime import datetime
 from rallyUtil import get_api_key
