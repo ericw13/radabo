@@ -20,7 +20,7 @@ def getStoryURL(projectID, storyID):
 
 def getSolutionSize(points):
     if not points:
-       solSize = story.c_SolutionSize
+       solSize = story.c_SolutionSize if story.c_SolutionSize else 'Unknown'
     elif points <= 3:
        solSize = "Small"
     elif points <= 8:
