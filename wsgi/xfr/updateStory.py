@@ -11,6 +11,9 @@ from rallyUtil import get_api_key
 from django.utils import timezone
 from django.db.models import Q, F
 
+_ENH = "F1467"
+_PRJ = "F3841"
+
 def getProjectID(projectWSURL):
     projectMatch = re.search(r'\d+$',projectWSURL)
     return projectMatch.group(0)
@@ -30,6 +33,13 @@ def getSolutionSize(points):
 
     return solSize
 
+def getFeatureDesc(text):
+    if text == _ENH:
+        return "Enhancement"
+    elif text == _PRJ:
+        return "Project"
+    else:
+        return None
 
 def createStory(story,session):
     print "Creating " + story.FormattedID
@@ -41,6 +51,7 @@ def createStory(story,session):
     storyURL = getStoryURL(projectID, story.ObjectID)
     this = Story(rallyNumber=story.FormattedID,
                  description=story.Name,
+                 storyType=getFeatureDesc(story.Feature.FormattedID),
                  points=story.PlanEstimate,
                  businessValue=story.c_BusinessValueBV,
                  status=story.ScheduleStatePrefix,                   
@@ -58,6 +69,7 @@ def updateStory(this, that, session):
     print "Updating %s" % (this.rallyNumber)
 
     this.description = that.Name
+    this.storyType = getFeatureDesc(that.Feature.FormattedID)
     this.points = that.PlanEstimate
     this.businessValue = that.c_BusinessValueBV
     this.status = that.ScheduleStatePrefix
@@ -91,11 +103,12 @@ rallyServer = rallyWorkset([])[0]
 rally = Rally(rallyServer, apikey = api_key, user=None, password=None)
 
 # Load new backlog items from Rally
-q = [
-    'Release = null',
-    'Feature.FormattedID = 1467',
-    ]
-response = rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,Package,Project,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory",order="FormattedID")
+q = '((Feature.FormattedID = "1467") AND (Release = "")) OR (Feature.FormattedID = "3841")'
+#q = [
+    #'Release = null',
+    #'Feature.FormattedID = 1467',
+    #]
+response = rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,Package,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory",order="FormattedID")
 
 if response.resultCount == 0:
     print "Cannot find any stories in the backlog!"
@@ -114,7 +127,7 @@ for story in response:
 stories = Story.objects.filter(~Q(session=session) | Q(session__isnull=True), Q(release__status__in=['Active','Planning']) | Q(release=None))
 for this in stories:
     q = ['FormattedId = "%s"' % this.rallyNumber]
-    response = rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,Project,Package,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory",order="FormattedID")
+    response = rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,Project,Package,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory",order="FormattedID")
 
     for story in response:
         updateStory(this, story, session)
