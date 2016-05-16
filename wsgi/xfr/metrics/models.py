@@ -4,6 +4,19 @@ from django.db import models
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
+class Module(models.Model):
+    TRACK_CHOICES = (
+        ('OTC', 'Order to Cash'),
+        ('RTP', 'Requisition to Pay'),
+        ('RTR', 'Record to Report'),
+        ('OTH', 'Other'),
+    )
+    moduleName = models.CharField(max_length=30,unique=True)
+    track = models.CharField(max_length=3,choices=TRACK_CHOICES)
+    globalLead = models.CharField(max_length=50)
+    def __str__(self):
+        return self.moduleName
+
 class Sprint(models.Model):
     name = models.CharField(max_length=50,unique=True)
     startDate = models.DateTimeField()
@@ -55,6 +68,7 @@ class Story(models.Model):
 
     rallyNumber = models.CharField(max_length=20,unique=True)
     description = models.CharField(max_length=255)
+    storyType = models.CharField(max_length=20, default="Enhancement")
     points = models.IntegerField(null=True, blank=True)
     businessValue = models.IntegerField(choices=BV_CHOICES, null=True, blank=True)
     currentSprint = models.ForeignKey(Sprint, on_delete=models.SET_NULL, related_name='currentSprint',null=True, blank=True)
@@ -62,7 +76,7 @@ class Story(models.Model):
     status = models.CharField(max_length=1,choices=STATUS_CHOICES,default='B')
     release = models.ForeignKey(Release, on_delete=models.SET_NULL, related_name='release',null=True, blank=True)
     completionDate = models.DateTimeField(null=True, blank=True)
-    module = models.CharField(max_length=50, null=True, blank=True)
+    module = module = models.CharField(max_length=50, null=True, blank=True)
     track = models.CharField(max_length=30, null=True, blank=True)
     stakeholders = models.CharField(max_length=255, null=True, blank=True)
     solutionSize = models.CharField(max_length=20, null=True, blank=True)

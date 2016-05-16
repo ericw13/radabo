@@ -22,7 +22,7 @@ def VelocityChart(request):
 
 def DelayedItems(request):
     dateLimit = timezone.now() + timedelta(days=-365)
-    results=Story.objects.filter(~Q(initialSprint=F('currentSprint')),initialSprint__startDate__gte=dateLimit).order_by('initialSprint__id')
+    results=Story.objects.filter(~Q(initialSprint=F('currentSprint')),initialSprint__startDate__gte=dateLimit,storyType="Enhancement").order_by('initialSprint__id')
     c = {'story': results}
     return render_to_response('metrics/lateStories.html',c)
 
@@ -36,12 +36,17 @@ def Pie(request):
     if sprintName == None:
         sprintName = default
 
+    kwargs = {
+       'storyType': 'Enhancement',
+    }
     if sprintName == default:
         start = timezone.now() + timedelta(days=-182)
         l=Sprint.objects.filter(status='Accepted',startDate__gte=start)
-        story=Story.objects.extra(select={'on_schedule': "CASE WHEN initialSprint_id = currentSprint_id THEN 'Yes' ELSE 'No' END"}).filter(initialSprint__in=l).values('on_schedule').order_by('-on_schedule').annotate(Count('rallyNumber'))
+        kwargs.update({'initialSprint__in': l})
     else:
-        story=Story.objects.extra(select={'on_schedule': "CASE WHEN initialSprint_id = currentSprint_id THEN 'Yes' ELSE 'No' END"}).filter(initialSprint__name=sprintName,initialSprint__status='Accepted').values('on_schedule').order_by('-on_schedule').annotate(Count('rallyNumber'))
+        kwargs.update({'initialSprint__name': sprintName,
+                       'initialSprint__status': 'Accepted'})
+    story=Story.objects.extra(select={'on_schedule': "CASE WHEN initialSprint_id = currentSprint_id THEN 'Yes' ELSE 'No' END"}).filter(**kwargs).values('on_schedule').order_by('-on_schedule').annotate(Count('rallyNumber'))
 
     c = {'data': json.dumps([dict(item) for item in story]),
          'sprint': sprintName,
@@ -59,7 +64,7 @@ def ReleaseReport(request):
     if releaseName == None:
         releaseName=str(thisRelease.name) if thisRelease else releaseList[0]
 
-    story=Story.objects.filter(release__name=releaseName,status="A").order_by('-businessValue','rallyNumber')
+    story=Story.objects.filter(release__name=releaseName,status="A",storyType="Enhancement").order_by('-businessValue','rallyNumber')
     c = {'story': story, 
          'current': releaseName,
          'header': 'Enhancements released in '+ releaseName, 
@@ -77,7 +82,7 @@ def SprintReport(request):
     if sprint == None:
         sprint=str(thisSprint.name) if thisSprint else sprintList[0]
 
-    story=Story.objects.filter(currentSprint__name=sprint).order_by('-businessValue','rallyNumber')
+    story=Story.objects.filter(currentSprint__name=sprint,storyType="Enhancement").order_by('-businessValue','rallyNumber')
     c = {'story': story, 
          'current': sprint,
          'header': 'Stories scheduled for ' + sprint,
@@ -89,6 +94,7 @@ def Backlog(request):
 
     kwargs = {
         'release': None,
+        'storyType': 'Enhancement',
         'status__in': ['B','D'],
     }
 
@@ -113,19 +119,26 @@ def Backlog(request):
                 kwargs.update({'solutionSize': request.POST['solutionSize']})
             filter = " (Story Size = %s): " % (request.POST['solutionSize'])
             
-    story=Story.objects.filter(**kwargs).order_by('-businessValue','rallyNumber')
+    story=Story.objects.filter(**kwargs).extra({'globalLead': "select globalLead from metrics_module where moduleName = metrics_story.module"}).order_by('-businessValue','rallyNumber')
     c = {'story': story, 
          'current': None,
          'header': 'Enhancement Backlog' + filter + str(len(story)) + ' stories',
          'exception': 'No enhancements are in the backlog!',
          'list': None}
-    return render(request,'metrics/release.html',c)
+    return render(request,'metrics/backlog.html',c)
 
 def BacklogGraphs(request):
-    modcount=Story.objects.filter(release=None, status__in=['B','D']).values('module').annotate(mcount=Count('module')).order_by('-mcount','module')
-    trackcount=Story.objects.filter(release=None, status__in=['B','D']).values('track').annotate(tcount=Count('track')).order_by('-tcount','track')
-    sizecount=Story.objects.filter(release=None, status__in=['B','D']).values('solutionSize').annotate(scount=Count('track')).order_by('solutionSize')
-    nullmod=Story.objects.filter(release=None, status__in=['B','D'], module__isnull=True)
+    kwargs = {
+        'release': None,
+        'status__in': ['B','D'],
+        'storyType': 'Enhancement',
+    }
+    modcount=Story.objects.filter(**kwargs).values('module').annotate(mcount=Count('module')).order_by('-mcount','module')
+    trackcount=Story.objects.filter(**kwargs).values('track').annotate(tcount=Count('track')).order_by('-tcount','track')
+    sizecount=Story.objects.filter(**kwargs).values('solutionSize').annotate(scount=Count('track')).order_by('solutionSize')
+
+    kwargs.update({'module__isnull': True})
+    nullmod=Story.objects.filter(**kwargs)
     nullcount = len(nullmod)
     
     c = {'modcount': json.dumps([dict(item) for item in modcount]),
