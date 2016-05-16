@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^sprint/?$', views.SprintReport, name='sprint'),
     url(r'^backlog/?$', views.Backlog, name='backlog'),
     url(r'^backlog/charts/?$', views.BacklogGraphs, name='blgraphs'),
+    url(r'^projects/?$', views.ProjectGrooming, name='projects'),
 ]

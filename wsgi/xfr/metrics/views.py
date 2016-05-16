@@ -148,3 +148,13 @@ def BacklogGraphs(request):
          'nullcount': nullcount
         }
     return render(request,'metrics/blGraphs.html', c)
+
+def ProjectGrooming(request):
+    kwargs = {
+       'storyType': 'Project',
+    }
+    story=Story.objects.filter(**kwargs).extra({'globalLead': "select globalLead from metrics_module where moduleName = metrics_story.module"}).order_by('track','module','rallyNumber')
+    c = {'story': story,
+         'header': "Project grooming (%s stories)" % (len(story)),
+         'exception': 'No project grooming stories'}
+    return render(request,'metrics/grooming.html',c)
