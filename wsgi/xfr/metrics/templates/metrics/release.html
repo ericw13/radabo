@@ -28,6 +28,9 @@
           <th>Solution Size</th>
           <th>Track</th>
           <th class="left">Stakeholders</th>
+          {% if gpo == "Y" %}
+          <th class="left">Process Lead</th>
+          {% endif %}
           <th class="left">User Story</th>
         </tr>
         {% for x in sorted_story %}
@@ -37,11 +40,14 @@
                  <td class="first" rowspan="{{ forloop.revcounter }}">{{ x.grouper }}</td>
               {% endif %}
               <td style="width: 25%">{{ y.description }}</td>
-              <td style="width: 10%; text-align: center">{{ y.module }} </td>
-              <td style="width: 8%; text-align: center">{{ y.solutionSize }}</td>
-              <td style="width: 5%; text-align: center">{{ y.track }}</td>
+              <td class="center" style="width: 8%">{{ y.module }} </td>
+              <td class="center" style="width: 8%">{{ y.solutionSize }}</td>
+              <td class="center" style="width: 3%">{{ y.track }}</td>
               <td style="width: 10%">{{ y.stakeholders|default_if_none:"" }}</td>
-              <td style="width: 10%"><a href="{{ y.storyURL }}" target="_blank">{{ y.rallyNumber }}</a></td>
+              {% if gpo == "Y" %}
+              <td style="width: 10%">{{ y.globalLead|default_if_none:"" }}</td>
+              {% endif %}
+              <td style="width: 8%"><a href="{{ y.storyURL }}" target="_blank">{{ y.rallyNumber }}</a></td>
             </tr>
             {% endfor %}
         {% endfor %}

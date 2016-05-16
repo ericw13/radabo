@@ -124,8 +124,9 @@ def Backlog(request):
          'current': None,
          'header': 'Enhancement Backlog' + filter + str(len(story)) + ' stories',
          'exception': 'No enhancements are in the backlog!',
+         'gpo': 'Y',
          'list': None}
-    return render(request,'metrics/backlog.html',c)
+    return render(request,'metrics/release.html',c)
 
 def BacklogGraphs(request):
     kwargs = {

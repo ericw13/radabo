@@ -1,5 +1,5 @@
 table {
-    width: 75%;
+    width: 80%;
     border-collapse: collapse;
 }
 
@@ -25,6 +25,9 @@ td.first {
     text-align: center;
     font-weight: bold;
     width: 12%;
+}
+td.center {
+    text-align: center;
 }
 body, html {
     margin: 0;
