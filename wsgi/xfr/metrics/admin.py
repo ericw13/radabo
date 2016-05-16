@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Module
+from metrics.models import Module
 
 # Register your models here.
 class ModuleAdmin(admin.ModelAdmin):
