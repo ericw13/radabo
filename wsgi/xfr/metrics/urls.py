@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^backlog/?$', views.Backlog, name='backlog'),
     url(r'^backlog/charts/?$', views.BacklogGraphs, name='blgraphs'),
     url(r'^projects/?$', views.ProjectGrooming, name='projects'),
+    url(r'^syncstory/?$', views.updateStory, name='updateStory'),
 ]

@@ -1,0 +1,12 @@
+{% extends 'metrics/base.html' %}
+{% block pagetitle %}Sync User Story{% endblock %}
+{% block title %}{{ status }}{% endblock %}
+{% block js %}{% endblock %}
+{% block picker %}{% endblock %}
+{% block primary %}
+  <form name=syncStory action="/metrics/syncstory/" method=POST>
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" value="Sync Story" />
+  </form>
+{% endblock %}

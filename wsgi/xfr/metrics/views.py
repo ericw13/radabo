@@ -2,6 +2,7 @@ from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from metrics.models import Sprint, Story, Release
 from metrics import utils
+from metrics.forms import SearchForm
 from django.utils import timezone
 from django.views import generic
 from django.db.models import F, Q, Avg, Count
@@ -151,10 +152,29 @@ def BacklogGraphs(request):
 
 def ProjectGrooming(request):
     kwargs = {
-       'storyType': 'Project',
+       'storyType': 'Project Grooming',
     }
     story=Story.objects.filter(**kwargs).extra({'globalLead': "select globalLead from metrics_module where moduleName = metrics_story.module"}).order_by('track','module','rallyNumber')
     c = {'story': story,
          'header': "Project grooming (%s stories)" % (len(story)),
          'exception': 'No project grooming stories'}
     return render(request,'metrics/grooming.html',c)
+
+def updateStory(request):
+    text = ''
+    if request.method == 'POST':
+        form = SearchForm(request.POST)
+        if form.is_valid():
+            if 'story' in request.POST and request.POST['story']:
+                story = request.POST['story']
+                if utils.getOrCreateStory(story):
+                    text = "User story %s successfully synced" % (story)
+                else:
+                    text = "Error syncing user story %s" % (story)
+    else:
+        text = 'Enter user story to sync (eg. US12345)'
+
+    c = {'form': SearchForm(),
+         'status': text,
+        }
+    return render(request, 'metrics/update.html', c)

@@ -40,10 +40,13 @@ class Release(models.Model):
         return self.name
 
 class Session(models.Model):
-    startDate = models.DateTimeField()
+    startDate = models.DateTimeField(default=timezone.now)
     endDate = models.DateTimeField(null=True,blank=True)
     def __str__(self):
         return "%s: %s -> %s" % (self.id, self.startDate, self.endDate)
+    def close(self):
+        self.endDate = timezone.now()
+        self.save()
 
 class Story(models.Model):
     STATUS_CHOICES = (

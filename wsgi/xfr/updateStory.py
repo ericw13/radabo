@@ -4,103 +4,15 @@ import requests,sys,re,os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "xfr.settings")
 import django
 django.setup()
-from metrics.models import Story, Session
-from metrics.utils import getStory, getSprint, getRelease
+from metrics.models import Story
+from metrics.utils import getStory, createStory, updateStory, initRally, initSession
 from pyral import Rally, rallyWorkset
 from rallyUtil import get_api_key
 from django.utils import timezone
 from django.db.models import Q, F
 
-_ENH = "F1467"
-_PRJ = "F3841"
-
-def getProjectID(projectWSURL):
-    projectMatch = re.search(r'\d+$',projectWSURL)
-    return projectMatch.group(0)
-
-def getStoryURL(projectID, storyID):
-    return "https://rally1.rallydev.com/#/" + str(projectID) + "d/detail/userstory/"+ str(storyID)
-
-def getSolutionSize(points):
-    if not points:
-       solSize = story.c_SolutionSize if story.c_SolutionSize else 'Unknown'
-    elif points <= 3:
-       solSize = "Small"
-    elif points <= 8:
-       solSize = "Medium"
-    elif points <= 99:
-       solSize = "Large"
-
-    return solSize
-
-def getFeatureDesc(text):
-    if text == _ENH:
-        return "Enhancement"
-    elif text == _PRJ:
-        return "Project"
-    else:
-        return None
-
-def createStory(story,session):
-    print "Creating " + story.FormattedID
-
-    solSize = getSolutionSize(story.PlanEstimate)
-    tag=story.Tags[0].Name if story.Tags else None
-
-    projectID = getProjectID(story.Project._ref)
-    storyURL = getStoryURL(projectID, story.ObjectID)
-    this = Story(rallyNumber=story.FormattedID,
-                 description=story.Name,
-                 storyType=getFeatureDesc(story.Feature.FormattedID),
-                 points=story.PlanEstimate,
-                 businessValue=story.c_BusinessValueBV,
-                 status=story.ScheduleStatePrefix,                   
-                 module=story.Package,
-                 stakeholders=story.c_Stakeholders,
-                 solutionSize=solSize,
-                 track=tag,
-                 session=session,
-                 storyURL=storyURL)
-    this.save()
-
-def updateStory(this, that, session):
-    projectID = getProjectID(that.Project._ref)
-    storyURL = getStoryURL(projectID, that.ObjectID)
-    print "Updating %s" % (this.rallyNumber)
-
-    this.description = that.Name
-    this.storyType = getFeatureDesc(that.Feature.FormattedID)
-    this.points = that.PlanEstimate
-    this.businessValue = that.c_BusinessValueBV
-    this.status = that.ScheduleStatePrefix
-    this.module = that.Package
-    this.stakeholders = that.c_Stakeholders
-    this.solutionSize = getSolutionSize(that.PlanEstimate)
-    this.session = session
-    this.storyURL = storyURL
-    if that.Iteration:
-        this.currentSprint = getSprint(that.Iteration.Name)
-    if this.initialSprint == None:
-        this.initialSprint = this.currentSprint
-    if that.Release:
-        this.release = getRelease(that.Release.Name)
-    if that.Tags:
-        this.track = that.Tags[0].Name
-    if this.status in ['B','D','P']:
-        this.completionDate = None
-    elif this.status in ['C','A'] and this.completionDate == None:
-        for rec in that.RevisionHistory.Revisions:
-            if re.match(r'.*?SCHEDULE STATE changed.*to \[Completed\]', rec.Description):
-                this.completionDate = rec.CreationDate
-                break
-    this.save()
-
-session=Session(startDate=timezone.now())
-session.save()
-
-api_key = get_api_key()
-rallyServer = rallyWorkset([])[0]
-rally = Rally(rallyServer, apikey = api_key, user=None, password=None)
+session=Session()
+rally = initRally()
 
 # Load new backlog items from Rally
 q = '((Feature.FormattedID = "1467") AND (Release = "")) OR (Feature.FormattedID = "3841")'
@@ -132,5 +44,4 @@ for this in stories:
     for story in response:
         updateStory(this, story, session)
 
-session.endDate = timezone.now()
-session.save()
+session.close()
