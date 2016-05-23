@@ -6,8 +6,6 @@ import django
 django.setup()
 from metrics.models import Story, Session
 from metrics.utils import getStory, createStory, updateStory, initRally
-from pyral import Rally, rallyWorkset
-from rallyUtil import get_api_key
 from django.utils import timezone
 from django.db.models import Q, F
 

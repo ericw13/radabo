@@ -4,13 +4,9 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "xfr.settings")
 import django
 django.setup()
 from metrics.models import Sprint
-from metrics.utils import getSprint
-from pyral import Rally, rallyWorkset
-from rallyUtil import get_api_key
+from metrics.utils import getSprint, initRally
 
-api_key = get_api_key()
-rallyServer = rallyWorkset([])[0]
-rally = Rally(rallyServer, apikey = api_key, user=None, password=None)
+rally=initRally()
 
 response = rally.get('Iteration',fetch="Name,StartDate,EndDate,PlanEstimate,State")
 

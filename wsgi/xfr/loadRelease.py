@@ -4,14 +4,10 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "xfr.settings")
 import django
 django.setup()
 from metrics.models import Release
-from metrics.utils import getRelease
-from pyral import Rally, rallyWorkset
+from metrics.utils import getRelease, initRally
 from datetime import datetime
-from rallyUtil import get_api_key
 
-api_key = get_api_key()
-rallyServer = rallyWorkset([])[0]
-rally = Rally(rallyServer, apikey=api_key, user=None, password=None)
+rally=initRally()
 
 q = ['Name contains "Enh Release"',
      'ReleaseStartDate > "2016-01-01T00:00:00.000Z"'
