@@ -1,9 +1,15 @@
 {% extends 'metrics/base.html' %}
 {% block pagetitle %}Sync User Story{% endblock %}
-{% block title %}{{ status }}{% endblock %}
+{% block title %}{{ message }}{% endblock %}
 {% block js %}{% endblock %}
-{% block picker %}{% endblock %}
+{% block picker %} {% endblock %}
 {% block primary %}
+  {% if  status  == "N" %}
+    <p style="color:red">
+  {% else %}
+    <p>
+  {% endif %}
+  <b>{{ result }}</b></p>
   <form name=syncStory action="/metrics/syncstory/" method=POST>
   {% csrf_token %}
   {{ form }}

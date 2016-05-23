@@ -10,15 +10,25 @@ _PRJ = "F3841"
 def getApiKey():
     if 'RALLY_API_KEY' in os.environ:
         api_key = os.environ['RALLY_API_KEY']
+    elif 'OPENSHIFT_HOMEDIR' in os.environ:
+        api_key = open(os.path.expanduser('~/app-root/repo/wsgi/xfr/metrics/.rally')).read().strip()
     else:
         api_key = open(os.path.expanduser('~/.rally')).read().strip()
 
     return api_key
     
 def initRally():
-    api_key = getApiKey()
-    rallyServer = rallyWorkset([])[0]
-    rally = Rally(rallyServer, apikey = api_key, user=None, password=None)
+    try:
+        api_key = getApiKey()
+    except Exception as e:
+        raise Exception("Cannot read api key from file: %s." % (str(e)))
+
+    try:
+        rallyServer = rallyWorkset([])[0]
+        rally = Rally(rallyServer, apikey = api_key, user=None, password=None)
+    except Exception as e:
+        raise Exception("Unexpected error contacting Rally: %s." % (str(e)))
+
     return rally
 
 def closeSession(session):
@@ -159,14 +169,25 @@ def updateStory(this, that, session):
     this.save()
 
 def getOrCreateStory(storyNumber):
-    rally = initRally()
-    session = Session()
-    session.save()
-    q="FormattedID = %s" % (storyNumber)
-    response=rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,Package,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory")
+    try:
+        rally = initRally()
+    except Exception as e:
+        return 'N', e
+
+    try:
+        session = Session()
+        session.save()
+    except:
+        return 'N', "Create session failed."
+
+    try:
+        q="FormattedID = %s" % (storyNumber)
+        response=rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,Package,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory")
+    except:
+        return 'N', "Could not fetch User Story from Rally."
 
     if response.resultCount == 0:
-        return False
+        return 'N', "User story %s not found." % (storyNumber)
 
     for story in response:
         this=getStory(story.FormattedID)
@@ -176,7 +197,8 @@ def getOrCreateStory(storyNumber):
             else:
                 updateStory(this, story, session)
         except:
-            return False
+            action = "update" if this else "create"
+            return 'N', "Failed to %s story." % (action)
 
     session.close()
-    return True
+    return 'Y', "Success!"

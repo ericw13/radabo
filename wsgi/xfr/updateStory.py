@@ -4,14 +4,15 @@ import requests,sys,re,os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "xfr.settings")
 import django
 django.setup()
-from metrics.models import Story
-from metrics.utils import getStory, createStory, updateStory, initRally, initSession
+from metrics.models import Story, Session
+from metrics.utils import getStory, createStory, updateStory, initRally
 from pyral import Rally, rallyWorkset
 from rallyUtil import get_api_key
 from django.utils import timezone
 from django.db.models import Q, F
 
 session=Session()
+session.save()
 rally = initRally()
 
 # Load new backlog items from Rally

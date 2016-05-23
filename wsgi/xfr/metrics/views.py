@@ -1,7 +1,8 @@
+import re
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from metrics.models import Sprint, Story, Release
-from metrics import utils
+from metrics.utils import getSprintList, getReleaseList, getCurrentSprint, getCurrentRelease, getOrCreateStory
 from metrics.forms import SearchForm
 from django.utils import timezone
 from django.views import generic
@@ -28,7 +29,7 @@ def DelayedItems(request):
     return render_to_response('metrics/lateStories.html',c)
 
 def Pie(request):
-    sprints=utils.getSprintList()
+    sprints=getSprintList()
     sprintName=None 
     default="Last Six Months"
     if request.method == 'POST':
@@ -56,9 +57,9 @@ def Pie(request):
     return render(request, 'metrics/speedo.html', c)
 
 def ReleaseReport(request):
-    releaseList=utils.getReleaseList()
+    releaseList=getReleaseList()
     releaseName = None
-    thisRelease = utils.getCurrentRelease()
+    thisRelease = getCurrentRelease()
     if request.method == 'POST':
         if 'choice' in request.POST and request.POST['choice']:
             releaseName=request.POST['choice']
@@ -74,8 +75,8 @@ def ReleaseReport(request):
     return render(request,'metrics/release.html',c)
 
 def SprintReport(request):
-    sprintList=utils.getSprintList()
-    thisSprint=utils.getCurrentSprint()
+    sprintList=getSprintList()
+    thisSprint=getCurrentSprint()
     sprint = None
     if request.method == 'POST':
         if 'choice' in request.POST and request.POST['choice']:
@@ -161,20 +162,28 @@ def ProjectGrooming(request):
     return render(request,'metrics/grooming.html',c)
 
 def updateStory(request):
-    text = ''
+    text = 'Enter user story to sync (eg. US12345)'
+    status = 'N'
+    result = ''
     if request.method == 'POST':
         form = SearchForm(request.POST)
         if form.is_valid():
             if 'story' in request.POST and request.POST['story']:
-                story = request.POST['story']
-                if utils.getOrCreateStory(story):
-                    text = "User story %s successfully synced" % (story)
+                # Add an re check for story format
+                if re.match(r'^US\d+$',request.POST['story']):
+                    # TODO: How to differentiate successful update vs. failure
+                    # Nothing is getting printed now
+                    status, result = getOrCreateStory(request.POST['story'])
                 else:
-                    text = "Error syncing user story %s" % (story)
-    else:
-        text = 'Enter user story to sync (eg. US12345)'
+                    result = "%s is not a valid Rally user story number." % (request.POST['story'])
+            else:
+                result = "Parameter story not passed in."
+        else:
+            result = "Form validation failed."
 
     c = {'form': SearchForm(),
-         'status': text,
+         'message': text,
+         'status' : status,
+         'result' : result,
         }
     return render(request, 'metrics/update.html', c)
