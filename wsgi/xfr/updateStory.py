@@ -40,7 +40,11 @@ for this in stories:
     q = ['FormattedId = "%s"' % this.rallyNumber]
     response = rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,Project,Package,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory",order="FormattedID")
 
-    for story in response:
-        updateStory(this, story, session)
+    if response.resultCount == 0:
+        print "Deleting %s" % (this.rallyNumber)
+        this.delete()
+    else:
+        for story in response:
+            updateStory(this, story, session)
 
 session.close()

@@ -3,6 +3,7 @@ from metrics.models import Sprint, Story, Release, Session
 from django.db.models import Q
 from django.utils import timezone
 from pyral import Rally, rallyWorkset
+from datetime import datetime
 
 _ENH = "F1467"
 _PRJ = "F3841"
@@ -82,7 +83,8 @@ def getReleaseList():
 
 def getSprintList():
     try:
-        return Story.objects.filter(~Q(initialSprint__name=None)).values_list('initialSprint__name',flat=True).distinct().order_by('-initialSprint__id')
+        t=datetime(2016,1,1,0,0).replace(tzinfo=timezone.get_default_timezone())
+        return Sprint.objects.filter(startDate__gte=t).values_list('name',flat=True).order_by('-startDate')
     except:
         return None
 
@@ -128,9 +130,11 @@ def createStory(story,session):
                  points=story.PlanEstimate,
                  businessValue=story.c_BusinessValueBV,
                  status=story.ScheduleStatePrefix,                   
-                 module=story.Package,
+                 module=story.c_Module,
+                 theme=story.c_Theme,
                  stakeholders=story.c_Stakeholders,
                  solutionSize=solSize,
+                 blocked="Y" if story.Blocked else "N",
                  track=tag,
                  session=session,
                  storyURL=storyURL)
@@ -146,9 +150,11 @@ def updateStory(this, that, session):
     this.points = that.PlanEstimate
     this.businessValue = that.c_BusinessValueBV
     this.status = that.ScheduleStatePrefix
-    this.module = that.Package
+    this.module = that.c_Module
+    this.theme = that.c_Theme
     this.stakeholders = that.c_Stakeholders
     this.solutionSize = getSolutionSize(that.PlanEstimate, that.c_SolutionSize)
+    this.Blocked = "Y" if that.Blocked else "N"
     this.session = session
     this.storyURL = storyURL
     if that.Iteration:
@@ -182,7 +188,7 @@ def getOrCreateStory(storyNumber):
 
     try:
         q="FormattedID = %s" % (storyNumber)
-        response=rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,Package,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory")
+        response=rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked")
     except:
         return 'N', "Could not fetch User Story from Rally."
 
