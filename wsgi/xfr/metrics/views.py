@@ -11,7 +11,6 @@ from django.db.models import F, Q, Avg, Count
 from django.template import Context
 from django.template.loader import get_template
 from datetime import timedelta
-from xhtml2pdf import pisa
 
 # Create your views here.
 def index(request):
