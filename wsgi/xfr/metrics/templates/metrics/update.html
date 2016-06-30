@@ -10,9 +10,9 @@
     <p>
   {% endif %}
   <b>{{ result }}</b></p>
-  <form name=syncStory action="/metrics/syncstory/" method=POST>
+  <form name=syncStory action="" method=POST>
   {% csrf_token %}
   {{ form }}
-  <input type="submit" value="Sync Story" />
+  <input type="submit" class="btn btn-primary btn-sm" value="Sync Story" />
   </form>
 {% endblock %}
