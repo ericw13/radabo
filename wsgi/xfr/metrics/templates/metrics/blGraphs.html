@@ -13,87 +13,42 @@
       google.charts.setOnLoadCallback(drawChart);
 
       function drawChart() {
-          var djangoData = JSON.parse('{{ trackcount|safe }}');
+          var djangoData = JSON.parse('{{ data|safe }}');
           var data = new google.visualization.DataTable();
           var total = 0;
-          total += {{ nullcount }}
-          data.addColumn('string','Track');
+          total += {{ nullcount }};
+          data.addColumn('string','Metric');
           data.addColumn('number','Story Count');
+          var chartTitle = "{{ title }}";
 
           if (djangoData.length == 0) {
-              document.getElementById('piebytrack').innerHTML = "Something went wrong, no data passed in.";
+              document.getElementById('piechart').innerHTML = "Something went wrong, no data passed in.";
           } else {
               for (var i=0;i<djangoData.length;i++) {
-                 data.addRows([[djangoData[i].track,djangoData[i].tcount]]);
-              }
-              var options = {
-                  width: 640, 
-                  height: 480, 
-                  title: "Backlog enhancements by track",
-                  titleFontSize: 24,
-              };
-
-              var chart = new google.visualization.PieChart(document.getElementById('piebytrack'));
-              chart.draw(data, options);
-              google.visualization.events.addListener(chart, 'select', function () {selectHandler(chart,data,'track')});
+                 data.addRows([[djangoData[i].metric,djangoData[i].scount]]);
+                 total += djangoData[i].scount;
+              } 
           }
-          // Second chart
-          var djangoData2 = JSON.parse('{{ modcount|safe }}');
-          var data2 = new google.visualization.DataTable();
-          data2.addColumn('string','Module');
-          data2.addColumn('number','Story Count');
+          var options = {
+             width: 640, 
+             height: 480, 
+             title: chartTitle,
+             titleFontSize: 24,
+          };
 
-          if (djangoData2.length == 0) {
-              document.getElementById('donutbymodule').innerHTML = "Something went wrong, no data passed in.";
-          } else {
-              for (var i=0;i<djangoData2.length;i++) {
-                 data2.addRows([[djangoData2[i].module,djangoData2[i].mcount]]);
-                 total += djangoData2[i].mcount;
-              }
-              var options2 = {
-                  width: 640, 
-                  height: 480, 
-                  title: "Backlog enhancements by module",
-                  titleFontSize: 24,
-                  pieHole: 0.4
-              };
-
-              var chart2 = new google.visualization.PieChart(document.getElementById('donutbymodule'));
-              chart2.draw(data2, options2);
-              document.getElementById('foot').innerHTML = total + " total stories";
-              google.visualization.events.addListener(chart2, 'select', function () {selectHandler(chart2,data2,'module')});
-          }
-          // Third chart
-          var djangoData3 = JSON.parse('{{ sizecount|safe }}');
-          var data3 = new google.visualization.DataTable();
-          data3.addColumn('string', 'Story Size');
-          data3.addColumn('number', 'Story Count');
-
-          if (djangoData3.length == 0) {
-              document.getElementById('piebysize').innerHTML = "Something went wrong, no data pased in.";
-          } else {
-              for (var i=0;i<djangoData3.length;i++) {
-                  data3.addRows([[djangoData3[i].solutionSize,djangoData3[i].scount]]);
-              }
-              var options3 = {
-                   width: 640, 
-                   height: 480, 
-                   title: "Backlog enhancements by estimated size",
-                   titleFontSize: 24,
-              };
-
-              var chart3 = new google.visualization.PieChart(document.getElementById('piebysize'));
-              chart3.draw(data3, options3);
-              google.visualization.events.addListener(chart3, 'select', function () {selectHandler(chart3,data3,'solutionSize')});
-         }
-         function selectHandler(metaChart,metaData,option) {
-             var selection = metaChart.getSelection();
+          document.getElementById('foot').innerHTML = total + " total stories";
+          var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+          chart.draw(data, options);
+          google.visualization.events.addListener(chart, 'select', function () {selectHandler(chart,data,'{{ chartType }}')});
+      }
+      function selectHandler(metaChart,metaData,option) {
+          var selection = metaChart.getSelection();
              if (selection.length) {
                  var pieSliceLabel = metaData.getValue(selection[0].row,0);
                  post(option, pieSliceLabel)
-             }
-         }
-         function post(tag, value) {
+          }
+      }
+      function post(tag, value) {
              var form = document.createElement("form");
              form.setAttribute("method", "post");
              form.setAttribute("action", "/metrics/backlog/");
@@ -110,30 +65,15 @@
              document.body.appendChild(form);
              form.submit();
          }
-      }
     </script>
 {% endblock %}
 {% block primary %}
-  <div class="row">
-    <div class="col-sm-3"></div>
-    <div class="col-sm-6">
-      <div id="foot" class="cfoot"></div>
-      <div id="piebytrack" class="graph"></div>
-    </div>
-    <div class="col-sm-3"></div>
+<div class="row">
+  <div class="col-sm-3"></div>
+  <div class="col-sm-6">
+    <div id="foot" class="cfoot"></div>
+    <div id="piechart" class="graph"></div>
   </div>
-  <div class="row">
-    <div class="col-sm-3"></div>
-    <div class="col-sm-6">
-      <div id="donutbymodule" class="graph"></div>
-    </div>
-    <div class="col-sm-3"></div>
-  </div>
-  <div class="row">
-    <div class="col-sm-3"></div>
-    <div class="col-sm-6">
-      <div id="piebysize" class="graph"></div>
-    </div>
-    <div class="col-sm-3"></div>
-  </div>
+  <div class="col-sm-3"></div>
+</div>
 {% endblock %}

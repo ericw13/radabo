@@ -113,7 +113,6 @@ def ReleaseReport(request):
     context = BuildRelease(request)
     return render(request,'metrics/release.html',context)
 
-def ReleasePDF(request):
     context = BuildRelease(request)
     context.update({'pagesize': 'A4'})
     return render_to_pdf('metrics/releasePDF.html', context)
@@ -164,7 +163,7 @@ def Backlog(request):
                 kwargs.update({'module': request.POST['module']})
             filter = " (Module = %s): " % (request.POST['module'])
         if 'solutionSize' in request.POST and request.POST['solutionSize']:
-            if request.POST['solutionSize'] == 'null':
+            if request.POST['size'] == 'null':
                 kwargs.update({'solutionSize__isnull': True})
             else:
                 kwargs.update({'solutionSize': request.POST['solutionSize']})
@@ -181,24 +180,39 @@ def Backlog(request):
          'showBlocked': 'Y'}
     return render(request,'metrics/release.html',c)
 
-def BacklogGraphs(request):
+def BacklogGraphs(request, chartType):
     kwargs = {
         'release': None,
         'status__in': ['B','D'],
         'storyType': 'Enhancement',
     }
-    modcount=Story.objects.filter(**kwargs).values('module').annotate(mcount=Count('module')).order_by('-mcount','module')
-    trackcount=Story.objects.filter(**kwargs).values('track').annotate(tcount=Count('track')).order_by('-tcount','track')
-    sizecount=Story.objects.filter(**kwargs).values('solutionSize').annotate(scount=Count('track')).order_by('solutionSize')
 
-    kwargs.update({'module__isnull': True})
+    if chartType == "module":
+        data=Story.objects.filter(**kwargs).values('module').annotate(scount=Count('module')).annotate(metric=F('module')).order_by('-scount','metric')
+        kwargs.update({'module__isnull': True})
+        title = "Backlog enhancements by module"
+        
+    elif chartType == "track":
+        data=Story.objects.filter(**kwargs).values('track').annotate(scount=Count('track')).annotate(metric=F('track')).order_by('-scount','metric')
+        kwargs.update({'track__isnull': True})
+        title = "Backlog enhancements by track"
+
+    elif chartType == "size":
+        data=Story.objects.filter(**kwargs).values('solutionSize').annotate(scount=Count('solutionSize')).annotate(metric=F('solutionSize')).order_by('metric')
+        kwargs.update({'solutionSize__isnull': True})
+        title = "Backlog enhancements by estimated size"
+
+    else:
+        title = "Invalid chart type"
+        data = None
+
     nullmod=Story.objects.filter(**kwargs)
     nullcount = len(nullmod)
     
-    c = {'modcount': json.dumps([dict(item) for item in modcount]),
-         'trackcount': json.dumps([dict(item2) for item2 in trackcount]),
-         'sizecount': json.dumps([dict(item3) for item3 in sizecount]),
-         'nullcount': nullcount
+    c = {'data': json.dumps([dict(item) for item in data]),
+         'nullcount': nullcount,
+         'title': title,
+         'chartType': chartType,
         }
     return render(request,'metrics/blGraphs.html', c)
 
