@@ -1,4 +1,5 @@
-import re
+import re,json
+import cStringIO as StringIO
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from metrics.models import Sprint, Story, Release
@@ -7,28 +8,65 @@ from metrics.forms import SearchForm
 from django.utils import timezone
 from django.views import generic
 from django.db.models import F, Q, Avg, Count
+from django.template import Context
+from django.template.loader import get_template
 from datetime import timedelta
-import json
+from xhtml2pdf import pisa
 
 # Create your views here.
 def index(request):
     return render_to_response('metrics/index.html', {})
 
+def render_to_pdf(template_src, context_dict):
+    template = get_template(template_src)
+    context = Context(context_dict)
+    html = template.render(context)
+    result = StringIO.StringIO()
+
+    pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("ISO-8859-1")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return HttpResponse('We had some errors<pre>%s</pre>' % escape(html))
+
 def VelocityChart(request):
-    results=Sprint.objects.filter(status="Accepted",startDate__gte="2015-09-01 00:00:00").order_by('startDate').values('name','velocity')[:12]
+    kwargs = {
+        'status': 'Accepted',
+        'startDate__gte': '2016-06-01 00:00:00',
+    }
+    results=Sprint.objects.filter(**kwargs).order_by('startDate').values('name','velocity')
     avg = results.aggregate(Avg('velocity'))['velocity__avg']
     c = {'velocity':
          json.dumps([dict(item) for item in results]),
          'avg': avg}
     return render_to_response('metrics/velocity.html', c)
 
+def OldVelocityChart(request):
+    kwargs = {
+        'status': 'Accepted',
+        'startDate__gte': '2015-09-01 00:00:00',
+        'endDate__lte': '2016-06-10 00:00:00',
+    }
+    results=Sprint.objects.filter(**kwargs).order_by('startDate').values('name','velocity')[:24]
+    avg = results.aggregate(Avg('velocity'))['velocity__avg']
+    c = {'velocity':
+         json.dumps([dict(item) for item in results]),
+         'avg': avg}
+    return render_to_response('metrics/month_velocity.html', c)
+
 def DelayedItems(request):
     dateLimit = timezone.now() + timedelta(days=-365)
-    results=Story.objects.filter(~Q(initialSprint=F('currentSprint')),initialSprint__startDate__gte=dateLimit,storyType="Enhancement").order_by('initialSprint__id')
+    args = ( 
+        ~Q(initialSprint=F('currentSprint') ), 
+    )
+    kwargs = {
+        'initialSprint__startDate__gte': dateLimit,
+        'storyType': 'Enhancement',
+    }
+    results=Story.objects.filter(*args, **kwargs).order_by('initialSprint__id')
     c = {'story': results}
     return render_to_response('metrics/lateStories.html',c)
 
-def Pie(request):
+def Success(request):
     sprints=getSprintList()
     sprintName=None 
     default="Last Six Months"
@@ -39,7 +77,7 @@ def Pie(request):
         sprintName = default
 
     kwargs = {
-       'storyType': 'Enhancement',
+        'storyType': 'Enhancement',
     }
     if sprintName == default:
         start = timezone.now() + timedelta(days=-182)
@@ -48,7 +86,11 @@ def Pie(request):
     else:
         kwargs.update({'initialSprint__name': sprintName,
                        'initialSprint__status': 'Accepted'})
-    story=Story.objects.extra(select={'on_schedule': "CASE WHEN initialSprint_id = currentSprint_id THEN 'Yes' ELSE 'No' END"}).filter(**kwargs).values('on_schedule').order_by('-on_schedule').annotate(Count('rallyNumber'))
+
+    extra={
+        'on_schedule': "CASE WHEN initialSprint_id = currentSprint_id THEN 'Yes' ELSE 'No' END"
+    }
+    story=Story.objects.extra(select=extra).filter(**kwargs).values('on_schedule').order_by('-on_schedule').annotate(Count('rallyNumber'))
 
     c = {'data': json.dumps([dict(item) for item in story]),
          'sprint': sprintName,
@@ -56,7 +98,7 @@ def Pie(request):
          'list': sprints}
     return render(request, 'metrics/speedo.html', c)
 
-def ReleaseReport(request):
+def BuildRelease(request):
     releaseList=getReleaseList()
     releaseName = None
     thisRelease = getCurrentRelease()
@@ -66,13 +108,27 @@ def ReleaseReport(request):
     if releaseName == None:
         releaseName=str(thisRelease.name) if thisRelease else releaseList[0]
 
-    story=Story.objects.filter(release__name=releaseName,status="A",storyType="Enhancement").order_by('-businessValue','rallyNumber')
+    kwargs = {
+        'release__name': releaseName,
+        'status': 'A',
+        'storyType': 'Enhancement',
+    }
+    story=Story.objects.filter(**kwargs).order_by('-businessValue','rallyNumber')
     c = {'story': story, 
          'current': releaseName,
          'header': 'Enhancements released in '+ releaseName, 
          'exception': 'No enhancements have yet been released in '+ releaseName,
          'list': releaseList}
-    return render(request,'metrics/release.html',c)
+    return c
+
+def ReleaseReport(request):
+    context = BuildRelease(request)
+    return render(request,'metrics/release.html',context)
+
+def ReleasePDF(request):
+    context = BuildRelease(request)
+    context.update({'pagesize': 'A4'})
+    return render_to_pdf('metrics/releasePDF.html', context)
 
 def SprintReport(request):
     sprintList=getSprintList()
@@ -84,7 +140,12 @@ def SprintReport(request):
     if sprint == None:
         sprint=str(thisSprint.name) if thisSprint else sprintList[0]
 
-    story=Story.objects.filter(currentSprint__name=sprint,storyType="Enhancement").order_by('-businessValue','rallyNumber')
+    kwargs = {
+        'currentSprint__name': sprint,
+        'storyType': 'Enhancement',
+    }
+
+    story=Story.objects.filter(**kwargs).order_by('-businessValue','rallyNumber')
     c = {'story': story, 
          'current': sprint,
          'header': 'Stories scheduled for ' + sprint,
@@ -121,13 +182,15 @@ def Backlog(request):
                 kwargs.update({'solutionSize': request.POST['solutionSize']})
             filter = " (Story Size = %s): " % (request.POST['solutionSize'])
             
-    story=Story.objects.filter(**kwargs).extra({'globalLead': "select globalLead from metrics_module where moduleName = metrics_story.module"}).order_by('-businessValue','rallyNumber')
+    extra={'globalLead': "select globalLead from metrics_module where moduleName = metrics_story.module"}
+    story=Story.objects.filter(**kwargs).extra(select=extra).order_by('-businessValue','rallyNumber')
     c = {'story': story, 
          'current': None,
          'header': 'Enhancement Backlog' + filter + str(len(story)) + ' stories',
          'exception': 'No enhancements are in the backlog!',
          'gpo': 'Y',
-         'list': None}
+         'list': None,
+         'showBlocked': 'Y'}
     return render(request,'metrics/release.html',c)
 
 def BacklogGraphs(request):
@@ -153,7 +216,7 @@ def BacklogGraphs(request):
 
 def ProjectGrooming(request):
     kwargs = {
-       'storyType': 'Project Grooming',
+        'storyType': 'Project Grooming',
     }
     story=Story.objects.filter(**kwargs).extra({'globalLead': "select globalLead from metrics_module where moduleName = metrics_story.module"}).order_by('track','module','rallyNumber')
     c = {'story': story,
@@ -171,8 +234,6 @@ def updateStory(request):
             if 'story' in request.POST and request.POST['story']:
                 # Add an re check for story format
                 if re.match(r'^US\d+$',request.POST['story']):
-                    # TODO: How to differentiate successful update vs. failure
-                    # Nothing is getting printed now
                     status, result = getOrCreateStory(request.POST['story'])
                 else:
                     result = "%s is not a valid Rally user story number." % (request.POST['story'])

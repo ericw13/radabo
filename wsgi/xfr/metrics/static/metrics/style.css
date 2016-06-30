@@ -1,5 +1,5 @@
 table {
-    width: 80%;
+    width: 100%;
     border-collapse: collapse;
 }
 
@@ -7,6 +7,7 @@ th {
     border: 1px solid black;
     background:#820000;
     color: white;
+    font-size: 16px;
 }
 
 th.left {
@@ -19,10 +20,12 @@ th.center {
 td {
     border: 1px solid black;
     word-wrap: break-word; 
+    font-size: 16px;
 }
 td.first {
     background:#ff8080;
     text-align: center;
+    vertical-align: middle !important;
     font-weight: bold;
     width: 12%;
 }

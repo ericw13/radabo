@@ -1,11 +1,19 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 
 {% load staticfiles %}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'metrics/style.css' %}"/>
 <link rel="shortcut icon" type="image/png" href="{% static 'metrics/favicon.ico' %}"/>
+<style>
+img.scale {
+    height: 15%;
+    width: 15%;
+}
+</style>
 <!--link rel="apple-touch-icon" sizes="144x144" href="{% static 'metrics/rh144x144.png' %}"/>
 <link rel="apple-touch-icon" sizes="72x72" href="{% static 'metrics/rh72x72.png' %}"/>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" type='text/css'-->
 <html lang="en">
   <head>
@@ -13,34 +21,66 @@
   {% block js %}{% endblock %}
   </head>
   <body>
-    <div id="header">
-      <img src="{% static 'metrics/Logo_RH_RGB_Default.png' %}" class="left"/>
-      <h1>IT Finance</h1>
+    <div>
+      <img class="scale" src="{% static 'metrics/Logo_RH_RGB_Default.png' %}"/>
     </div>
-    <div id="container">
-      <div id="nav">
-        <h2>Quick Links</h2>
-        <ul style="list-style: none;">
-          <li><a href="/metrics/success/">Enhancement Metrics</a></li>
-          <li><a href="/metrics/release/">Enhancement Releases</a></li>
-          <li><a href="/metrics/sprint/">Planned Sprints</a></li>
-          <li><a href="/metrics/latestory/">Delayed Enhancements</a></li>
-          <li><a href="/metrics/velocity/">Team Velocity</a></li>
-          <li><a href="/metrics/backlog/">Backlog</a></li>
-          <ul style="list-style: none;">
-            <li><a href="/metrics/backlog/charts/">Charts</a></li>
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">IT Finance Dashboard</a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="/metrics/">Home</a></li>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Metrics <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="/metrics/success/">Success Rates</a></li>
+                <li><a href="/metrics/velocity/old/">Team Velocity (Monthly)</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Active <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="/metrics/release/">Enhancement Releases</a></li>
+                <li><a href="/metrics/sprint/">Planned Sprints</a></li>
+                <li><a href="/metrics/projects/">Project Grooming</a></li>
+                <li><a href="/metrics/latestory/">Delayed Enhancements</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Backlog <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="/metrics/backlog/">Backlog</a></li>
+                <li><a href="/metrics/backlog/charts/">Charts</a></li>
+              </ul>
+            </li>
+            <li><a href="/metrics/syncstory/">Refresh Story</a></li>
           </ul>
-          <li><a href="/metrics/projects/">Project Grooming</a></li>
-          <li><a href="/metrics/syncstory/">Refresh Story</a></li>
-        </ul>
-        {% block sidebar %}{% endblock %}
+        </div>
       </div>
-      <div id="wrap">
-       {% block picker %}{% endblock %}
-       <h2>{% block title %}{% endblock %}</h2>
-           
-       {% block primary %}{% endblock %}
-       {% block secondary %}{% endblock %}
+    </nav>
+    <div>
+      <div class="row">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-3">
+          {% block picker %}{% endblock %}
+        </div>
+        <div class="col-sm-8"></div>
+      </div>
+      <div class="row">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10">
+          <h2>{% block title %}{% endblock %}</h2>
+          {% block primary %}{% endblock %}
+          {% block secondary %}{% endblock %}
+        </div>
+        <div class="col-sm-1"></div>
       </div>
     </div>
   </body>

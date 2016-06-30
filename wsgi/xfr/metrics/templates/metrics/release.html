@@ -20,26 +20,28 @@
   {% regroup story by get_businessValue_display as sorted_story %}
   <div style="float: left">
   {% if story %}
-      <table cellpadding="5">
-        <tr>
-          <th class="left">Business Value</th>
-          <th class="left">Name</th>
-          <th>Business Area</th>
-          <th>Solution Size</th>
-          <th>Track</th>
-          <th class="left">Stakeholders</th>
-          {% if gpo == "Y" %}
-          <th class="left">Process Lead</th>
-          {% endif %}
-          <th class="left">User Story</th>
-        </tr>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th class="left">Business Value</th>
+            <th class="left">Name</th>
+            <th>Business Area</th>
+            <th>Solution Size</th>
+            <th>Track</th>
+            <th class="left">Stakeholders</th>
+            {% if gpo == "Y" %}
+            <th class="left">Process Lead</th>
+            {% endif %}
+            <th class="left">User Story</th>
+          </tr>
+        </thead>
         {% for x in sorted_story %}
             {% for y in x.list %} 
               <tr>
               {% if forloop.first %}
                  <td class="first" rowspan="{{ forloop.revcounter }}">{{ x.grouper }}</td>
               {% endif %}
-              <td style="width: 25%">{{ y.description }}</td>
+              <td style="width: 25%">{% if y.blocked == "Y" %}<b>BLOCKED: </b>{% endif%}{{ y.description }}</td>
               <td class="center" style="width: 8%">{{ y.module }} </td>
               <td class="center" style="width: 8%">{{ y.solutionSize }}</td>
               <td class="center" style="width: 3%">{{ y.track }}</td>

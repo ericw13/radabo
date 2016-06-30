@@ -3,10 +3,11 @@ from metrics import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^velocity/?$', views.VelocityChart, name='velocity'),
+    url(r'^velocity/old/?$', views.OldVelocityChart, name='velocity'),
     url(r'^latestory/?$', views.DelayedItems, name='late'),
-    url(r'^success/?$', views.Pie, name='piechart'),
+    url(r'^success/?$', views.Success, name='speedometer'),
     url(r'^release/?$', views.ReleaseReport, name='release'),
+    url(r'^release/export/?$', views.ReleasePDF, name='releasePDF'),
     url(r'^sprint/?$', views.SprintReport, name='sprint'),
     url(r'^backlog/?$', views.Backlog, name='backlog'),
     url(r'^backlog/charts/?$', views.BacklogGraphs, name='blgraphs'),
