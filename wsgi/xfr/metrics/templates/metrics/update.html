@@ -5,11 +5,11 @@
 {% block picker %} {% endblock %}
 {% block primary %}
   {% if  status  == "N" %}
-    <p class="bg-danger">
+    <p class="bg-danger" style="font-size: 20px">
   {% else %}
-    <p class="bg-success">
+    <p class="bg-success" style="font-size: 20px">
   {% endif %}
-  <b>{{ result }}</b></p><br><br>
+  {{ result }}</p><br><br>
   <form role="form" name=syncStory action="" method=POST>
     <fieldset>
       {% csrf_token %}
