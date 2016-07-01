@@ -108,6 +108,9 @@ h3 {
     margin:0;
 }
 a:link, a:active, a:visited {
+  color: black;
+}
+a.mail:link, a.mail:active, a.mail:visited {
   color: blue;
 }
 img{width: 15%}
