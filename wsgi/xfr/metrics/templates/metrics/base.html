@@ -49,14 +49,15 @@ img.scale {
               <ul class="dropdown-menu">
                 <li><a href="/metrics/release/">Enhancement Releases</a></li>
                 <li><a href="/metrics/sprint/">Planned Sprints</a></li>
-                <li><a href="/metrics/projects/">Project Grooming</a></li>
+                <li><a href="/metrics/projects/active/">Project Status</a></li>
                 <li><a href="/metrics/latestory/">Delayed Enhancements</a></li>
               </ul>
             </li>
             <li class="dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown" href="#">Backlog <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="/metrics/backlog/">Backlog</a></li>
+                <li><a href="/metrics/projects/grooming/">Project Grooming</a></li>
+                <li><a href="/metrics/backlog/">Enhancement Backlog</a></li>
                 <li><a href="/metrics/backlog/module/">... by Module</a></li>
                 <li><a href="/metrics/backlog/track/">... by Track</a></li>
                 <li><a href="/metrics/backlog/size/">... by Estimated Size</a></li>
@@ -69,20 +70,20 @@ img.scale {
     </nav>
     <div>
       <div class="row">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-3">
+        <div class="col-xs-1"></div>
+        <div class="col-xs-1">
           {% block picker %}{% endblock %}
         </div>
-        <div class="col-sm-8"></div>
+        <div class="col-xs-10"></div>
       </div>
       <div class="row">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-10">
+        <div class="col-xs-2"></div>
+        <div class="col-xs-8">
           <h2>{% block title %}{% endblock %}</h2>
           {% block primary %}{% endblock %}
           {% block secondary %}{% endblock %}
         </div>
-        <div class="col-sm-1"></div>
+        <div class="col-xs-2"></div>
       </div>
     </div>
   </body>

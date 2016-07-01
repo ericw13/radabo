@@ -4,21 +4,21 @@
 {% block js %}{% endblock %}
 {% block primary %}
     {% if story %}
-      <table cellpadding="5">
+      <table class="publish" cellpadding="5">
         <tr>
-          <th>User Story</th>
+          <th class="publish">User Story</th>
           <th class="left">Name</th>
-          <th>Initial Sprint</th>
-          <th>Current Sprint</th>
-          <th>Status</th>
+          <th class="publish">Initial Sprint</th>
+          <th class="publish">Current Sprint</th>
+          <th class="publish">Status</th>
         </tr>
         {% for x in story %}
           <tr>
-            <td style="width: 10%"><a href="{{ x.storyURL }}" target="_blank">{{ x.rallyNumber }}</a></td>
-            <td style="width: 30%">{{ x.description }}</td>
-            <td style="width: 10%">{{ x.initialSprint }}</td>
-            <td style="width: 10%">{{ x.currentSprint }}</td>
-            <td style="width: 10%">{{ x.get_status_display }}</td>
+            <td class="publish" style="width: 10%"><a href="{{ x.storyURL }}" target="_blank">{{ x.rallyNumber }}</a></td>
+            <td class="publish" style="width: 30%">{{ x.description }}</td>
+            <td class="publish" style="width: 10%">{{ x.initialSprint }}</td>
+            <td class="publish" style="width: 10%">{{ x.currentSprint }}</td>
+            <td class="publish" style="width: 10%">{{ x.get_status_display }}</td>
           </tr>
         {% endfor %}
         </table>

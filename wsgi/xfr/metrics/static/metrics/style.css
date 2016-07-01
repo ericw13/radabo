@@ -1,9 +1,9 @@
-table {
+table.publish {
     width: 100%;
     border-collapse: collapse;
 }
 
-th {
+th.publish {
     border: 1px solid black;
     background:#820000;
     color: white;
@@ -11,18 +11,29 @@ th {
 }
 
 th.left {
+    border: 1px solid black;
+    background:#820000;
+    color: white;
+    font-size: 16px;
     text-align:left;
 }
 th.center {
+    border: 1px solid black;
+    background:#820000;
+    color: white;
+    font-size: 16px;
     text-align:center;
 }
 
-td {
+td.publish {
     border: 1px solid black;
     word-wrap: break-word; 
     font-size: 16px;
 }
 td.first {
+    border: 1px solid black;
+    word-wrap: break-word; 
+    font-size: 16px;
     background:#ff8080;
     text-align: center;
     vertical-align: middle !important;
@@ -30,6 +41,9 @@ td.first {
     width: 12%;
 }
 td.center {
+    border: 1px solid black;
+    word-wrap: break-word; 
+    font-size: 16px;
     text-align: center;
 }
 body, html {
@@ -123,3 +137,6 @@ img.left{float:left; margin: 0px 20px}
     width: 640px;
     border: 2px black;
 }
+
+.progress {background: rgba(138, 135, 135, 1); border: 0px solid rgba(245, 245, 245, 1); border-radius: 4px; height: 20px;}
+.progress-bar-custom {background: rgba(66, 139, 202, 1);}

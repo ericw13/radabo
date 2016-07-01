@@ -7,10 +7,10 @@
   {% regroup story by track as sorted_story %}
   <div style="float: left">
   {% if story %}
-      <table cellpadding="5">
+      <table class="publish" cellpadding="5">
         <tr>
-          <th>Track</th>
-          <th>Business Area</th>
+          <th class="publish" >Track</th>
+          <th class="publish">Business Area</th>
           <th class="left">Name</th>
           <th class="left">Process Lead</th>
           <th class="left">User Story</th>
@@ -23,10 +23,10 @@
                  <td class="first" rowspan="{{ forloop.revcounter }}">{{ x.grouper|default_if_none:"Unknown" }}</td>
               {% endif %}
               <td class="center" style="width: 8%">{{ y.module|default_if_none:"All" }} </td>
-              <td style="width: 25%">{{ y.description }}</td>
-              <td style="width: 10%">{{ y.globalLead|default_if_none:"" }}</td>
-              <td style="width: 8%"><a href="{{ y.storyURL }}" target="_blank">{{ y.rallyNumber }}</a></td>
-              <td style="width: 10%">{{ y.get_status_display }}</td>
+              <td class="publish" style="width: 25%">{{ y.description }}</td>
+              <td class="publish" style="width: 10%">{{ y.globalLead|default_if_none:"" }}</td>
+              <td class="publish" style="width: 8%"><a href="{{ y.storyURL }}" target="_blank">{{ y.rallyNumber }}</a></td>
+              <td class="publish" style="width: 10%">{{ y.get_status_display }}</td>
             </tr>
             {% endfor %}
         {% endfor %}

@@ -1,0 +1,41 @@
+{% extends 'metrics/base.html' %}
+{% block pagetitle %}User Stories{% endblock %}
+{% block title %}{{ header }}{% endblock %}
+{% block primary %}
+  {% if data %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Project Name</th>
+          <th>State</th>
+          <th>Story Count</th>
+          <th>Percent Complete</th>
+        </tr>
+      </thead>
+      <tbody>
+    {% for x in data %}
+        <tr>
+          <td>{{x.name}}</td>
+          <td>{{x.status}}</td>
+          <td>{{x.count}}</td>
+          <td>
+            <div class="progress">
+              {% if x.percent == 100 %}
+              <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{x.percent}}" aria-valuemin="0" aria-valuemax="100" style="width:{{x.percent}}%">
+              {% elif x.percent == 0 %}
+              <div class="progress-bar progress-bar-custom" role="progressbar" aria-valuenow="{{x.percent}}" aria-valuemin="0" aria-valuemax="100" style="width:{{x.percent}}%">
+              {% else %}
+              <div class="progress-bar" role="progressbar" aria-valuenow="{{x.percent}}" aria-valuemin="0" aria-valuemax="100" style="width:{{x.percent}}%">
+              {% endif %}
+                {{x.percent}}%
+              </div>
+            </div>
+          </td>
+        </tr>
+    {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <strong>No data passed in</strong>
+  {% endif %}
+{% endblock %}

@@ -19,7 +19,7 @@
     <form name="relForm" id="relForm" action="" method=POST>
       {% csrf_token %}
       <div class="dropdown dropdown-submit-input">
-        <input class="span2" id="choice" name="choice" type="hidden">
+        <input class="span3" id="choice" name="choice" type="hidden">
         <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown">Select Timebox<span class="caret"></span></button>
         <ul class="dropdown-menu">
         {% for name in list %}
@@ -34,14 +34,14 @@
   {% regroup story by get_businessValue_display as sorted_story %}
   <div style="float: left">
   {% if story %}
-      <table class="table table-striped">
+      <table class="publish">
         <thead>
           <tr>
             <th class="left">Business Value</th>
             <th class="left">Name</th>
-            <th>Business Area</th>
-            <th>Solution Size</th>
-            <th>Track</th>
+            <th class="publish">Business Area</th>
+            <th class="publish">Solution Size</th>
+            <th class="publish">Track</th>
             <th class="left">Stakeholders</th>
             {% if gpo == "Y" %}
             <th class="left">Process Lead</th>
@@ -55,15 +55,15 @@
               {% if forloop.first %}
                  <td class="first" rowspan="{{ forloop.revcounter }}">{{ x.grouper }}</td>
               {% endif %}
-              <td style="width: 25%">{% if y.blocked == "Y" %}<b>BLOCKED: </b>{% endif%}{{ y.description }}</td>
+              <td class="publish" style="width: 25%">{% if y.blocked == "Y" %}<b>BLOCKED: </b>{% endif%}{{ y.description }}</td>
               <td class="center" style="width: 8%">{{ y.module }} </td>
               <td class="center" style="width: 8%">{{ y.solutionSize }}</td>
               <td class="center" style="width: 3%">{{ y.track }}</td>
-              <td style="width: 10%">{{ y.stakeholders|default_if_none:"" }}</td>
+              <td class="publish" style="width: 10%">{{ y.stakeholders|default_if_none:"" }}</td>
               {% if gpo == "Y" %}
-              <td style="width: 10%">{{ y.globalLead|default_if_none:"" }}</td>
+              <td class="publish" style="width: 10%">{{ y.globalLead|default_if_none:"" }}</td>
               {% endif %}
-              <td style="width: 8%"><a href="{{ y.storyURL }}" target="_blank">{{ y.rallyNumber }}</a></td>
+              <td class="publish" style="width: 8%"><a href="{{ y.storyURL }}" target="_blank">{{ y.rallyNumber }}</a></td>
             </tr>
             {% endfor %}
         {% endfor %}

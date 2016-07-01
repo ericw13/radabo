@@ -208,3 +208,34 @@ def getOrCreateStory(storyNumber):
 
     session.close()
     return 'Y', "Success!"
+
+def getEpics():
+    try:
+        rally = initRally()
+    except Exception as e:
+        return 'N', None
+
+    try:
+        q=['Parent.FormattedId = "I68"',
+           'State.Name != "Done"',
+           'FormattedID != "E258"',
+          ]
+        data = rally.get('PortfolioItem/BusinessEpic', query=q, fetch="FormattedID,Name,State,PercentDoneByStoryCount,LeafStoryCount")
+    except Exception as e:
+        return str(e), None
+
+    results = []
+    for item in data:
+        rec = {}
+        if item.State != None:
+            rec['status'] = item.State.Name
+        else:
+            rec['status'] = 'Undefined'
+        rec['id'] = item.FormattedID
+        rec['name'] = item.Name
+        rec['percent'] = int(round(item.PercentDoneByStoryCount*100,0))
+        rec['count'] = item.LeafStoryCount
+        results.append(rec)
+
+    return 'Y', results
+        

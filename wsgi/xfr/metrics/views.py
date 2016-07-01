@@ -3,7 +3,7 @@ import cStringIO as StringIO
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from metrics.models import Sprint, Story, Release
-from metrics.utils import getSprintList, getReleaseList, getCurrentSprint, getCurrentRelease, getOrCreateStory
+from metrics.utils import getSprintList, getReleaseList, getCurrentSprint, getCurrentRelease, getOrCreateStory, getEpics
 from metrics.forms import SearchForm
 from django.utils import timezone
 from django.views import generic
@@ -250,3 +250,9 @@ def updateStory(request):
          'result' : result,
         }
     return render(request, 'metrics/update.html', c)
+
+def EpicView(request):
+
+    status, data = getEpics()
+    c = {'data': data}
+    return render(request, 'metrics/projects.html', c)

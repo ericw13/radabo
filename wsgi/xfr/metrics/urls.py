@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^sprint/?$', views.SprintReport, name='sprint'),
     url(r'^backlog/?$', views.Backlog, name='backlog'),
     url(r'^backlog/(?P<chartType>[a-zA-Z]+)/?$', views.BacklogGraphs, name='blgraphs'),
-    url(r'^projects/?$', views.ProjectGrooming, name='projects'),
+    url(r'^projects/grooming/?$', views.ProjectGrooming, name='projects'),
+    url(r'^projects/active/?$', views.EpicView, name='activeProjects'),
     url(r'^syncstory/?$', views.updateStory, name='updateStory'),
 ]
