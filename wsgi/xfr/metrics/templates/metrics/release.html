@@ -19,11 +19,11 @@
     <form name="relForm" id="relForm" action="" method=POST>
       {% csrf_token %}
       <div class="dropdown dropdown-submit-input">
-        <input class="span3" id="choice" name="choice" type="hidden">
+        <input class="span2" id="choice" name="choice" type="hidden">
         <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown">Select Timebox<span class="caret"></span></button>
         <ul class="dropdown-menu">
         {% for name in list %}
-          <li><button class="form-control btn btn-link" type="submit" name="choice" value="{{name}}">{{name}}</button></li>
+          <li><button class="form-control btn btn-link" style="width:auto;" type="submit" name="choice" value="{{name}}">{{name}}</button></li>
         {% endfor %}
         </ul>
       </div>
