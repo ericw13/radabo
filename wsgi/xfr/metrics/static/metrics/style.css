@@ -108,7 +108,7 @@ h3 {
     margin:0;
 }
 a:link, a:active, a:visited {
-  color: black;
+  color: blue;
 }
 img{width: 15%}
 img.right{float:right}
