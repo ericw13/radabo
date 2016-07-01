@@ -227,7 +227,7 @@ def ProjectGrooming(request):
     return render(request,'metrics/grooming.html',c)
 
 def updateStory(request):
-    text = 'Enter user story to sync (eg. US12345)'
+    text = 'Enter user story to sync'
     status = 'N'
     result = ''
     if request.method == 'POST':

@@ -5,19 +5,26 @@
 {% block picker %} {% endblock %}
 {% block primary %}
   {% if  status  == "N" %}
-    <p style="color:red">
+    <p class="bg-danger">
   {% else %}
-    <p>
+    <p class="bg-success">
   {% endif %}
-  <b>{{ result }}</b></p>
+  <b>{{ result }}</b></p><br><br>
   <form role="form" name=syncStory action="" method=POST>
-  {% csrf_token %}
-  {% for field in form %}
-    <div class="form-group">
-      <label>{{field.label}}</label>
-      {{field}}
+    <fieldset>
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          <label class="control-label">{{field.label}}:&nbsp; </label>
+          <div class="controls">{{field}}</div>
+          {% if field.help_text %}
+          <p class="help-inline"><small>{{ field.help_text }}</small></p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </fieldset>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-sm">Sync Story</button>
     </div>
-  {% endfor %}
-  <input type="submit" class="btn btn-primary btn-sm" value="Sync Story" />
   </form>
 {% endblock %}
