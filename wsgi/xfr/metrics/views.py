@@ -16,6 +16,11 @@ from datetime import timedelta
 def index(request):
     return render_to_response('metrics/index.html', {})
 
+def routeToError(request):
+    t= get_template('metrics/error.html')
+    c = {}
+    return HttpResponse(t.render(c, request))
+
 def VelocityChart(request):
     kwargs = {
         'status': 'Accepted',

@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from rest_framework import routers
-from xfrAdmin import views
+from metrics import views
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
@@ -23,7 +23,6 @@ urlpatterns = [
     url(r'^accounts/login/$', auth_views.login),
     url(r'^login/$', auth_views.login),
     url(r'^api-auth/',include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^xfr/?', include('xfrAdmin.urls')),
     url(r'^metrics/?', include('metrics.urls')),
     url(r'^chaining/', include('smart_selects.urls')),
     url(r'^admin/', admin.site.urls),
