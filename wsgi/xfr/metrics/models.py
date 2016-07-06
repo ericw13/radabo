@@ -11,9 +11,9 @@ class Module(models.Model):
         ('RTR', 'Record to Report'),
         ('OTH', 'Other'),
     )
-    moduleName = models.CharField(max_length=30,unique=True)
+    moduleName = models.CharField(max_length=30,unique=True,verbose_name="Module Name")
     track = models.CharField(max_length=3,choices=TRACK_CHOICES)
-    globalLead = models.CharField(max_length=50)
+    globalLead = models.CharField(max_length=50,verbose_name="Global Lead")
     def __str__(self):
         return self.moduleName
 
@@ -81,8 +81,10 @@ class Story(models.Model):
     completionDate = models.DateTimeField(null=True, blank=True)
     module = models.CharField(max_length=50, null=True, blank=True)
     track = models.CharField(max_length=30, null=True, blank=True)
+    theme = models.CharField(max_length=50, null=True, blank=True)
     stakeholders = models.CharField(max_length=255, null=True, blank=True)
     solutionSize = models.CharField(max_length=20, null=True, blank=True)
+    blocked = models.CharField(max_length=1, default='N')
     session = models.ForeignKey(Session, on_delete=models.SET_NULL, related_name='session',null=True, blank=True)
     storyURL = models.CharField(max_length=200,null=True, blank=True)
 
@@ -90,4 +92,3 @@ class Story(models.Model):
         return "%s: %s" % (self.rallyNumber, self.description)
     def _on_schedule(self):
         return self.initialSprint == self.currentSprint
-

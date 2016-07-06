@@ -154,7 +154,7 @@ def updateStory(this, that, session):
     this.theme = that.c_Theme
     this.stakeholders = that.c_Stakeholders
     this.solutionSize = getSolutionSize(that.PlanEstimate, that.c_SolutionSize)
-    this.Blocked = "Y" if that.Blocked else "N"
+    this.blocked = "Y" if that.Blocked else "N"
     this.session = session
     this.storyURL = storyURL
     if that.Iteration:
