@@ -12,14 +12,19 @@ from django.template import Context
 from django.template.loader import get_template
 from datetime import timedelta
 
+# Utility functions
+def _getValue(inputs, key):
+    if key in inputs and inputs[key]:
+        return inputs[key]
+    else:
+        return None
+
 # Create your views here.
 def index(request):
-    return render_to_response('metrics/index.html', {})
+    return render(request, 'metrics/index.html', {})
 
 def routeToError(request):
-    t= get_template('metrics/error.html')
-    c = {}
-    return HttpResponse(t.render(c, request))
+    return render(request,'metrics/error.html', {})
 
 def VelocityChart(request):
     kwargs = {
@@ -64,8 +69,7 @@ def Success(request):
     sprintName=None 
     default="Last Six Months"
     if request.method == 'POST':
-        if 'sprintSelect' in request.POST and request.POST['sprintSelect']:
-            sprintName = request.POST['sprintSelect']
+        sprintName = getValue(request.POST,'sprintSelect')
     if sprintName == None:
         sprintName = default
 
@@ -96,8 +100,7 @@ def BuildRelease(request):
     releaseName = None
     thisRelease = getCurrentRelease()
     if request.method == 'POST':
-        if 'choice' in request.POST and request.POST['choice']:
-            releaseName=request.POST['choice']
+        releaseName = _getValue(request.POST,'choice')
     if releaseName == None:
         releaseName=str(thisRelease.name) if thisRelease else releaseList[0]
 
@@ -118,17 +121,13 @@ def ReleaseReport(request):
     context = BuildRelease(request)
     return render(request,'metrics/release.html',context)
 
-    context = BuildRelease(request)
-    context.update({'pagesize': 'A4'})
-    return render_to_pdf('metrics/releasePDF.html', context)
-
 def SprintReport(request):
     sprintList=getSprintList()
     thisSprint=getCurrentSprint()
     sprint = None
     if request.method == 'POST':
-        if 'choice' in request.POST and request.POST['choice']:
-            sprint = request.POST['choice']
+        sprint = _getValue(request.POST,'choice')
+
     if sprint == None:
         sprint=str(thisSprint.name) if thisSprint else sprintList[0]
 
@@ -155,25 +154,23 @@ def Backlog(request):
 
     filter=': '
     if request.method == 'POST':
-        if 'track' in request.POST and request.POST['track']:
-            if request.POST['track'] == 'null':
-                kwargs.update({'track__isnull': True})
-            else:
-                kwargs.update({'track': request.POST['track']})
+        track = _getValue(request.POST,'track')
+        module = _getValue(request.POST,'module')
+        size = _getValue(request.POST,'size')
+        theme = _getValue(request.POST,'theme')
+        if track:
+            kwargs.update({'track': track})
             filter = " (Track = %s): " % (request.POST['track'])
-        if 'module' in request.POST and request.POST['module']:
-            if request.POST['module'] == 'null':
-                kwargs.update({'module__isnull': True})
-            else:
-                kwargs.update({'module': request.POST['module']})
+        elif module:
+            kwargs.update({'module': module})
             filter = " (Module = %s): " % (request.POST['module'])
-        if 'solutionSize' in request.POST and request.POST['solutionSize']:
-            if request.POST['size'] == 'null':
-                kwargs.update({'solutionSize__isnull': True})
-            else:
-                kwargs.update({'solutionSize': request.POST['solutionSize']})
-            filter = " (Story Size = %s): " % (request.POST['solutionSize'])
-            
+        elif size:
+            kwargs.update({'solutionSize': request.POST['size']})
+            filter = " (Story Size = %s): " % (request.POST['size'])
+        elif theme:
+            kwargs.update({'theme': request.POST['theme']})
+            filter = " (Investment Theme = %s): " % (request.POST['theme'])
+ 
     extra={'globalLead': "select globalLead from metrics_module where moduleName = metrics_story.module"}
     story=Story.objects.filter(**kwargs).extra(select=extra).order_by('-businessValue','rallyNumber')
     c = {'story': story, 
@@ -192,34 +189,33 @@ def BacklogGraphs(request, chartType):
         'storyType': 'Enhancement',
     }
 
-    if chartType == "module":
-        data=Story.objects.filter(**kwargs).values('module').annotate(scount=Count('module')).annotate(metric=F('module')).order_by('-scount','metric')
-        kwargs.update({'module__isnull': True})
-        title = "Backlog enhancements by module"
+    if chartType in ["module","track","theme"]:
+        var = chartType
+        myOrder = ['-scount', var,]
+        myDesc = var
         
-    elif chartType == "track":
-        data=Story.objects.filter(**kwargs).values('track').annotate(scount=Count('track')).annotate(metric=F('track')).order_by('-scount','metric')
-        kwargs.update({'track__isnull': True})
-        title = "Backlog enhancements by track"
-
     elif chartType == "size":
-        data=Story.objects.filter(**kwargs).values('solutionSize').annotate(scount=Count('solutionSize')).annotate(metric=F('solutionSize')).order_by('metric')
-        kwargs.update({'solutionSize__isnull': True})
-        title = "Backlog enhancements by estimated size"
+        var = "solutionSize"
+        myOrder = [var,]
+        myDesc = "solution size"
 
     else:
-        title = "Invalid chart type"
-        data = None
-
-    nullmod=Story.objects.filter(**kwargs)
-    nullcount = len(nullmod)
+        var = None
+        
+    if var:
+        data=Story.objects.filter(**kwargs).values(var).annotate(scount=Count(var)).annotate(metric=F(var)).order_by(*myOrder)
+        kwargs.update({var+'__isnull': True})
+        nullmod=Story.objects.filter(**kwargs)
+        nullcount = len(nullmod)
     
-    c = {'data': json.dumps([dict(item) for item in data]),
-         'nullcount': nullcount,
-         'title': title,
-         'chartType': chartType,
-        }
-    return render(request,'metrics/blGraphs.html', c)
+        c = {'data': json.dumps([dict(item) for item in data]),
+             'nullcount': nullcount,
+             'title': "Backlog enhancements by "+myDesc,
+             'chartType': chartType,
+            }
+        return render(request,'metrics/blGraphs.html', c)
+    else:
+        return render(request,'metrics/error.html', {})
 
 def ProjectGrooming(request):
     kwargs = {

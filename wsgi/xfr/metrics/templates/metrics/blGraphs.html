@@ -1,6 +1,5 @@
 {% extends 'metrics/base.html' %}
 {% block pagetitle %}Backlog Metrics{% endblock %}
-{% block title %}&nbsp; {% endblock %}
 {% block js %}
     <!--Load the AJAX API-->
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -29,14 +28,13 @@
                  total += djangoData[i].scount;
               } 
           }
+          chartTitle = chartTitle + " - "+total+" total stories";
           var options = {
-             width: 640, 
-             height: 480, 
-             title: chartTitle,
-             titleFontSize: 24,
+             width: 800, 
+             height: 600, 
           };
 
-          document.getElementById('foot').innerHTML = total + " total stories";
+          document.getElementById('foot').innerHTML = chartTitle;
           var chart = new google.visualization.PieChart(document.getElementById('piechart'));
           chart.draw(data, options);
           google.visualization.events.addListener(chart, 'select', function () {selectHandler(chart,data,'{{ chartType }}')});
@@ -68,6 +66,6 @@
     </script>
 {% endblock %}
 {% block primary %}
-    <div id="foot" class="cfoot"></div>
-    <div id="piechart" class="graph"></div>
+  <div id="foot" class="cfoot"></div>
+  <div id="piechart"></div>
 {% endblock %}
