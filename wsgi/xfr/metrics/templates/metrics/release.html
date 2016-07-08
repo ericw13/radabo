@@ -51,12 +51,16 @@
         </thead>
         {% for x in sorted_story %}
             {% for y in x.list %} 
-              <tr>
+              {% if y.blocked == "Y" %}
+                <tr class="alert-danger">
+              {% else %}
+                <tr>
+              {% endif %}
               {% if forloop.first %}
                  <td class="first" rowspan="{{ forloop.revcounter }}">{{ x.grouper }}</td>
               {% endif %}
               <td class="publish" style="width: 25%">
-                 {% if y.blocked == "Y" %}<p class="bg-danger"><b>BLOCKED: </b>{% else %}<p>{% endif%}{{ y.description }}</p></td>
+              {{ y.description }}{% if y.blocked == "Y" %}&nbsp;<span class="glyphicon glyphicon-ban-circle"></span>{% endif%}</td>
               <td class="center" style="width: 8%">{{ y.module }} </td>
               <td class="center" style="width: 8%">{{ y.solutionSize }}</td>
               <td class="center" style="width: 3%">{{ y.track }}</td>
