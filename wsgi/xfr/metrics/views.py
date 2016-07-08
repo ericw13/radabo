@@ -210,7 +210,7 @@ def BacklogGraphs(request, chartType):
     
         c = {'data': json.dumps([dict(item) for item in data]),
              'nullcount': nullcount,
-             'title': "Backlog enhancements by "+myDesc,
+             'title': "Enhancement backlog by "+myDesc,
              'chartType': chartType,
             }
         return render(request,'metrics/blGraphs.html', c)
