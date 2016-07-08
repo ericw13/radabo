@@ -1,3 +1,8 @@
+* {
+   @include box-sizing(border-box);
+}
+$pad: 20px;
+
 table.publish {
     width: 100%;
     border-collapse: collapse;
@@ -28,12 +33,6 @@ td.first{
     vertical-align: middle !important;
     font-weight: bold;
     width: 12%;
-}
-body, html {
-    margin: 0;
-    padding: 0;
-    color:black;
-    background:#ffffff;
 }
 #piechart {
     display: table-cell;
@@ -79,7 +78,6 @@ img.left{float:left; margin: 0px 20px}
     background: rgba(66, 139, 202, 1);
 }
 
-$pad: 20px;
 .grid {
     background: white;
     margin: 0 0 $pad 0;
@@ -100,6 +98,12 @@ $pad: 20px;
 }
 .col-1-1 {
     width: 100%;
+}
+.grid-pad {
+    padding: $pad 0 $pad $pad;
+    [class*='col-']:last-of-type {
+        padding-right: $pad;
+    }
 }
 .chart {
     width: 100%;
