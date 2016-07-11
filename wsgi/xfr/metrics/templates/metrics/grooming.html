@@ -18,12 +18,17 @@
         </tr>
         {% for x in sorted_story %}
             {% for y in x.list %} 
+              {% if y.blocked = "Y" %}
+              <tr class="alert-danger">
+              {% else %}
               <tr>
+              {% endif %}
               {% if forloop.first %}
                  <td class="first" rowspan="{{ forloop.revcounter }}">{{ x.grouper|default_if_none:"Unknown" }}</td>
               {% endif %}
               <td class="center" style="width: 8%">{{ y.module|default_if_none:"All" }} </td>
-              <td class="publish" style="width: 25%">{{ y.description }}</td>
+              <td class="publish" style="width: 25%">
+                {{ y.description }}{% if y.blocked = "Y" %}&nbsp;<span class="glyphicon glyphicon-ban-circle"></span>{% endif %}</td>
               <td class="publish" style="width: 10%">{{ y.globalLead|default_if_none:"" }}</td>
               <td class="publish" style="width: 8%"><a href="{{ y.storyURL }}" target="_blank">{{ y.rallyNumber }}</a></td>
               <td class="publish" style="width: 10%">{{ y.get_status_display }}</td>
