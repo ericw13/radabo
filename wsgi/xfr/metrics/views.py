@@ -182,6 +182,30 @@ def Backlog(request):
          'showBlocked': 'Y'}
     return render(request,'metrics/release.html',c)
 
+def AllGraphs(request):
+    kwargs = {
+        'release': None,
+        'status__in': ['B','D'],
+        'storyType': 'Enhancement',
+    }
+    theme=Story.objects.filter(**kwargs).values('theme').annotate(scount=Count('theme')).annotate(metric=F('theme')).order_by('-scount','theme')
+    size=Story.objects.filter(**kwargs).values('solutionSize').annotate(scount=Count('solutionSize')).annotate(metric=F('solutionSize')).order_by('solutionSize')
+    track=Story.objects.filter(**kwargs).values('track').annotate(scount=Count('track')).annotate(metric=F('track')).order_by('-scount','track')
+    module=Story.objects.filter(**kwargs).values('module').annotate(scount=Count('module')).annotate(metric=F('module')).order_by('-scount','module')
+
+    allStories=Story.objects.filter(**kwargs)
+    storyCount = len(allStories)
+    
+    c = {
+         'theme': json.dumps([dict(item) for item in theme]),
+         'size': json.dumps([dict(item) for item in size]),
+         'track': json.dumps([dict(item) for item in track]),
+         'module': json.dumps([dict(item) for item in module]),
+         'header': "%s total stories" % (storyCount),
+         'title': "Enhancement backlog by ",
+        }
+    return render(request,'metrics/allGraphs.html', c)
+
 def BacklogGraphs(request, chartType):
     kwargs = {
         'release': None,
@@ -199,18 +223,20 @@ def BacklogGraphs(request, chartType):
         myOrder = [var,]
         myDesc = "solution size"
 
+    elif chartType == "all":
+        return AllGraphs(request)
+
     else:
         var = None
         
     if var:
         data=Story.objects.filter(**kwargs).values(var).annotate(scount=Count(var)).annotate(metric=F(var)).order_by(*myOrder)
-        kwargs.update({var+'__isnull': True})
-        nullmod=Story.objects.filter(**kwargs)
-        nullcount = len(nullmod)
+        allStories=Story.objects.filter(**kwargs)
+        storyCount = len(allStories)
     
         c = {'data': json.dumps([dict(item) for item in data]),
-             'nullcount': nullcount,
              'title': "Enhancement backlog by "+myDesc,
+             'header': "%s total stories" % (storyCount),
              'chartType': chartType,
             }
         return render(request,'metrics/blGraphs.html', c)

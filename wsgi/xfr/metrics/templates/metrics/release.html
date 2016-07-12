@@ -1,80 +1,86 @@
 {% extends 'metrics/base.html' %}
 {% block pagetitle %}User Stories{% endblock %}
-{% block title %}{{ header }}{% endblock %}
+{% block title %}
+  <div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-8">
+      <h2>{{ header }}</h2>
+    </div>
+    <div class="col-sm-2"></div>
+  </div>
+{% endblock %}
 {% block js %}{% endblock %}
 {% block picker %}
-  {% if list %}
-<!-- old form
-    <form name=relForm action="" method=POST>
-    {% csrf_token %}
-      <p>
-        <select name=choice onchange="relForm.submit();">
-          {% for name in list %}
-            <option value="{{ name }}" {% if name == current %}selected{% endif %}>{{name}}</value>
-          {% endfor %}
-        </select>
-      </p>
-    </form>
--->
-    <form name="relForm" id="relForm" action="" method=POST>
-      {% csrf_token %}
-      <div class="dropdown dropdown-submit-input">
-        <input class="span2" id="choice" name="choice" type="hidden">
-        <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown">Select Timebox<span class="caret"></span></button>
-        <ul class="dropdown-menu">
-        {% for name in list %}
-          <li><button class="form-control btn btn-link" style="width:auto;" type="submit" name="choice" value="{{name}}">{{name}}</button></li>
-        {% endfor %}
-        </ul>
-      </div>
-    </form>
-  {% endif %}
+  <div class="row">
+    <div class="col-sm-1 col-xs-2"></div>
+    <div class="col-sm-1 col-xs-2">
+      {% if list %}
+        <form name="relForm" id="relForm" action="" method=POST>
+          {% csrf_token %}
+          <div class="dropdown dropdown-submit-input">
+            <input class="span2" id="choice" name="choice" type="hidden">
+            <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown">Select Timebox<span class="caret"></span></button>
+            <ul class="dropdown-menu">
+            {% for name in list %}
+              <li><button class="form-control btn btn-link" style="width:auto;" type="submit" name="choice" value="{{name}}">{{name}}</button></li>
+            {% endfor %}
+            </ul>
+          </div>
+        </form>
+      {% endif %}
+    </div>
+    <div class="col-sm-10 col-xs-8"></div>
+  </div>
 {% endblock %}
 {% block primary %}
   {% regroup story by get_businessValue_display as sorted_story %}
-  <div style="float: left">
-  {% if story %}
-      <table class="publish">
-        <thead>
-          <tr>
-            <th class="left">Business Value</th>
-            <th class="left">Name</th>
-            <th class="publish">Business Area</th>
-            <th class="publish">Solution Size</th>
-            <th class="publish">Track</th>
-            <th class="left">Stakeholders</th>
-            {% if gpo == "Y" %}
-            <th class="left">Process Lead</th>
-            {% endif %}
-            <th class="left">User Story</th>
-          </tr>
-        </thead>
-        {% for x in sorted_story %}
-            {% for y in x.list %} 
-              {% if y.blocked == "Y" %}
-                <tr class="alert-danger">
-              {% else %}
-                <tr>
-              {% endif %}
-              {% if forloop.first %}
-                 <td class="first" rowspan="{{ forloop.revcounter }}">{{ x.grouper }}</td>
-              {% endif %}
-              <td class="publish" style="width: 25%">
-              {{ y.description }}{% if y.blocked == "Y" %}&nbsp;<span class="glyphicon glyphicon-ban-circle"></span>{% endif%}</td>
-              <td class="center" style="width: 8%">{{ y.module }} </td>
-              <td class="center" style="width: 8%">{{ y.solutionSize }}</td>
-              <td class="center" style="width: 3%">{{ y.track }}</td>
-              <td class="publish" style="width: 10%">{{ y.stakeholders|default_if_none:"" }}</td>
+  <div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-8" style="float: left">
+      {% if story %}
+        <table class="publish">
+          <thead>
+            <tr>
+              <th class="left">Business Value</th>
+              <th class="left">Name</th>
+              <th class="publish">Business Area</th>
+              <th class="publish">Solution Size</th>
+              <th class="publish">Track</th>
+              <th class="left">Stakeholders</th>
               {% if gpo == "Y" %}
-              <td class="publish" style="width: 10%">{{ y.globalLead|default_if_none:"" }}</td>
+              <th class="left">Process Lead</th>
               {% endif %}
-              <td class="publish" style="width: 8%"><a href="{{ y.storyURL }}" target="_blank">{{ y.rallyNumber }}</a></td>
+              <th class="left">User Story</th>
             </tr>
-            {% endfor %}
-        {% endfor %}
-        </tr></table>
-    {% else %}
-      <p>{{ exception }}
-    {% endif %}
+          </thead>
+          {% for x in sorted_story %}
+              {% for y in x.list %} 
+                {% if y.blocked == "Y" %}
+                  <tr class="alert-danger">
+                {% else %}
+                  <tr>
+                {% endif %}
+                {% if forloop.first %}
+                   <td class="first" rowspan="{{ forloop.revcounter }}">{{ x.grouper }}</td>
+                {% endif %}
+                <td class="publish" style="width: 25%">
+                {{ y.description }}{% if y.blocked == "Y" %}&nbsp;<span class="glyphicon glyphicon-ban-circle"></span>{% endif%}</td>
+                <td class="center" style="width: 8%">{{ y.module }} </td>
+                <td class="center" style="width: 8%">{{ y.solutionSize }}</td>
+                <td class="center" style="width: 3%">{{ y.track }}</td>
+                <td class="publish" style="width: 10%">{{ y.stakeholders|default_if_none:"" }}</td>
+                {% if gpo == "Y" %}
+                <td class="publish" style="width: 10%">{{ y.globalLead|default_if_none:"" }}</td>
+                {% endif %}
+                <td class="publish" style="width: 8%"><a href="{{ y.storyURL }}" target="_blank">{{ y.rallyNumber }}</a></td>
+              </tr>
+              {% endfor %}
+          {% endfor %}
+          </tr></table>
+      {% else %}
+        <p>{{ exception }}
+      {% endif %}
     </div>
+    <div class="col-sm-2"></div>
+  </div>
 {% endblock %}

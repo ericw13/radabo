@@ -60,28 +60,14 @@
             <li><a href="/metrics/backlog/track/">... by Track</a></li>
             <li><a href="/metrics/backlog/size/">... by Estimated Size</a></li>
             <li><a href="/metrics/backlog/theme/">... by Investment Theme</a></li>
+            <li><a href="/metrics/backlog/all/">... All Charts</a></li>
           </ul>
         </li>
         <li><a href="/metrics/syncstory/">Refresh Story</a></li>
       </ul>
     </nav>
-    <div class="container-fluid" style:"height:1000px">
-      <div class="row">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-1">
-          {% block picker %}{% endblock %}
-        </div>
-        <div class="col-sm-10"></div>
-      </div>
-      <div class="row">
-        <div class="col-sm-2"></div>
-        <div class="col-sm-8">
-          <h2>{% block title %}{% endblock %}</h2>
-          {% block primary %}{% endblock %}
-          {% block secondary %}{% endblock %}
-        </div>
-        <div class="col-sm-2"></div>
-      </div>
-    </div>
+    {% block picker %}{% endblock %}
+    {% block title %}{% endblock %}
+    {% block primary %}{% endblock %}
   </body>
 </html>

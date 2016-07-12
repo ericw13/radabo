@@ -1,6 +1,18 @@
 {% extends 'metrics/base.html' %}
 {% block pagetitle %}Error!{% endblock %}
-{% block title %}IT Finance Metrics Dashboard{% endblock %}
+{% block title %}
+  <div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-8"><h2>IT Finance Metrics Dashboard</h2></div>
+    <div class="col-sm-2"></div>
+  </div>
+{% endblock %}
 {% block primary %}
-<p class="lead">Oops, it looks like you got here by mistake! Please use the links in the navigation bar above to move around the site.</p>
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+  <p class="lead">Oops, it looks like you got here by mistake! Please use the links in the navigation bar above to move around the site.</p>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
 {% endblock %}

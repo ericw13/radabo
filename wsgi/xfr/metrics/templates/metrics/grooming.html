@@ -1,12 +1,20 @@
 {% extends 'metrics/base.html' %}
 {% block pagetitle %}Projects{% endblock %}
-{% block title %}{{ header }}{% endblock %}
-{% block js %}{% endblock %}
-{% block picker %}{% endblock %}
+{% block title %}
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <h2>{{header}}</h2>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+{% endblock %}
 {% block primary %}
-  {% regroup story by track as sorted_story %}
-  <div style="float: left">
-  {% if story %}
+  <div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-8" style="float: left">
+    {% regroup story by track as sorted_story %}
+    {% if story %}
       <table class="publish" cellpadding="5">
         <tr>
           <th class="publish" >Track</th>
@@ -36,8 +44,10 @@
             {% endfor %}
         {% endfor %}
         </tr></table>
-    {% else %}
-      <p>{{ exception }}
-    {% endif %}
+      {% else %}
+        <p>{{ exception }}
+      {% endif %}
     </div>
+    <div class="col-sm-2"></div>
+  </div>
 {% endblock %}
