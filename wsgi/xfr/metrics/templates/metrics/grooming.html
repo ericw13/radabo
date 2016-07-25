@@ -28,6 +28,8 @@
             {% for y in x.list %} 
               {% if y.blocked == "Y" %}
               <tr class="alert-danger">
+              {% elif y.get_status_display == "Accepted" %}
+              <tr class="alert-success">
               {% else %}
               <tr>
               {% endif %}

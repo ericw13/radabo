@@ -87,6 +87,7 @@ class Story(models.Model):
     blocked = models.CharField(max_length=1, default='N')
     session = models.ForeignKey(Session, on_delete=models.SET_NULL, related_name='session',null=True, blank=True)
     storyURL = models.CharField(max_length=200,null=True, blank=True)
+    blockedReason = models.CharField(max_length=512,null=True,blank=True)
 
     def __str__(self):
         return "%s: %s" % (self.rallyNumber, self.description)

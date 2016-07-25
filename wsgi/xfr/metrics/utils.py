@@ -137,7 +137,8 @@ def createStory(story,session):
                  blocked="Y" if story.Blocked else "N",
                  track=tag,
                  session=session,
-                 storyURL=storyURL)
+                 storyURL=storyURL,
+                 blockedReason=story.BlockedReason)
     this.save()
 
 def updateStory(this, that, session):
@@ -155,6 +156,7 @@ def updateStory(this, that, session):
     this.stakeholders = that.c_Stakeholders
     this.solutionSize = getSolutionSize(that.PlanEstimate, that.c_SolutionSize)
     this.blocked = "Y" if that.Blocked else "N"
+    this.blockedReason = that.BlockedReason
     this.session = session
     this.storyURL = storyURL
     if that.Iteration:
@@ -188,7 +190,7 @@ def getOrCreateStory(storyNumber):
 
     try:
         q="FormattedID = %s" % (storyNumber)
-        response=rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked")
+        response=rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked,BlockedReason")
     except:
         return 'N', "Could not fetch User Story from Rally."
 
@@ -239,3 +241,30 @@ def getEpics():
 
     return 'Y', results
         
+def getProjectStories(epic):
+    try:
+        rally = initRally()
+    except Exception as e:
+        return 'N', None
+
+    try:
+        q=['Feature.Parent.FormattedId = "%s"' % (epic)]
+        data = rally.get('User Story',query=q, fetch="FormattedID,Name,ScheduleState,PlanEstimate,Feature,Owner",order="Feature")
+    except Exception as e:
+        return str(e), None
+
+    results = []
+    for item in data:
+        rec = {}
+        rec['id'] = item.FormattedID
+        rec['feature'] = item.Feature.Name
+        rec['featureid'] = item.Feature.FormattedID
+        rec['project'] = item.Feature.Parent.Name
+        rec['name'] = item.Name
+        rec['status'] = item.ScheduleState
+        rec['points'] = int(item.PlanEstimate) if item.PlanEstimate else 0
+        rec['owner'] = item.Owner.Name
+        results.append(rec)
+
+    return 'Y', results
+

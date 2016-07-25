@@ -3,7 +3,7 @@ import cStringIO as StringIO
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from metrics.models import Sprint, Story, Release
-from metrics.utils import getSprintList, getReleaseList, getCurrentSprint, getCurrentRelease, getOrCreateStory, getEpics
+from metrics.utils import getSprintList, getReleaseList, getCurrentSprint, getCurrentRelease, getOrCreateStory, getEpics, getProjectStories
 from metrics.forms import SearchForm
 from django.utils import timezone
 from django.views import generic
@@ -109,7 +109,7 @@ def BuildRelease(request):
         'status': 'A',
         'storyType': 'Enhancement',
     }
-    story=Story.objects.filter(**kwargs).order_by('-businessValue','rallyNumber')
+    story=Story.objects.filter(**kwargs).order_by('theme','-businessValue','rallyNumber')
     c = {'story': story, 
          'current': releaseName,
          'header': 'Enhancements released in '+ releaseName, 
@@ -136,13 +136,37 @@ def SprintReport(request):
         'storyType': 'Enhancement',
     }
 
-    story=Story.objects.filter(**kwargs).order_by('-businessValue','rallyNumber')
+    story=Story.objects.filter(**kwargs).order_by('theme','-businessValue','rallyNumber')
     c = {'story': story, 
          'current': sprint,
          'header': 'Stories scheduled for ' + sprint,
          'exception': 'No enhancements have yet been scheduled for '+ sprint,
          'list': sprintList}
     return render(request,'metrics/release.html',c)
+
+def PendingUAT(request):
+
+    kwargs = {
+        'release': None,
+        'storyType': 'Enhancement',
+        'status': 'C',
+    }
+
+    extra = {
+        'globalLead': "select globalLead from metrics_module where moduleName = metrics_story.module",
+        'sprintEnd': "select endDate from metrics_sprint where id = metrics_story.currentSprint_id",
+        'color': "select case when datediff(now(),endDate) > 28 then 'R' when datediff(now(),endDate) > 14 then 'Y' else 'G' end from metrics_sprint where id = metrics_story.currentSprint_id",
+        }
+
+    story=Story.objects.filter(**kwargs).extra(select=extra).order_by('theme','-businessValue','rallyNumber')
+
+    c = {
+         'story': story, 
+         'header': 'Enhancements Pending UAT',
+         'exception': 'No enhancements are pending UAT.',
+         'showSprint': 'Y',
+        }
+    return render(request, 'metrics/release.html',c)
 
 def Backlog(request):
 
@@ -172,7 +196,7 @@ def Backlog(request):
             filter = " (Investment Theme = %s): " % (request.POST['theme'])
  
     extra={'globalLead': "select globalLead from metrics_module where moduleName = metrics_story.module"}
-    story=Story.objects.filter(**kwargs).extra(select=extra).order_by('-businessValue','rallyNumber')
+    story=Story.objects.filter(**kwargs).extra(select=extra).order_by('theme','-businessValue','rallyNumber')
     c = {'story': story, 
          'current': None,
          'header': 'Enhancement Backlog' + filter + str(len(story)) + ' stories',
@@ -182,12 +206,7 @@ def Backlog(request):
          'showBlocked': 'Y'}
     return render(request,'metrics/release.html',c)
 
-def AllGraphs(request):
-    kwargs = {
-        'release': None,
-        'status__in': ['B','D'],
-        'storyType': 'Enhancement',
-    }
+def _allGraphs(request, **kwargs):
     theme=Story.objects.filter(**kwargs).values('theme').annotate(scount=Count('theme')).annotate(metric=F('theme')).order_by('-scount','theme')
     size=Story.objects.filter(**kwargs).values('solutionSize').annotate(scount=Count('solutionSize')).annotate(metric=F('solutionSize')).order_by('solutionSize')
     track=Story.objects.filter(**kwargs).values('track').annotate(scount=Count('track')).annotate(metric=F('track')).order_by('-scount','track')
@@ -224,7 +243,7 @@ def BacklogGraphs(request, chartType):
         myDesc = "solution size"
 
     elif chartType == "all":
-        return AllGraphs(request)
+        return _allGraphs(request, **kwargs)
 
     else:
         var = None
@@ -283,3 +302,15 @@ def EpicView(request):
     status, data = getEpics()
     c = {'data': data}
     return render(request, 'metrics/projects.html', c)
+
+def ProjectStories(request, epic):
+
+    status, data = getProjectStories(epic)
+    if status == "Y":
+        projectName = data[0]['project']
+        c = {'data': data,
+             'projectName': projectName,
+            }
+        return render(request, 'metrics/project_stories.html', c)
+    else:
+        return render(request, 'metrics/error.html', {})

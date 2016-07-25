@@ -33,7 +33,7 @@
   </div>
 {% endblock %}
 {% block primary %}
-  {% regroup story by theme as sorted_story %}
+  {% regroup story by get_businessValue_display as sorted_story %}
   <div class="row">
     <div class="col-sm-2"></div>
     <div class="col-sm-8" style="float: left">
@@ -41,11 +41,8 @@
         <table class="publish">
           <thead>
             <tr>
-              <th class="left">Investment Theme</th>
+              <th class="left">Business Value</th>
               <th class="left">Name</th>
-              {% if showSprint == "Y" %}
-              <th class="publish">Sprint End Date</th>
-              {% endif %}
               <th class="publish">Business Area</th>
               <th class="publish">Solution Size</th>
               <th class="publish">Track</th>
@@ -53,7 +50,6 @@
               {% if gpo == "Y" %}
               <th class="left">Process Lead</th>
               {% endif %}
-              <th class="publish">Business Value</th>
               <th class="left">User Story</th>
             </tr>
           </thead>
@@ -61,10 +57,6 @@
               {% for y in x.list %} 
                 {% if y.blocked == "Y" %}
                   <tr class="alert-danger">
-                {% elif y.color == "R" %}
-                  <tr class="alert-danger">
-                {% elif y.color == "Y" %}
-                  <tr class="alert-warning">
                 {% else %}
                   <tr>
                 {% endif %}
@@ -72,13 +64,7 @@
                    <td class="first" rowspan="{{ forloop.revcounter }}">{{ x.grouper }}</td>
                 {% endif %}
                 <td class="publish" style="width: 25%">
-                {% if y.blocked == "Y" %}
-                  <span title="{{ y.blockedReason }}">
-                {% endif %}
-                {{ y.description }}{% if y.blocked == "Y" %}&nbsp;</span><span class="glyphicon glyphicon-ban-circle"></span>{% endif%}</td>
-                {% if showSprint == "Y" %}
-                <td class="publish" style="width: 7%">{{ y.sprintEnd|date:"d-M-Y" }}</td>
-                {% endif %}
+                {{ y.description }}{% if y.blocked == "Y" %}&nbsp;<span class="glyphicon glyphicon-ban-circle"></span>{% endif%}</td>
                 <td class="center" style="width: 8%">{{ y.module }} </td>
                 <td class="center" style="width: 8%">{{ y.solutionSize }}</td>
                 <td class="center" style="width: 3%">{{ y.track }}</td>
@@ -86,7 +72,6 @@
                 {% if gpo == "Y" %}
                 <td class="publish" style="width: 10%">{{ y.globalLead|default_if_none:"" }}</td>
                 {% endif %}
-                <td class="center" style="width: 8%">{{ y.businessValue|default_if_none:"" }}</td>
                 <td class="publish" style="width: 8%"><a href="{{ y.storyURL }}" target="_blank">{{ y.rallyNumber }}</a></td>
               </tr>
               {% endfor %}

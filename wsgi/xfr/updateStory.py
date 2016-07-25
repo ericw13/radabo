@@ -14,7 +14,7 @@ session.save()
 rally = initRally()
 
 # Load new backlog items from Rally
-q = '((Feature.FormattedID = "1467") AND (Release = "")) OR (Feature.FormattedID = "3841")'
+q = '((Feature.FormattedID = "1467") AND (Release = "")) OR ((Feature.FormattedID = "3841") AND (c_ITFinanceConsultingKanbanState != "Completed Archive"))'
 #q = [
     #'Release = null',
     #'Feature.FormattedID = 1467',
@@ -38,13 +38,17 @@ for story in response:
 stories = Story.objects.filter(~Q(session=session) | Q(session__isnull=True), Q(release__status__in=['Active','Planning']) | Q(release=None))
 for this in stories:
     q = ['FormattedId = "%s"' % this.rallyNumber]
-    response = rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,Project,c_Module,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked",order="FormattedID")
+    response = rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,Project,c_Module,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_ITFinanceConsultingKanbanState,c_Theme,Blocked",order="FormattedID")
 
     if response.resultCount == 0:
         print "Deleting %s" % (this.rallyNumber)
         this.delete()
     else:
         for story in response:
-            updateStory(this, story, session)
+            if story.c_ITFinanceConsultingKanbanState == "Completed Archive":
+                print "Deleting archived story %s" % (story.FormattedID)
+                this.delete()
+            else:
+                updateStory(this, story, session)
 
 session.close()

@@ -14,7 +14,7 @@
     <div class="col-sm-2"></div>
     <div class="col-sm-8">
       {% if data %}
-        <table class="table table-striped">
+        <table class="table table-striped table-hover">
           <thead>
             <tr>
               <th>Project Name</th>
@@ -26,7 +26,7 @@
           <tbody>
         {% for x in data %}
             <tr>
-              <td>{{x.name}}</td>
+              <td><a href="{% url 'activeProjects' %}/{{x.id}}">{{x.name}}</a></td>
               <td>{{x.status}}</td>
               <td>{{x.count}}</td>
               <td>
