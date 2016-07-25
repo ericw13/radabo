@@ -2,8 +2,8 @@
 {% block pagetitle %}User Stories{% endblock %}
 {% block title %}
   <div class="row">
-    <div class="col-sm-2"></div>
-    <div class="col-sm-8">
+    <div class="col-sm-1 col-xs-2"></div>
+    <div class="col-sm-9 col-xs-8">
       <h2>{{ header }}</h2>
         {% if startDate %}
           <h3>{{startDate|date:"d-M-Y"}} - {{endDate|date:"d-M-Y"}}</h3>
@@ -37,70 +37,70 @@
   </div>
 {% endblock %}
 {% block primary %}
-  {% regroup story by theme as sorted_story %}
   <div class="row">
-    <div class="col-sm-2"></div>
-    <div class="col-sm-8" style="float: left">
+    <div class="col-sm-1 col-xs-2"></div>
+    <div class="col-sm-9 col-xs-8" style="float: left">
       {% if story %}
-        <table class="publish">
+        {% if list %}
+          <table class="table table-striped table-hover" style="font-size: 16px">
+       {% else %}
+          <table class="table table-hover" style="font-size: 16px">
+       {% endif %}
           <thead>
             <tr>
-              <th class="left">Investment Theme</th>
-              <th class="left">Name</th>
+              <th>Name</th>
+              <th>Business Value</th>
               {% if showSprint == "Y" %}
-              <th class="publish">Sprint End Date</th>
+              <th>Sprint End Date</th>
               {% endif %}
-              <th class="publish">Business Area</th>
-              <th class="publish">Solution Size</th>
-              <th class="publish">Track</th>
-              <th class="left">Stakeholders</th>
+              <th>Business Area</th>
+              <th>Solution Size</th>
+              <th>Track</th>
+              <th>Stakeholders</th>
               {% if gpo == "Y" %}
-              <th class="left">Process Lead</th>
+              <th>Process Lead</th>
               {% endif %}
-              <th class="publish">Business Value</th>
-              <th class="left">User Story</th>
+              <th>Investment Theme</th>
+              <th>User Story</th>
             </tr>
           </thead>
-          {% for x in sorted_story %}
-              {% for y in x.list %} 
-                {% if y.blocked == "Y" %}
-                  <tr class="alert-danger">
-                {% elif y.color == "R" %}
-                  <tr class="alert-danger">
-                {% elif y.color == "Y" %}
-                  <tr class="alert-warning">
-                {% else %}
-                  <tr>
-                {% endif %}
-                {% if forloop.first %}
-                   <td class="first" rowspan="{{ forloop.revcounter }}">{{ x.grouper }}</td>
-                {% endif %}
-                <td class="publish" style="width: 25%">
-                {% if y.blocked == "Y" %}
-                  <span title="{{ y.blockedReason }}">
-                {% endif %}
-                {{ y.description }}{% if y.blocked == "Y" %}&nbsp;</span><span class="glyphicon glyphicon-ban-circle"></span>{% endif%}</td>
-                {% if showSprint == "Y" %}
-                <td class="publish" style="width: 7%">{{ y.sprintEnd|date:"d-M-Y" }}</td>
-                {% endif %}
-                <td class="center" style="width: 8%">{{ y.module }} </td>
-                <td class="center" style="width: 8%">{{ y.solutionSize }}</td>
-                <td class="center" style="width: 3%">{{ y.track }}</td>
-                <td class="publish" style="width: 10%">{{ y.stakeholders|default_if_none:"" }}</td>
-                {% if gpo == "Y" %}
-                <td class="publish" style="width: 10%">{{ y.globalLead|default_if_none:"" }}</td>
-                {% endif %}
-                <td class="center" style="width: 8%">{{ y.businessValue|default_if_none:"" }}</td>
-                <td class="publish" style="width: 8%"><a href="{{ y.storyURL }}" target="_blank">{{ y.rallyNumber }}</a></td>
-              </tr>
-              {% endfor %}
+          {% for x in story %}
+            {% if x.blocked == "Y" %}
+            <tr class="alert-danger">
+            {% elif x.color == "R" %}
+            <tr class="alert-danger">
+            {% elif x.color == "Y" %}
+            <tr class="alert-warning">
+            {% else %}
+            <tr>
+            {% endif %}
+            <td>
+              {% if x.blocked == "Y" %}
+                <span title="{{ x.blockedReason }}">
+              {% endif %}
+              {{ x.description }}{% if x.blocked == "Y" %}&nbsp;</span><span class="glyphicon glyphicon-ban-circle"></span>{% endif%}
+            </td>
+            <td>{{ x.businessValue|default_if_none:"" }}</td>
+            {% if showSprint == "Y" %}
+            <td>{{ x.sprintEnd|date:"d-M-Y" }}</td>
+            {% endif %}
+            <td>{{ x.module }} </td>
+            <td>{{ x.solutionSize }}</td>
+            <td>{{ x.track }}</td>
+            <td>{{ x.stakeholders|default_if_none:"" }}</td>
+            {% if gpo == "Y" %}
+            <td>{{ x.globalLead|default_if_none:"" }}</td>
+            {% endif %}
+            <td>{{ x.theme }}</td>
+            <td><a href="{{ x.storyURL }}" target="_blank">{{ x.rallyNumber }}</a></td>
+          </tr>
           {% endfor %}
-          </tr></table>
+          </table>
       {% else %}
         <p>{{ exception }}
       {% endif %}
     </div>
-    <div class="col-sm-2">
+    <div class="col-sm-2 col-xs-2">
     {% if showSprint == "Y" %}
       <h4>Legend</h4>
       <span>Pending UAT 0-14 days</span><br>

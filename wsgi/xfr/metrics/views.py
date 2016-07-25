@@ -160,7 +160,7 @@ def PendingUAT(request):
         'color': "select case when datediff(now(),endDate) > 28 then 'R' when datediff(now(),endDate) > 14 then 'Y' else 'G' end from metrics_sprint where id = metrics_story.currentSprint_id",
         }
 
-    story=Story.objects.filter(**kwargs).extra(select=extra).order_by('theme','-businessValue','rallyNumber')
+    story=Story.objects.filter(**kwargs).extra(select=extra).order_by('theme','sprintEnd','rallyNumber')
 
     c = {
          'story': story, 
@@ -198,7 +198,7 @@ def Backlog(request):
             filter = " (Investment Theme = %s): " % (request.POST['theme'])
  
     extra={'globalLead': "select globalLead from metrics_module where moduleName = metrics_story.module"}
-    story=Story.objects.filter(**kwargs).extra(select=extra).order_by('theme','-businessValue','rallyNumber')
+    story=Story.objects.filter(**kwargs).extra(select=extra).order_by('-businessValue','theme','rallyNumber')
     c = {'story': story, 
          'current': None,
          'header': 'Enhancement Backlog' + filter + str(len(story)) + ' stories',

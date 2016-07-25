@@ -2,8 +2,8 @@
 {% block pagetitle %}Projects{% endblock %}
 {% block title %}
 <div class="row">
-  <div class="col-sm-2"></div>
-  <div class="col-sm-8">
+  <div class="col-sm-1 col-xs-2"></div>
+  <div class="col-sm-9 col-xs-8">
     <h2>{{header}}</h2>
   </div>
   <div class="col-sm-2"></div>
@@ -11,39 +11,34 @@
 {% endblock %}
 {% block primary %}
   <div class="row">
-    <div class="col-sm-2"></div>
-    <div class="col-sm-8" style="float: left">
+    <div class="col-sm-1"></div>
+    <div class="col-sm-9">
     {% regroup story by track as sorted_story %}
     {% if story %}
-      <table class="publish" cellpadding="5">
+      <table class="table table-striped table-hover" style="font-size: 16px">
         <tr>
-          <th class="publish" >Track</th>
-          <th class="publish">Business Area</th>
-          <th class="left">Name</th>
-          <th class="left">Process Lead</th>
-          <th class="left">User Story</th>
-          <th class="left">Status</th>
+          <th >Track</th>
+          <th>Business Area</th>
+          <th>Name</th>
+          <th>Process Lead</th>
+          <th>User Story</th>
+          <th>Status</th>
         </tr>
-        {% for x in sorted_story %}
-            {% for y in x.list %} 
-              {% if y.blocked == "Y" %}
-              <tr class="alert-danger">
-              {% elif y.get_status_display == "Accepted" %}
-              <tr class="alert-success">
-              {% else %}
-              <tr>
-              {% endif %}
-              {% if forloop.first %}
-                 <td class="first" rowspan="{{ forloop.revcounter }}">{{ x.grouper|default_if_none:"Unknown" }}</td>
-              {% endif %}
-              <td class="center" style="width: 8%">{{ y.module|default_if_none:"All" }} </td>
-              <td class="publish" style="width: 25%">
-                {{ y.description }}{% if y.blocked == "Y" %}&nbsp;<span class="glyphicon glyphicon-ban-circle"></span>{% endif %}</td>
-              <td class="publish" style="width: 10%">{{ y.globalLead|default_if_none:"" }}</td>
-              <td class="publish" style="width: 8%"><a href="{{ y.storyURL }}" target="_blank">{{ y.rallyNumber }}</a></td>
-              <td class="publish" style="width: 10%">{{ y.get_status_display }}</td>
-            </tr>
-            {% endfor %}
+        {% for x in story %}
+          {% if x.blocked == "Y" %}
+          <tr class="alert-danger">
+          {% elif x.get_status_display == "Accepted" %}
+          <tr class="alert-success">
+          {% else %}
+          <tr>
+          {% endif %}
+          <td>{{ x.track|default_if_none:"Unknown" }}</td>
+          <td>{{ x.module|default_if_none:"All" }} </td>
+          <td>{{ x.description }}{% if x.blocked == "Y" %}&nbsp;<span class="glyphicon glyphicon-ban-circle"></span>{% endif %}</td>
+          <td>{{ x.globalLead|default_if_none:"" }}</td>
+          <td><a href="{{ x.storyURL }}" target="_blank">{{ x.rallyNumber }}</a></td>
+          <td>{{ x.get_status_display }}</td>
+          </tr>
         {% endfor %}
         </tr></table>
       {% else %}
