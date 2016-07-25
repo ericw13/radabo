@@ -3,7 +3,7 @@ from metrics.models import Sprint, Story, Release, Session
 from django.db.models import Q
 from django.utils import timezone
 from pyral import Rally, rallyWorkset
-from datetime import datetime
+from datetime import datetime, timedelta
 
 _ENH = "F1467"
 _PRJ = "F3841"
@@ -71,19 +71,27 @@ def getCurrentRelease():
 def getPriorSprint():
     try:
         cur = getCurrentSprint()
-        return Sprint.objects.filter(endDate__lt=cur.startDate).order_by('-startDate')[:1]
+        return Sprint.objects.filter(endDate__lt=cur.startDate).order_by('-startDate')[0]
     except Sprint.DoesNotExist:
+        return None
+
+def getPriorRelease():
+    try:
+        cur = getCurrentRelease()
+        return Release.objects.filter(endDate__lt=cur.startDate).order_by('-startDate')[0]
+    except Release.DoesNotExist:
         return None
 
 def getReleaseList():
     try:
-        return Release.objects.all().values_list('name',flat=True).order_by('-startDate')
+        t=timezone.now() + timedelta(days=-182)
+        return Release.objects.filter(startDate__gte=t).values_list('name',flat=True).order_by('-startDate')
     except:
         return None
 
 def getSprintList():
     try:
-        t=datetime(2016,1,1,0,0).replace(tzinfo=timezone.get_default_timezone())
+        t=timezone.now() + timedelta(days=-91)
         return Sprint.objects.filter(startDate__gte=t).values_list('name',flat=True).order_by('-startDate')
     except:
         return None

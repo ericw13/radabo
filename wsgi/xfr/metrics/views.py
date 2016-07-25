@@ -3,7 +3,7 @@ import cStringIO as StringIO
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from metrics.models import Sprint, Story, Release
-from metrics.utils import getSprintList, getReleaseList, getCurrentSprint, getCurrentRelease, getOrCreateStory, getEpics, getProjectStories
+from metrics.utils import getSprintList, getReleaseList, getCurrentSprint, getCurrentRelease, getOrCreateStory, getEpics, getProjectStories, getPriorRelease, getSprint
 from metrics.forms import SearchForm
 from django.utils import timezone
 from django.views import generic
@@ -26,17 +26,21 @@ def index(request):
 def routeToError(request):
     return render(request,'metrics/error.html', {})
 
+def _drawVelocity(request, kwargs, template):
+
+    results=Sprint.objects.filter(**kwargs).order_by('startDate').values('name','velocity')[:24]
+    avg = results.aggregate(Avg('velocity'))['velocity__avg']
+    c = {'velocity':
+         json.dumps([dict(item) for item in results]),
+         'avg': avg}
+    return render_to_response(template, c)
+
 def VelocityChart(request):
     kwargs = {
         'status': 'Accepted',
         'startDate__gte': '2016-06-01 00:00:00',
     }
-    results=Sprint.objects.filter(**kwargs).order_by('startDate').values('name','velocity')
-    avg = results.aggregate(Avg('velocity'))['velocity__avg']
-    c = {'velocity':
-         json.dumps([dict(item) for item in results]),
-         'avg': avg}
-    return render_to_response('metrics/velocity.html', c)
+    return _drawVelocity(request, kwargs, 'metrics/velocity.html')
 
 def OldVelocityChart(request):
     kwargs = {
@@ -44,12 +48,7 @@ def OldVelocityChart(request):
         'startDate__gte': '2015-09-01 00:00:00',
         'endDate__lte': '2016-06-10 00:00:00',
     }
-    results=Sprint.objects.filter(**kwargs).order_by('startDate').values('name','velocity')[:24]
-    avg = results.aggregate(Avg('velocity'))['velocity__avg']
-    c = {'velocity':
-         json.dumps([dict(item) for item in results]),
-         'avg': avg}
-    return render_to_response('metrics/month_velocity.html', c)
+    return _drawVelocity(request, kwargs, 'metrics/month_velocity.html')
 
 def DelayedItems(request):
     dateLimit = timezone.now() + timedelta(days=-365)
@@ -98,11 +97,11 @@ def Success(request):
 def BuildRelease(request):
     releaseList=getReleaseList()
     releaseName = None
-    thisRelease = getCurrentRelease()
+    defaultRelease = getPriorRelease()
     if request.method == 'POST':
         releaseName = _getValue(request.POST,'choice')
     if releaseName == None:
-        releaseName=str(thisRelease.name) if thisRelease else releaseList[0]
+        releaseName = str(defaultRelease.name) if defaultRelease else releaseList[0]
 
     kwargs = {
         'release__name': releaseName,
@@ -112,7 +111,7 @@ def BuildRelease(request):
     story=Story.objects.filter(**kwargs).order_by('theme','-businessValue','rallyNumber')
     c = {'story': story, 
          'current': releaseName,
-         'header': 'Enhancements released in '+ releaseName, 
+         'header': 'Enhancements released in '+ releaseName,
          'exception': 'No enhancements have yet been released in '+ releaseName,
          'list': releaseList}
     return c
@@ -131,6 +130,7 @@ def SprintReport(request):
     if sprint == None:
         sprint=str(thisSprint.name) if thisSprint else sprintList[0]
 
+    selectedSprint = getSprint(sprint)
     kwargs = {
         'currentSprint__name': sprint,
         'storyType': 'Enhancement',
@@ -139,7 +139,9 @@ def SprintReport(request):
     story=Story.objects.filter(**kwargs).order_by('theme','-businessValue','rallyNumber')
     c = {'story': story, 
          'current': sprint,
-         'header': 'Stories scheduled for ' + sprint,
+         'header': 'Enhancement stories scheduled for ' + sprint,
+         'startDate': selectedSprint.startDate,
+         'endDate': selectedSprint.endDate,
          'exception': 'No enhancements have yet been scheduled for '+ sprint,
          'list': sprintList}
     return render(request,'metrics/release.html',c)

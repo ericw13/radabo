@@ -5,6 +5,10 @@
     <div class="col-sm-2"></div>
     <div class="col-sm-8">
       <h2>{{ header }}</h2>
+        {% if startDate %}
+          <h3>{{startDate|date:"d-M-Y"}} - {{endDate|date:"d-M-Y"}}</h3>
+        {% endif %}
+    </h2>
     </div>
     <div class="col-sm-2"></div>
   </div>
@@ -96,6 +100,13 @@
         <p>{{ exception }}
       {% endif %}
     </div>
-    <div class="col-sm-2"></div>
+    <div class="col-sm-2">
+    {% if showSprint == "Y" %}
+      <h4>Legend</h4>
+      <span>Pending UAT 0-14 days</span><br>
+      <span class="alert-warning">Pending UAT for 15-28 days</span><br>
+      <span class="alert-danger">Pending UAT for 29+ days</span>
+    {% endif %}
+    </div>
   </div>
 {% endblock %}
