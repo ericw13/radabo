@@ -34,7 +34,11 @@
           {% endif %}
           <td>{{ x.track|default_if_none:"Unknown" }}</td>
           <td>{{ x.module|default_if_none:"All" }} </td>
-          <td>{{ x.description }}{% if x.blocked == "Y" %}&nbsp;<span class="glyphicon glyphicon-ban-circle"></span>{% endif %}</td>
+          <td>
+            {% if x.blocked == "Y" %}
+              <span title="{{ x.blockedReason }}">
+            {% endif %}
+            {{ x.description }}{% if x.blocked == "Y" %}&nbsp;</span><span class="glyphicon glyphicon-ban-circle"></span>{% endif %}</td>
           <td>{{ x.globalLead|default_if_none:"" }}</td>
           <td><a href="{{ x.storyURL }}" target="_blank">{{ x.rallyNumber }}</a></td>
           <td>{{ x.get_status_display }}</td>
