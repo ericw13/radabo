@@ -1,9 +1,8 @@
 import re,json
-import cStringIO as StringIO
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
-from metrics.models import Sprint, Story, Release
-from metrics.utils import getSprintList, getReleaseList, getCurrentSprint, getCurrentRelease, getOrCreateStory, getEpics, getProjectStories, getPriorRelease, getSprint
+from metrics.models import Sprint, Story, Release, Blog
+from metrics.utils import getSprintList, getReleaseList, getCurrentSprint, getCurrentRelease, getOrCreateStory, getEpics, getProjectStories, getPriorRelease, getSprint, getModuleList
 from metrics.forms import SearchForm
 from django.utils import timezone
 from django.views import generic
@@ -20,8 +19,14 @@ def _getValue(inputs, key):
         return None
 
 # Create your views here.
-def index(request):
-    return render(request, 'metrics/index.html', {})
+#def index(request):
+    #return render(request, 'metrics/index.html', {})
+
+class IndexView(generic.ListView):
+    template_name = 'metrics/index.html'
+    context_object_name = 'entries'
+    def get_queryset(self):
+        return Blog.objects.order_by('-created_at')[:10]
 
 def routeToError(request):
     return render(request,'metrics/error.html', {})
@@ -53,12 +58,12 @@ def OldVelocityChart(request):
 def DelayedItems(request):
     dateLimit = timezone.now() + timedelta(days=-365)
     args = ( 
-        ~Q(initialSprint=F('currentSprint') ), 
-    )
+            ~Q(initialSprint=F('currentSprint') ), 
+           )
     kwargs = {
-        'initialSprint__startDate__gte': dateLimit,
-        'storyType': 'Enhancement',
-    }
+              'initialSprint__startDate__gte': dateLimit,
+              'storyType': 'Enhancement',
+             }
     results=Story.objects.filter(*args, **kwargs).order_by('initialSprint__id')
     c = {'story': results}
     return render_to_response('metrics/lateStories.html',c)
@@ -85,16 +90,18 @@ def Success(request):
 
     extra={
         'on_schedule': "CASE WHEN initialSprint_id = currentSprint_id THEN 'Yes' ELSE 'No' END"
-    }
+          }
     story=Story.objects.extra(select=extra).filter(**kwargs).values('on_schedule').order_by('-on_schedule').annotate(Count('rallyNumber'))
 
-    c = {'data': json.dumps([dict(item) for item in story]),
+    c = {
+         'data': json.dumps([dict(item) for item in story]),
          'sprint': sprintName,
          'average': default,
-         'list': sprints}
+         'list': sprints,
+        }
     return render(request, 'metrics/speedo.html', c)
 
-def BuildRelease(request):
+def _buildRelease(request):
     releaseList=getReleaseList()
     releaseName = None
     defaultRelease = getPriorRelease()
@@ -104,23 +111,27 @@ def BuildRelease(request):
         releaseName = str(defaultRelease.name) if defaultRelease else releaseList[0]
 
     kwargs = {
-        'release__name': releaseName,
-        'status': 'A',
-        'storyType': 'Enhancement',
-    }
-    story=Story.objects.filter(**kwargs).order_by('theme','-businessValue','rallyNumber')
-    c = {'story': story, 
+              'release__name': releaseName,
+              'status': 'A',
+              'storyType': 'Enhancement',
+             }
+    story=Story.objects.filter(**kwargs).order_by('-businessValue','theme','rallyNumber')
+    c = {
+         'story': story, 
          'current': releaseName,
          'header': 'Enhancements released in '+ releaseName,
          'exception': 'No enhancements have yet been released in '+ releaseName,
-         'list': releaseList}
+         'buttonText': 'Select Release',
+         'list': releaseList,
+        }
     return c
 
 def ReleaseReport(request):
-    context = BuildRelease(request)
+    context = _buildRelease(request)
     return render(request,'metrics/release.html',context)
 
-def SprintReport(request):
+def _buildSprint(request):
+
     sprintList=getSprintList()
     thisSprint=getCurrentSprint()
     sprint = None
@@ -136,14 +147,53 @@ def SprintReport(request):
         'storyType': 'Enhancement',
     }
 
-    story=Story.objects.filter(**kwargs).order_by('theme','-businessValue','rallyNumber')
-    c = {'story': story, 
+    story=Story.objects.filter(**kwargs).order_by('-businessValue','theme','rallyNumber')
+    c = {
+         'story': story, 
          'current': sprint,
          'header': 'Enhancement stories scheduled for ' + sprint,
          'startDate': selectedSprint.startDate,
          'endDate': selectedSprint.endDate,
          'exception': 'No enhancements have yet been scheduled for '+ sprint,
-         'list': sprintList}
+         'buttonText': 'Select Sprint',
+         'list': sprintList,
+         'showStatus': 'Y',
+        }
+
+    return c
+
+def SprintReport(request):
+    context = _buildSprint(request)
+    return render(request,'metrics/release.html',context)
+
+def enhByModule(request):
+
+    modList = getModuleList()
+    if request.method == 'POST':
+        module = _getValue(request.POST,'choice')
+        kwargs = {
+            'storyType': 'Enhancement',
+            'module': module,
+        }
+        header = 'All enhancements for %s module' % (module)
+        exc = 'No enhancements have yet been defined for '+ module,
+
+        story=Story.objects.filter(**kwargs).order_by('-rallyNumber')
+    elif request.method == 'GET':
+        header = 'Please select a module from the list'
+        story = None
+        module = ''
+        exc = ''
+        
+    c = {
+         'story': story,
+         'current': module,
+         'header': header,
+         'exception': exc,
+         'buttonText': 'Select Module',
+         'showStatus': 'Y',
+         'list': modList,
+        }
     return render(request,'metrics/release.html',c)
 
 def PendingUAT(request):
@@ -199,13 +249,14 @@ def Backlog(request):
  
     extra={'globalLead': "select globalLead from metrics_module where moduleName = metrics_story.module"}
     story=Story.objects.filter(**kwargs).extra(select=extra).order_by('-businessValue','theme','rallyNumber')
-    c = {'story': story, 
+    c = {
+         'story': story, 
          'current': None,
          'header': 'Enhancement Backlog' + filter + str(len(story)) + ' stories',
          'exception': 'No enhancements are in the backlog!',
          'gpo': 'Y',
          'list': None,
-         'showBlocked': 'Y'}
+         }
     return render(request,'metrics/release.html',c)
 
 def _allGraphs(request, **kwargs):

@@ -30,41 +30,40 @@
     </div>
     <nav class="navbar navbar-inverse navbar-static-top" data-spy="affix" data-offset-top="77">
       <ul class="nav navbar-nav">
-        <li><a class="navbar-brand" href="#"><span title="RAlly DAshBOard">RADABO</span></a></li>
+        <li><a class="navbar-brand" href="#"><span title="IT Finance RAlly DAshBOard">RADABO</span></a></li>
         <li><a href="/metrics/"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Enhancements<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="{% url 'backlog' %}">Backlog</a></li>
+            <li><a href="{% url 'backlog' %}/module/">... by Module</a></li>
+            <li><a href="{% url 'backlog' %}/track/">... by Track</a></li>
+            <li><a href="{% url 'backlog' %}/size/">... by Estimated Size</a></li>
+            <li><a href="{% url 'backlog' %}/theme/">... by Investment Theme</a></li>
+            <li><a href="{% url 'backlog' %}/all/">... All Charts</a></li>
+            <li><a href="{% url 'sprint' %}">Planned Sprints</a></li>
+            <li><a href="{% url 'UAT' %}">Pending UAT</a></li>
+            <li><a href="{% url 'release' %}">Releases</a></li>
+            <li><a href="{% url 'allbymod' %}">By Module</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Projects<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="{% url 'projectGrooming' %}">Project Grooming</a></li>
+            <li><a href="{% url 'activeProjects' %}">Active Projects</a></li>
+          </ul>
+        </li>
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Metrics <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <!-- Removed July 7 2016, not a great agile metric -->
             <!--<li><a href="/metrics/success/">Success Rates</a></li>-->
-            <li><a href="/metrics/velocity/old/">Team Velocity (Monthly)</a></li>
+            <li><a href="{% url 'velocity' %}">Team Velocity</a></li>
+            <li><a href="{% url 'oldvelocity' %}">(Old) Team Velocity-Monthly</a></li>
           </ul>
         </li>
-        <li class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Active <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="/metrics/projects/active/">Project Status</a></li>
-            <li><a href="/metrics/sprint/">Planned Sprints</a></li>
-            <li><a href="/metrics/release/">Enhancement Releases</a></li>
-            <li><a href="/metrics/pending/">Enhancements Pending UAT</a></li>
-            <!--
-            <li><a href="/metrics/latestory/">Delayed Enhancements</a></li>
-            -->
-          </ul>
-        </li>
-        <li class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Backlog <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="/metrics/projects/grooming/">Project Grooming</a></li>
-            <li><a href="/metrics/backlog/">Enhancement Backlog</a></li>
-            <li><a href="/metrics/backlog/module/">... by Module</a></li>
-            <li><a href="/metrics/backlog/track/">... by Track</a></li>
-            <li><a href="/metrics/backlog/size/">... by Estimated Size</a></li>
-            <li><a href="/metrics/backlog/theme/">... by Investment Theme</a></li>
-            <li><a href="/metrics/backlog/all/">... All Charts</a></li>
-          </ul>
-        </li>
-        <li><a href="/metrics/syncstory/">Refresh Story</a></li>
+        <li><a href="{% url 'updateStory' %}">Refresh Story</a></li>
       </ul>
     </nav>
     {% block picker %}{% endblock %}

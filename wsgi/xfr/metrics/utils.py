@@ -1,5 +1,5 @@
 import os, re
-from metrics.models import Sprint, Story, Release, Session
+from metrics.models import Sprint, Story, Release, Session, Module
 from django.db.models import Q
 from django.utils import timezone
 from pyral import Rally, rallyWorkset
@@ -93,6 +93,12 @@ def getSprintList():
     try:
         t=timezone.now() + timedelta(days=-91)
         return Sprint.objects.filter(startDate__gte=t).values_list('name',flat=True).order_by('-startDate')
+    except:
+        return None
+
+def getModuleList():
+    try:
+        return Module.objects.all().values_list('moduleName',flat=True).order_by('moduleName')
     except:
         return None
 

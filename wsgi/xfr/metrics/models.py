@@ -93,3 +93,19 @@ class Story(models.Model):
         return "%s: %s" % (self.rallyNumber, self.description)
     def _on_schedule(self):
         return self.initialSprint == self.currentSprint
+
+class Blog(models.Model):
+    NOTE_TYPE_CHOICES = (
+        ('I', 'Informational'),
+        ('R', 'Release Notes'),
+        ('W', 'Warnings'),
+    )
+    note = models.CharField(max_length=1000)
+    noteType = models.CharField(max_length=1,choices=NOTE_TYPE_CHOICES,verbose_name="Note Type")
+    created_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.note[:20] + "..."
+
+    class Meta:
+        verbose_name = "Blog entry"
+        verbose_name_plural = "Blog entries"
