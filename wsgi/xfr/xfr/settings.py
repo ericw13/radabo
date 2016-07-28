@@ -74,7 +74,7 @@ ADMIN_REORDER = (
      'models': ('xfrAdmin.Host','xfrAdmin.Process','xfrAdmin.User','xfrAdmin.NotificationList','xfrAdmin.TransferLocation') },
     {'app': 'metrics',
      'label': 'Finance Dashboard',
-     'models': ('metrics.Module', )},
+     'models': ('metrics.Module', 'metrics.Blog')},
     {'app': 'auth',
      'label': 'Django User Management',
      'models': ('auth.User','auth.Group')},
