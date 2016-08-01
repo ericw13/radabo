@@ -16,7 +16,6 @@
         {% if startDate %}
           <h3>{{startDate|date:"d-M-Y"}} - {{endDate|date:"d-M-Y"}}</h3>
         {% endif %}
-    </h2>
     </div>
     <div class="col-sm-2"></div>
   </div>
@@ -41,22 +40,59 @@
         </form>
       {% endif %}
     </div>
-    <div class="col-sm-8 col-xs-6">
+    <div id="export" style="display:none" class="col-sm-8 col-xs-6">
       {% if story %}
       <span title="Download"><button id="btnExport" class="btn btn-success glyphicon glyphicon-download-alt pull-right" onclick="window.open('data:application/vnd.ms-excel,'+encodeURIComponent(document.getElementById('data').outerHTML));"></button></span>
       {% endif %}
     </div>
+    <script>
+      var ua=window.navigator.userAgent;
+      if(ua.indexOf('Chrome') != -1){document.getElementById('export').style.display='none'}
+      else {document.getElementById('export').style.display=''}
+    </script>
     <div class="col-sm-2 col-xs-2"></div>
   </div>
 {% endblock %}
 {% block primary %}
+
+<script>
+$(function() {
+    var options = {
+        autoOpen: false,
+        resizable: false,
+        modal: true,
+        width: 600,
+        position: {
+            my: "left top",
+            at: "center",
+            of: window
+        },
+        show: {
+            effect: "blind",
+            duration: 1000
+        },
+        hide: {
+            effect: "explode", 
+            duration: 1000
+        }
+    };
+
+    $( ".dialog" ).dialog(options);
+    $( ".opener" ).on( "click", function() {
+        $( "#story-" + this.id) .dialog( "option","position",{my: "left top", at: "left bottom", of: $("#"+this.id)} );
+        $( "#story-" + this.id) .dialog( "open" );
+        return false;
+    });
+});
+</script>
   <div class="row">
     <div class="col-sm-1 col-xs-2"></div>
-    <div id="data" class="col-sm-9 col-xs-8" style="float: left">
+    <div id="data" class="col-sm-9 col-xs-7" style="float: left">
       {% if story %}
         <table class="table table-hover" style="font-size: 16px">
           <thead>
             <tr>
+              <th></th>
               <th>Name</th>
               <th>Earned Value</th>
               {% if showSprint == "Y" %}
@@ -86,11 +122,12 @@
             {% else %}
             <tr>
             {% endif %}
+            <td><a href="#" class="opener" id="detail{{forloop.counter}}"><button class="btn glyphicon glyphicon-search"></button></a></td>
             <td>
               {% if x.blocked == "Y" %}
                 <span title="{{ x.blockedReason }}">
               {% endif %}
-              {{ x.description }}{% if x.blocked == "Y" %}&nbsp;</span><span class="glyphicon glyphicon-ban-circle"></span>{% endif%}
+              {{ x.description|safe }}{% if x.blocked == "Y" %}&nbsp;</span><span class="glyphicon glyphicon-ban-circle"></span>{% endif%}
             </td>
             <td>{{ x.businessValue|default_if_none:"" }}</td>
             {% if showSprint == "Y" %}
@@ -115,7 +152,10 @@
         <p>{{ exception }}
       {% endif %}
     </div>
-    <div class="col-sm-2 col-xs-2">
+    {% for x in story %}
+    <div class="dialog" id="story-detail{{forloop.counter}}" style="display:none" title="Story details">{{x.longDescription|safe}}</div>
+    {% endfor %}
+    <div class="col-sm-2 col-xs-3">
     {% if showSprint == "Y" %}
       <h4>Legend</h4>
       <span>Pending UAT 0-14 days</span><br>
@@ -124,4 +164,7 @@
     {% endif %}
     </div>
   </div>
+  <div class="row">
+  </div>
+  
 {% endblock %}

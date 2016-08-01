@@ -48,6 +48,7 @@ class Session(models.Model):
         self.endDate = timezone.now()
         self.save()
 
+@python_2_unicode_compatible
 class Story(models.Model):
     STATUS_CHOICES = (
         ('B', 'Backlog'),
@@ -71,6 +72,7 @@ class Story(models.Model):
 
     rallyNumber = models.CharField(max_length=20,unique=True)
     description = models.CharField(max_length=255)
+    longDescription = models.CharField(max_length=2000,null=True,blank=True)
     storyType = models.CharField(max_length=20, default="Enhancement")
     points = models.IntegerField(null=True, blank=True)
     businessValue = models.IntegerField(choices=BV_CHOICES, null=True, blank=True)
@@ -104,7 +106,7 @@ class Blog(models.Model):
     noteType = models.CharField(max_length=1,choices=NOTE_TYPE_CHOICES,verbose_name="Note Type")
     created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
-        return self.note[:20] + "..."
+        return self.note[:40] + ("..." if len(self.note)>40 else "")
 
     class Meta:
         verbose_name = "Blog entry"

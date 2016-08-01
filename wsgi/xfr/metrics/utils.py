@@ -129,6 +129,12 @@ def getFeatureDesc(text):
     else:
         return "Project Deliverable"
 
+def getLongDesc(text):
+    x=re.sub(r'<b>Solution.*$','',text)
+    if len(x) > 2000:
+        return x[:1997]+"...".decode('utf-8')
+    else:
+        return x.decode('utf-8')
 
 def createStory(story,session):
     print "Creating " + story.FormattedID
@@ -140,6 +146,7 @@ def createStory(story,session):
     storyURL = getStoryURL(projectID, story.ObjectID)
     this = Story(rallyNumber=story.FormattedID,
                  description=story.Name,
+                 longDescription=getLongDesc(story.Description),
                  storyType=getFeatureDesc(story.Feature.FormattedID),
                  points=story.PlanEstimate,
                  businessValue=story.c_BusinessValueBV,
@@ -161,6 +168,7 @@ def updateStory(this, that, session):
     print "Updating %s" % (this.rallyNumber)
 
     this.description = that.Name
+    this.longDescription = getLongDesc(that.Description)
     this.storyType = getFeatureDesc(that.Feature.FormattedID)
     this.points = that.PlanEstimate
     this.businessValue = that.c_BusinessValueBV
@@ -190,12 +198,21 @@ def updateStory(this, that, session):
                 break
     this.save()
 
-def getOrCreateStory(storyNumber):
+def fetchStoryFromRally(storyNumber):
     try:
         rally = initRally()
-    except Exception as e:
-        return 'N', e
+        q="FormattedID = %s" % (storyNumber)
+        response=rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,Description,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked,BlockedReason")
 
+    except Exception as e:
+        raise Exception(e)
+
+    if response.resultCount == 0:
+        raise Exception("User story %s not found." % (storyNumber))
+
+    return response
+
+def getOrCreateStory(storyNumber):
     try:
         session = Session()
         session.save()
@@ -203,13 +220,9 @@ def getOrCreateStory(storyNumber):
         return 'N', "Create session failed."
 
     try:
-        q="FormattedID = %s" % (storyNumber)
-        response=rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked,BlockedReason")
-    except:
-        return 'N', "Could not fetch User Story from Rally."
-
-    if response.resultCount == 0:
-        return 'N', "User story %s not found." % (storyNumber)
+        response = fetchStoryFromRally(storyNumber)
+    except Exception as e:
+        return 'N', e
 
     for story in response:
         this=getStory(story.FormattedID)
@@ -224,6 +237,15 @@ def getOrCreateStory(storyNumber):
 
     session.close()
     return 'Y', "Success!"
+
+def storyDetail(storyNumber):
+    try:
+        response = fetchStoryFromRally(storyNumber)
+    except Exception as e:
+        return 'N', e
+
+    text = response.next().Description
+    return 'Y', text
 
 def getEpics():
     try:

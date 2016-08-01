@@ -19,7 +19,7 @@ q = '((Feature.FormattedID = "1467") AND (Release = "")) OR ((Feature.FormattedI
     #'Release = null',
     #'Feature.FormattedID = 1467',
     #]
-response = rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked,BlockedReason",order="FormattedID")
+response = rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,Description,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked,BlockedReason",order="FormattedID")
 
 if response.resultCount == 0:
     print "Cannot find any stories in the backlog!"
@@ -38,7 +38,7 @@ for story in response:
 stories = Story.objects.filter(~Q(session=session) | Q(session__isnull=True), Q(release__status__in=['Active','Planning']) | Q(release=None))
 for this in stories:
     q = ['FormattedId = "%s"' % this.rallyNumber]
-    response = rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,Project,c_Module,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_ITFinanceConsultingKanbanState,c_Theme,Blocked,BlockedReason",order="FormattedID")
+    response = rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,Description,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,Project,c_Module,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_ITFinanceConsultingKanbanState,c_Theme,Blocked,BlockedReason",order="FormattedID")
 
     if response.resultCount == 0:
         print "Deleting %s" % (this.rallyNumber)

@@ -28,7 +28,7 @@
       {% elif x.noteType == "W" %}
         <li class="list-group-item list-group-item-danger">
       {% endif %}
-      {{ x.created_at|date:"d-M-Y" }} - {{ x.note }}
+      {{ x.created_at|date:"d-M-Y" }} - {{ x.note|safe }}
       </li>
     {% endfor %}
     </ul>
