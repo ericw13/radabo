@@ -2,9 +2,9 @@
 {% block pagetitle %}Backlog Metrics{% endblock %}
 {% block title %}
   <div class="row">
-    <div class="col-sm-2"></div>
-    <div class="col-sm-8"><h2>{{ header }}</h2></div>
-    <div class="col-sm-2"></div>
+    <div class="col-sm-1"></div>
+    <div class="col-sm-5 text-center"><h2>{{ header }}</h2></div>
+    <div class="col-sm-6"></div>
   </div>
 {% endblock %}
 {% block js %}
@@ -82,14 +82,10 @@
 {% endblock %}
 {% block primary %}
   <div class="row">
-    <div class="col-sm-2"></div>
-    <div class="col-sm-8">
-      <div class="grid">
-        <div class="col-1-1">
-          <div id="piechart" class="chart"></div>
-        </div>
-      </div>
+    <div class="col-sm-1 col-xs-4"></div>
+    <div class="col-sm-5 col-xs-4">
+        <div id="piechart" class="chart"></div>
     </div>
-    <div class="col-sm-2"></div>
+    <div class="col-sm-6 col-xs-4"></div>
   </div>
 {% endblock %}

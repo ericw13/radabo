@@ -80,7 +80,7 @@ $(function() {
     $( ".dialog" ).dialog(options);
     $( ".opener" ).on( "click", function() {
         $( "#story-" + this.id) .dialog( "option","position",{my: "left top", at: "left bottom", of: $("#"+this.id)} );
-        $( "#story-" + this.id) .dialog( "open" );
+        $( "#story-" + this.id) .dialog( "open" ).prev().css('background','#d9edf7').css('color','#31708f');
         return false;
     });
 });
@@ -112,6 +112,7 @@ $(function() {
               {% endif %}
             </tr>
           </thead>
+          <tbody>
           {% for x in story %}
             {% if x.blocked == "Y" %}
             <tr class="alert-danger">
@@ -145,16 +146,14 @@ $(function() {
             {% if showStatus == "Y" %}
             <td>{{ x.get_status_display }}</td>
             {% endif %}
-          </tr>
+            </tr>
           {% endfor %}
-          </table>
+          </tbody>
+        </table>
       {% else %}
         <p>{{ exception }}
       {% endif %}
     </div>
-    {% for x in story %}
-    <div class="dialog" id="story-detail{{forloop.counter}}" style="display:none" title="Story details">{{x.longDescription|safe}}</div>
-    {% endfor %}
     <div class="col-sm-2 col-xs-3">
     {% if showSprint == "Y" %}
       <h4>Legend</h4>
@@ -164,7 +163,11 @@ $(function() {
     {% endif %}
     </div>
   </div>
+{% endblock %}
+{% block hidden %}
   <div class="row">
+  {% for x in story %}
+  <div class="dialog" id="story-detail{{forloop.counter}}" style="display:none" title="Story details">{{x.longDescription|safe}}</div>
+  {% endfor %}
   </div>
-  
 {% endblock %}

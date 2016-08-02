@@ -2,7 +2,7 @@ from django.test import TestCase
 from metrics.models import Sprint, Release, Story, Session, Module
 from django.utils import timezone
 from datetime import timedelta
-from metrics.utils import getCurrentRelease, getRelease, getCurrentSprint, getSprint, getSolutionSize, getFeatureDesc, getStory
+from metrics.utils import getCurrentRelease, getRelease, getCurrentSprint, getSprint, getSolutionSize, getFeatureDesc, getStory, getPriorRelease, getPriorSprint, getReleaseList, getSprintList, getModuleList
 
 # Create your tests here.
 
@@ -10,15 +10,23 @@ class ReleaseTest(TestCase):
 
     def setUp(self):
         self.relName = "Test Release"
+        self.anotherRelName = "Test Release 2"
+        self.priorRelName = "Test Release 3"
         self.badName = "FOO"
         r=Release.objects.create(name=self.relName,
                                  startDate=timezone.now() + timedelta(days=-7),
                                  endDate=timezone.now() + timedelta(days=7))
+        r=Release.objects.create(name=self.anotherRelName,
+                                 startDate=timezone.now() + timedelta(days=8),
+                                 endDate=timezone.now() + timedelta(days=14))
+        r=Release.objects.create(name=self.priorRelName,
+                                 startDate=timezone.now() + timedelta(days=-14),
+                                 endDate=timezone.now() + timedelta(days=-8))
 
     def test_get_release(self):
         r=getRelease(self.relName)
         x = (r != None)
-        self.assertEqual(x,True)
+        self.assertEqual(x, True)
 
     def test_get_current_release(self):
         t=timezone.now()
@@ -30,14 +38,33 @@ class ReleaseTest(TestCase):
         r=getRelease(self.badName)
         self.assertEqual(r, None)
 
+    def test_get_release_list(self):
+        r=getReleaseList()
+        self.assertEqual(len(r),3)
+
+    def test_get_prior_release(self):
+        r=getPriorRelease()
+        x = (r != None)
+        self.assertEqual(x,True)
+
 class SprintTest(TestCase):
 
     def setUp(self):
         self.sprintName = "Test Sprint"
+        self.anotherSprintName = "Test Sprint 2"
+        self.priorSprintName = "Test Sprint 3"
         self.badName = "FOO"
         s=Sprint.objects.create(name=self.sprintName,
                                 startDate=timezone.now() + timedelta(days=-7),
                                 endDate=timezone.now() + timedelta(days=7),
+                                velocity=100)
+        s=Sprint.objects.create(name=self.anotherSprintName,
+                                startDate=timezone.now() + timedelta(days=8),
+                                endDate=timezone.now() + timedelta(days=14),
+                                velocity=100)
+        s=Sprint.objects.create(name=self.priorSprintName,
+                                startDate=timezone.now() + timedelta(days=-14),
+                                endDate=timezone.now() + timedelta(days=-8),
                                 velocity=100)
 
     def test_get_sprint(self):
@@ -51,22 +78,39 @@ class SprintTest(TestCase):
         x= s.startDate <= t and s.endDate >= t
         self.assertEqual(x,True)
 
+    def test_get_prior_sprint(self):
+        s=getPriorSprint()
+        x = (s != None)
+        self.assertEqual(x, True)
+
     def test_neg_get_sprint(self):
-        r=getSprint(self.badName)
-        self.assertEqual(r, None)
+        s=getSprint(self.badName)
+        self.assertEqual(s, None)
+
+    def test_get_sprint_list(self):
+        s=getSprintList()
+        self.assertEqual(len(s),3)
 
 class ModuleTest(TestCase):
 
     def setUp(self):
         self.moduleName = "Test Module"
+        self.anotherModuleName = "Test Module 2"
         self.badName = "FOO"
         m=Module.objects.create(moduleName = self.moduleName,
                                 track = 'OTC',
                                 globalLead = 'Eric Wright')
+        m=Module.objects.create(moduleName = self.anotherModuleName,
+                                track = 'RTR',
+                                globalLead = 'John Doe')
 
     def test_get_module(self):
         m=Module.objects.filter(moduleName=self.moduleName)
         self.assertEqual(len(m),1)
+
+    def test_get_module_list(self):
+        m=getModuleList()
+        self.assertEqual(len(m),2)
 
     def neg_test_get_module(self):
         m=Module.objects.filter(moduleName=self.badName)

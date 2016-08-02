@@ -28,11 +28,11 @@
   </head>
   <body>
     <div class="row">
-      <div class="containter-fluid" style="padding-left:30px; height:80px;">
-        <img src="{% static 'metrics/Logo_RH_RGB_Default.png' %}"/>
+      <div class="containter-fluid" style="padding-left:30px; height:100px;">
+        <img src="{% static 'metrics/Logo_RH_RGB_Default.png' %}" />
       </div>
     </div>
-    <nav class="navbar navbar-inverse navbar-static-top" data-spy="affix" data-offset-top="77">
+    <nav class="navbar navbar-inverse navbar-static-top" data-spy="affix" data-offset-top="100" data-offset-bottom="250">
       <ul class="nav navbar-nav">
         <li><a class="navbar-brand" href="#"><span title="IT Finance RAlly DAshBOard">RADABO</span></a></li>
         <li><a href="{% url 'index' %}"><span class="glyphicon glyphicon-home"></span></a></li>
@@ -73,5 +73,11 @@
     {% block picker %}{% endblock %}
     {% block title %}{% endblock %}
     {% block primary %}{% endblock %}
+    <div class="row">
+      <div class="col-sm-1"></div>
+      <div class="col-sm-8">&copy; Red Hat, Inc.</div>
+      <div class="col-sm-3"></div>
+    </div>
+    {% block hidden %}{% endblock %}
   </body>
 </html>
