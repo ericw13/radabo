@@ -193,6 +193,8 @@ def updateStory(this, that, session):
         this.initialSprint = this.currentSprint
     if that.Release:
         this.release = getRelease(that.Release.Name)
+    else:
+        this.release = None
     if that.Tags:
         this.track = that.Tags[0].Name
     if this.status in ['B','D','P']:
