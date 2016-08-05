@@ -71,14 +71,20 @@ def getCurrentRelease():
 def getPriorSprint():
     try:
         cur = getCurrentSprint()
-        return Sprint.objects.filter(endDate__lt=cur.startDate).order_by('-startDate')[0]
+        if cur:
+            return Sprint.objects.filter(endDate__lt=cur.startDate).order_by('-startDate')[0]
+        else:
+            return None
     except Sprint.DoesNotExist:
         return None
 
 def getPriorRelease():
     try:
         cur = getCurrentRelease()
-        return Release.objects.filter(endDate__lt=cur.startDate).order_by('-startDate')[0]
+        if cur:
+            return Release.objects.filter(endDate__lt=cur.startDate).order_by('-startDate')[0]
+        else:
+            return None
     except Release.DoesNotExist:
         return None
 
@@ -130,7 +136,7 @@ def getFeatureDesc(text):
         return "Project Deliverable"
 
 def getLongDesc(text):
-    x=re.sub(r'<b>Solution.*$','',text)
+    x=re.sub(r'<b>(<u>)?Solution.*$','',text)
     if len(x) > 2000:
         return x[:1997]+"...".decode('utf-8')
     else:
