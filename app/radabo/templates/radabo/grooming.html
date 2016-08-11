@@ -55,7 +55,7 @@
               <span title="{{ x.blockedReason }}">
             {% endif %}
             {{ x.description }}{% if x.blocked == "Y" %}&nbsp;</span><span class="glyphicon glyphicon-ban-circle"></span>{% endif %}</td>
-          <td>{{ x.globalLead|default_if_none:"" }}</td>
+          <td>{{ x.module.globalLead|default_if_none:"" }}</td>
           <td><a href="{{ x.storyURL }}" target="_blank">{{ x.rallyNumber }}</a></td>
           <td>{{ x.get_status_display }}</td>
           </tr>

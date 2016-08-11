@@ -54,6 +54,7 @@ for this in stories:
                 print "Deleting archived story %s" % (story.FormattedID)
                 this.delete()
             else:
+                print "Updating %s with release %s" % (story.FormattedID, (story.Release.Name if story.Release else 'No data'))
                 updateStory(this, story, session)
 
 session.close()

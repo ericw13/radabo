@@ -11,27 +11,27 @@ from django.template import Context
 from django.template.loader import get_template
 from datetime import timedelta
 
-# Utility functions
-def _getValue(inputs, key):
-    if key in inputs and inputs[key]:
-        return inputs[key]
-    else:
-        return None
-
 # Create your views here.
-#def index(request):
-    #return render(request, 'radabo/index.html', {})
-
 class IndexView(generic.ListView):
+    """
+    View for the main page which pulls the latest blog entries
+    """
     template_name = 'radabo/index.html'
     context_object_name = 'entries'
     def get_queryset(self):
         return Blog.objects.order_by('-created_at')[:10]
 
 def routeToError(request):
+    """
+    Used for any unrecognized URL patterns
+    """
     return render(request,'radabo/error.html', {})
 
 def _drawVelocity(request, kwargs, template):
+    """
+    Common function that fetches data and json-ifies it for use with the
+    Google Charts API
+    """
 
     results=Sprint.objects.filter(**kwargs).order_by('startDate').values('name','velocity')[:24]
     avg = results.aggregate(Avg('velocity'))['velocity__avg']
@@ -41,6 +41,9 @@ def _drawVelocity(request, kwargs, template):
     return render_to_response(template, c)
 
 def VelocityChart(request):
+    """
+    Bi-weekly sprint velocity - new schedule started early June 2016
+    """
     kwargs = {
         'status': 'Accepted',
         'startDate__gte': '2016-06-01 00:00:00',
@@ -48,6 +51,9 @@ def VelocityChart(request):
     return _drawVelocity(request, kwargs, 'radabo/velocity.html')
 
 def OldVelocityChart(request):
+    """
+    Monthly sprint velocity - schedule deprecated early June 2016
+    """
     kwargs = {
         'status': 'Accepted',
         'startDate__gte': '2015-09-01 00:00:00',
@@ -55,58 +61,63 @@ def OldVelocityChart(request):
     }
     return _drawVelocity(request, kwargs, 'radabo/month_velocity.html')
 
-def DelayedItems(request):
-    dateLimit = timezone.now() + timedelta(days=-365)
-    args = ( 
-            ~Q(initialSprint=F('currentSprint') ), 
-           )
-    kwargs = {
-              'initialSprint__startDate__gte': dateLimit,
-              'storyType': 'Enhancement',
-             }
-    results=Story.objects.filter(*args, **kwargs).order_by('initialSprint__id')
-    c = {'story': results}
-    return render_to_response('radabo/lateStories.html',c)
+# Old process that cared about whether enhancements were delivered in the sprint
+# in which they were originally scheduled.  This is no longer used.
+#def DelayedItems(request):
+    #dateLimit = timezone.now() + timedelta(days=-365)
+    #args = ( 
+            #~Q(initialSprint=F('currentSprint') ), 
+           #)
+    #kwargs = {
+              #'initialSprint__startDate__gte': dateLimit,
+              #'storyType': 'Enhancement',
+             #}
+    #results=Story.objects.filter(*args, **kwargs).order_by('initialSprint__id')
+    #c = {'story': results}
+    #return render_to_response('radabo/lateStories.html',c)
 
-def Success(request):
-    sprints=getSprintList()
-    sprintName=None 
-    default="Last Six Months"
-    if request.method == 'POST':
-        sprintName = getValue(request.POST,'sprintSelect')
-    if sprintName == None:
-        sprintName = default
-
-    kwargs = {
-        'storyType': 'Enhancement',
-    }
-    if sprintName == default:
-        start = timezone.now() + timedelta(days=-182)
-        l=Sprint.objects.filter(status='Accepted',startDate__gte=start)
-        kwargs.update({'initialSprint__in': l})
-    else:
-        kwargs.update({'initialSprint__name': sprintName,
-                       'initialSprint__status': 'Accepted'})
-
-    extra={
-        'on_schedule': "CASE WHEN initialSprint_id = currentSprint_id THEN 'Yes' ELSE 'No' END"
-          }
-    story=Story.objects.extra(select=extra).filter(**kwargs).values('on_schedule').order_by('-on_schedule').annotate(Count('rallyNumber'))
-
-    c = {
-         'data': json.dumps([dict(item) for item in story]),
-         'sprint': sprintName,
-         'average': default,
-         'list': sprints,
-        }
-    return render(request, 'radabo/speedo.html', c)
-
+#def Success(request):
+    #sprints=getSprintList()
+    #sprintName=None 
+    #default="Last Six Months"
+    #if request.method == 'POST':
+        #sprintName = getValue(request.POST,'sprintSelect')
+    #if sprintName == None:
+        #sprintName = default
+#
+    #kwargs = {
+        #'storyType': 'Enhancement',
+    #}
+    #if sprintName == default:
+        #start = timezone.now() + timedelta(days=-182)
+        #l=Sprint.objects.filter(status='Accepted',startDate__gte=start)
+        #kwargs.update({'initialSprint__in': l})
+    #else:
+        #kwargs.update({'initialSprint__name': sprintName,
+                       #'initialSprint__status': 'Accepted'})
+#
+    #extra={
+        #'on_schedule': "CASE WHEN initialSprint_id = currentSprint_id THEN 'Yes' ELSE 'No' END"
+          #}
+    #story=Story.objects.extra(select=extra).filter(**kwargs).values('on_schedule').order_by('-on_schedule').annotate(Count('rallyNumber'))
+#
+    #c = {
+         #'data': json.dumps([dict(item) for item in story]),
+         #'sprint': sprintName,
+         #'average': default,
+         #'list': sprints,
+        #}
+    #return render(request, 'radabo/speedo.html', c)
+#
 def _buildRelease(request):
+    """
+    Generic function building a list of stories in a given release
+    """
     releaseList=getReleaseList()
     releaseName = None
     defaultRelease = getPriorRelease()
     if request.method == 'POST':
-        releaseName = _getValue(request.POST,'choice')
+        releaseName = request.POST.get('choice')
     if releaseName == None:
         releaseName = str(defaultRelease.name) if defaultRelease else releaseList[0]
 
@@ -131,12 +142,15 @@ def ReleaseReport(request):
     return render(request,'radabo/release.html',context)
 
 def _buildSprint(request):
+    """
+    Generic function building a list of stories in a given sprint 
+    """
 
     sprintList=getSprintList()
     thisSprint=getCurrentSprint()
     sprint = None
     if request.method == 'POST':
-        sprint = _getValue(request.POST,'choice')
+        sprint = request.POST.get('choice')
 
     if sprint == None:
         sprint=str(thisSprint.name) if thisSprint else sprintList[0]
@@ -167,13 +181,16 @@ def SprintReport(request):
     return render(request,'radabo/release.html',context)
 
 def enhByModule(request):
+    """
+    All enhancements (backlog, active, complete)
+    """
 
     modList = getModuleList()
     if request.method == 'POST':
-        module = _getValue(request.POST,'choice')
+        module = request.POST.get('choice')
         kwargs = {
             'storyType': 'Enhancement',
-            'module': module,
+            'module__moduleName': module,
         }
         header = 'All enhancements for %s module' % (module)
         exc = 'No enhancements have yet been defined for '+ module,
@@ -197,6 +214,9 @@ def enhByModule(request):
     return render(request,'radabo/release.html',c)
 
 def PendingUAT(request):
+    """
+    Enhancements in Complete status with no release.  Drives Pending UAT page
+    """
 
     kwargs = {
         'release': None,
@@ -204,6 +224,8 @@ def PendingUAT(request):
         'status': 'C',
     }
 
+    # I would love a different way to handle this... maybe explore any possible
+    # template-based solutions
     extra = {
         'color': "select case when datediff(now(),endDate) > 28 then 'R' when datediff(now(),endDate) > 14 then 'Y' else 'G' end from radabo_sprint where id = radabo_story.currentSprint_id",
         }
@@ -219,6 +241,9 @@ def PendingUAT(request):
     return render(request, 'radabo/release.html',c)
 
 def Backlog(request):
+    """
+    Enhancement backlog page, optionally filtered via clicking a chart
+    """
 
     kwargs = {
         'release': None,
@@ -228,10 +253,10 @@ def Backlog(request):
 
     filter=': '
     if request.method == 'POST':
-        track = _getValue(request.POST,'track')
-        module = _getValue(request.POST,'module')
-        size = _getValue(request.POST,'size')
-        theme = _getValue(request.POST,'theme')
+        track = request.POST.get('track')
+        module = request.POST.get('module')
+        size = request.POST.get('size')
+        theme = request.POST.get('theme')
         if track:
             kwargs.update({'track': track})
             filter = " (Track = %s): " % (request.POST['track'])
@@ -245,8 +270,7 @@ def Backlog(request):
             kwargs.update({'theme': request.POST['theme']})
             filter = " (Investment Theme = %s): " % (request.POST['theme'])
  
-    extra={'globalLead': "select globalLead from radabo_module where moduleName = radabo_story.module"}
-    story=Story.objects.filter(**kwargs).extra(select=extra).order_by('-businessValue','theme','rallyNumber')
+    story=Story.objects.filter(**kwargs).order_by('-businessValue','theme','rallyNumber')
     c = {
          'story': story, 
          'current': None,
@@ -258,10 +282,13 @@ def Backlog(request):
     return render(request,'radabo/release.html',c)
 
 def _allGraphs(request, **kwargs):
+    """
+    Function retrieving data for all four charts
+    """
     theme=Story.objects.filter(**kwargs).values('theme').annotate(scount=Count('theme')).annotate(metric=F('theme')).order_by('-scount','theme')
     size=Story.objects.filter(**kwargs).values('solutionSize').annotate(scount=Count('solutionSize')).annotate(metric=F('solutionSize')).order_by('solutionSize')
     track=Story.objects.filter(**kwargs).values('track').annotate(scount=Count('track')).annotate(metric=F('track')).order_by('-scount','track')
-    module=Story.objects.filter(**kwargs).values('module').annotate(scount=Count('module')).annotate(metric=F('module')).order_by('-scount','module')
+    module=Story.objects.filter(**kwargs).values('module__moduleName').annotate(scount=Count('module__moduleName')).annotate(metric=F('module__moduleName')).order_by('-scount','module__moduleName')
 
     allStories=Story.objects.filter(**kwargs)
     storyCount = len(allStories)
@@ -277,16 +304,25 @@ def _allGraphs(request, **kwargs):
     return render(request,'radabo/allGraphs.html', c)
 
 def BacklogGraphs(request, chartType):
+    """
+    Function for generating a specific chart.  Function for generating all
+    charts was hacked into here, but needs a more elegant solution
+    """
     kwargs = {
         'release': None,
         'status__in': ['B','D'],
         'storyType': 'Enhancement',
     }
 
-    if chartType in ["module","track","theme"]:
+    if chartType in ["track","theme"]:
         var = chartType
         myOrder = ['-scount', var,]
         myDesc = var
+        
+    elif chartType == "module":
+        var = "module__moduleName"
+        myOrder = ['-scount', var,]
+        myDesc = chartType
         
     elif chartType == "size":
         var = "solutionSize"
@@ -314,16 +350,22 @@ def BacklogGraphs(request, chartType):
         return render(request,'radabo/error.html', {})
 
 def ProjectGrooming(request):
+    """
+    View defining the project grooming page
+    """
     kwargs = {
         'storyType': 'Project Grooming',
     }
-    story=Story.objects.filter(**kwargs).extra({'globalLead': "select globalLead from radabo_module where moduleName = radabo_story.module"}).order_by('track','module','rallyNumber')
+    story=Story.objects.filter(**kwargs).order_by('track','module','rallyNumber')
     c = {'story': story,
          'header': "Project grooming (%s stories)" % (len(story)),
          'exception': 'No project grooming stories'}
     return render(request,'radabo/grooming.html',c)
 
 def updateStory(request):
+    """
+    View for the update story page
+    """
     text = 'Enter user story to sync'
     status = 'N'
     result = ''
@@ -349,12 +391,18 @@ def updateStory(request):
     return render(request, 'radabo/update.html', c)
 
 def EpicView(request):
+    """
+    Page dynamically fetching active project epics
+    """
 
     status, data = getEpics()
     c = {'data': data}
     return render(request, 'radabo/projects.html', c)
 
 def ProjectStories(request, epic):
+    """
+    Page dynamically fetching stories for a particular epic
+    """
 
     status, data = getProjectStories(epic)
     if status == "Y":

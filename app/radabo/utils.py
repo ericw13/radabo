@@ -150,6 +150,12 @@ def createStory(story,session):
     projectID = getProjectID(story.Project._ref)
     storyURL = getStoryURL(projectID, story.ObjectID)
     module = getModule(story.c_Module)
+    sprint = None
+    release = None
+    if story.Release:
+        release = getRelease(story.Release.Name)
+    if story.Iteration:
+        sprint = getSprint(story.Iteration.Name)
         
     print "Creating " + story.FormattedID
     this = Story(rallyNumber=story.FormattedID,
@@ -163,6 +169,9 @@ def createStory(story,session):
                  theme=story.c_Theme,
                  stakeholders=story.c_Stakeholders,
                  solutionSize=solSize,
+                 initialSprint=sprint,
+                 currentSprint=sprint,
+                 release=release,
                  blocked="Y" if story.Blocked else "N",
                  track=tag,
                  session=session,
