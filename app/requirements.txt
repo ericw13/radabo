@@ -1,0 +1,6 @@
+django-modeladmin-reorder
+django
+
+MySQL-python
+requests
+pyral

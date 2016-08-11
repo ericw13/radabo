@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+  <head>
+    {% load staticfiles %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'radabo/style.css' %}"/>
+    <link rel="shortcut icon" type="image/png" href="{% static 'radabo/favicon.ico' %}"/>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+
+    <style>
+        .affix {
+            top: 0;
+            width: 100%;
+        }
+        .affix + .container-fluid {
+            padding-top: 80px;
+        }
+    </style>
+<!--link rel="apple-touch-icon" sizes="144x144" href="{% static 'radabo/rh144x144.png' %}"/>
+<link rel="apple-touch-icon" sizes="72x72" href="{% static 'radabo/rh72x72.png' %}"/>
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" type='text/css'-->
+    <title>RADABO (RAlly DAshBOard) - {% block pagetitle %}{% endblock %}</title>
+  {% block js %}{% endblock %}
+  </head>
+  <body>
+    <div class="row">
+      <div class="containter-fluid" style="padding-left:30px; height:100px;">
+        <img src="{% static 'radabo/Logo_RH_RGB_Default.png' %}" />
+      </div>
+    </div>
+    <nav class="navbar navbar-inverse navbar-static-top" data-spy="affix" data-offset-top="100" data-offset-bottom="250">
+      <ul class="nav navbar-nav">
+        <li><a class="navbar-brand" href="#"><span title="IT Finance RAlly DAshBOard">RADABO</span></a></li>
+        <li><a href="{% url 'index' %}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Enhancements<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="{% url 'backlog' %}">Backlog</a></li>
+            <li><a href="{% url 'backlog' %}/module/">... by Module</a></li>
+            <li><a href="{% url 'backlog' %}/track/">... by Track</a></li>
+            <li><a href="{% url 'backlog' %}/size/">... by Estimated Size</a></li>
+            <li><a href="{% url 'backlog' %}/theme/">... by Investment Theme</a></li>
+            <li><a href="{% url 'backlog' %}/all/">... All Charts</a></li>
+            <li><a href="{% url 'sprint' %}">Planned Sprints</a></li>
+            <li><a href="{% url 'UAT' %}">Pending UAT</a></li>
+            <li><a href="{% url 'release' %}">Releases</a></li>
+            <li><a href="{% url 'allbymod' %}">By Module</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Projects<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="{% url 'projectGrooming' %}">Project Grooming</a></li>
+            <li><a href="{% url 'activeProjects' %}">Active Projects</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Metrics <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <!-- Removed July 7 2016, not a great agile metric -->
+            <!--<li><a href="/radabo/success/">Success Rates</a></li>-->
+            <li><a href="{% url 'velocity' %}">Team Velocity</a></li>
+            <li><a href="{% url 'oldvelocity' %}">(Old) Team Velocity-Monthly</a></li>
+          </ul>
+        </li>
+        <li><a href="{% url 'updateStory' %}">Refresh Story</a></li>
+      </ul>
+    </nav>
+    {% block picker %}{% endblock %}
+    {% block title %}{% endblock %}
+    {% block primary %}{% endblock %}
+    <div class="row">
+      <div class="col-sm-1"></div>
+      <div class="col-sm-8">&copy; Red Hat, Inc.</div>
+      <div class="col-sm-3"></div>
+    </div>
+    {% block hidden %}{% endblock %}
+  </body>
+</html>

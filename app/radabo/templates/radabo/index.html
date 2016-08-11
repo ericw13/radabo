@@ -1,0 +1,40 @@
+{% extends 'radabo/base.html' %}
+{% block pagetitle %}Welcome{% endblock %}
+{% block title %}
+  <div class="row">
+    <div class="col-sm-1"></div>
+    <div class="col-sm-9"><h2>IT Finance Dashboard</h2></div>
+    <div class="col-sm-2"></div>
+  </div>
+{% endblock %}
+{% block primary %}
+<div class="row">
+  <div class="col-sm-1"></div>
+  <div class="col-sm-9">
+  <p class="lead">Welcome to RADABO, the IT-Finance project and enhancement dashboard.  Several canned reports and charts are available via the menu bar at the top.  In case of questions or to request new features, please reach out to Eric Wright (<a class="mail" href="mailto:ewright@redhat.com">ewright@redhat.com</a>).</p>
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+{% if entries %}
+  <div class="row">
+    <div class="col-sm-1"></div>
+    <div class="col-sm-9">
+    <h3>Recent Updates</h3>
+    <ul class="list-group" style="font-size: 20px">
+    {% for x in entries %}
+      {% if x.noteType == "I" %}
+        <li class="list-group-item list-group-item-info">
+      {% elif x.noteType == "R" %}
+        <li class="list-group-item list-group-item-success">
+      {% elif x.noteType == "W" %}
+        <li class="list-group-item list-group-item-danger">
+      {% endif %}
+      {{ x.created_at|date:"d-M-Y" }} - {{ x.note|safe }}
+      </li>
+    {% endfor %}
+    </ul>
+    </div>
+    <div class="col-sm-2"></div>
+  </div>
+{% endif %}
+{% endblock %}

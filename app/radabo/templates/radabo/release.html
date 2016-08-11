@@ -1,0 +1,173 @@
+{% extends 'radabo/base.html' %}
+<script>
+    $("#btnExport").click(function (e) {
+        var result = "data:application/vnd.ms-excel,";
+        this.href = result;
+        this.download = "export.xls";
+        return true;
+    });
+</script>
+{% block pagetitle %}User Stories{% endblock %}
+{% block title %}
+  <div class="row">
+    <div class="col-sm-1 col-xs-2"></div>
+    <div class="col-sm-9 col-xs-8">
+      <h2>{{ header }}</h2>
+        {% if startDate %}
+          <h3>{{startDate|date:"d-M-Y"}} - {{endDate|date:"d-M-Y"}}</h3>
+        {% endif %}
+    </div>
+    <div class="col-sm-2"></div>
+  </div>
+{% endblock %}
+{% block js %}{% endblock %}
+{% block picker %}
+  <div class="row">
+    <div class="col-sm-1 col-xs-2"></div>
+    <div class="col-sm-1 col-xs-2">
+      {% if list %}
+        <form name="relForm" id="relForm" action="" method=POST>
+          {% csrf_token %}
+          <div class="dropdown dropdown-submit-input">
+            <input class="span2" id="choice" name="choice" type="hidden">
+            <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown">{{buttonText}}&nbsp;<span class="caret"></span></button>
+            <ul class="dropdown-menu">
+            {% for name in list %}
+              <li><button class="form-control btn btn-link" style="width:auto;" type="submit" name="choice" value="{{name}}">{{name}}</button></li>
+            {% endfor %}
+            </ul>
+          </div>
+        </form>
+      {% endif %}
+    </div>
+    <div id="export" style="display:none" class="col-sm-8 col-xs-6">
+      {% if story %}
+      <span title="Download"><button id="btnExport" class="btn btn-success glyphicon glyphicon-download-alt pull-right" onclick="window.open('data:application/vnd.ms-excel,'+encodeURIComponent(document.getElementById('data').outerHTML));"></button></span>
+      {% endif %}
+    </div>
+    <script>
+      var ua=window.navigator.userAgent;
+      if(ua.indexOf('Chrome') != -1){document.getElementById('export').style.display='none'}
+      else {document.getElementById('export').style.display=''}
+    </script>
+    <div class="col-sm-2 col-xs-2"></div>
+  </div>
+{% endblock %}
+{% block primary %}
+
+<script>
+$(function() {
+    var options = {
+        autoOpen: false,
+        resizable: false,
+        modal: true,
+        width: 600,
+        position: {
+            my: "left top",
+            at: "center",
+            of: window
+        },
+        show: {
+            effect: "blind",
+            duration: 1000
+        },
+        hide: {
+            effect: "explode", 
+            duration: 1000
+        }
+    };
+
+    $( ".dialog" ).dialog(options);
+    $( ".opener" ).on( "click", function() {
+        $( "#story-" + this.id) .dialog( "option","position",{my: "left top", at: "left bottom", of: $("#"+this.id)} );
+        $( "#story-" + this.id) .dialog( "open" ).prev().css('background','#d9edf7').css('color','#31708f');
+        return false;
+    });
+});
+</script>
+  <div class="row">
+    <div class="col-sm-1 col-xs-2"></div>
+    <div id="data" class="col-sm-9 col-xs-7" style="float: left">
+      {% if story %}
+        <table class="table table-hover" style="font-size: 16px">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Name</th>
+              <th>Earned Value</th>
+              {% if showSprint == "Y" %}
+              <th>Sprint End Date</th>
+              {% endif %}
+              <th>Business Area</th>
+              <th>Solution Size</th>
+              <th>Track</th>
+              <th>Stakeholders</th>
+              {% if gpo == "Y" %}
+              <th>Process Lead</th>
+              {% endif %}
+              <th>Investment Theme</th>
+              <th>User Story</th>
+              {% if showStatus == "Y" %}
+              <th>Status</th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody>
+          {% for x in story %}
+            {% if x.blocked == "Y" %}
+            <tr class="alert-danger">
+            {% elif x.color == "R" %}
+            <tr class="alert-danger">
+            {% elif x.color == "Y" %}
+            <tr class="alert-warning">
+            {% else %}
+            <tr>
+            {% endif %}
+            <td><a href="#" class="opener" id="detail{{forloop.counter}}"><button class="btn glyphicon glyphicon-search"></button></a></td>
+            <td>
+              {% if x.blocked == "Y" %}
+                <span title="{{ x.blockedReason }}">
+              {% endif %}
+              {{ x.description|safe }}{% if x.blocked == "Y" %}&nbsp;</span><span class="glyphicon glyphicon-ban-circle"></span>{% endif%}
+            </td>
+            <td>{{ x.businessValue|default_if_none:"" }}</td>
+            {% if showSprint == "Y" %}
+            <td>{{ x.currentSprint.endDate|date:"d-M-Y" }}</td>
+            {% endif %}
+            <td>{{ x.module }} </td>
+            <td>{{ x.solutionSize }}</td>
+            <td>{{ x.track }}</td>
+            <td>{{ x.stakeholders|default_if_none:"" }}</td>
+            {% if gpo == "Y" %}
+            <td>{{ x.module.globalLead|default_if_none:"" }}</td>
+            {% endif %}
+            <td>{{ x.theme }}</td>
+            <td><a href="{{ x.storyURL }}" target="_blank">{{ x.rallyNumber }}</a></td>
+            {% if showStatus == "Y" %}
+            <td>{{ x.get_status_display }}</td>
+            {% endif %}
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>{{ exception }}
+      {% endif %}
+    </div>
+    <div class="col-sm-2 col-xs-3">
+    {% if showSprint == "Y" %}
+      <h4>Legend</h4>
+      <span>Pending UAT 0-14 days</span><br>
+      <span class="alert-warning">Pending UAT for 15-28 days</span><br>
+      <span class="alert-danger">Pending UAT for 29+ days</span>
+    {% endif %}
+    </div>
+  </div>
+{% endblock %}
+{% block hidden %}
+  <div class="row">
+  {% for x in story %}
+  <div class="dialog" id="story-detail{{forloop.counter}}" style="display:none" title="Story details">{{x.longDescription|safe}}</div>
+  {% endfor %}
+  </div>
+{% endblock %}
