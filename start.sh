@@ -1,7 +1,5 @@
 #! /bin/bash
-#docker build -t "radabo" git://git.corp.redhat.com/srv/git/it-bizsys/fin/pj
-
-docker build -t "radabo" /home/ewright/dev/radabo
+docker build -t "radabo" git://git.corp.redhat.com/srv/git/it-bizsys/fin/radabo
 docker stop radabo && docker rm radabo 
 docker run --name "radabo" --net=host -p 127.0.0.1:8000:80 -d \
         -e "DJANGO_DB_NAME=rally" \
