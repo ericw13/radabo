@@ -7,6 +7,9 @@ from radabo.utils import getCurrentRelease, getRelease, getCurrentSprint, getSpr
 # Create your tests here.
 
 class ReleaseTest(TestCase):
+    """
+    Tests related to creating and looking up Release objects
+    """
 
     def setUp(self):
         self.relName = "Test Release"
@@ -48,6 +51,9 @@ class ReleaseTest(TestCase):
         self.assertEqual(x,True)
 
 class SprintTest(TestCase):
+    """
+    Tests related to creating and looking up Sprint objects
+    """
 
     def setUp(self):
         self.sprintName = "Test Sprint"
@@ -92,6 +98,9 @@ class SprintTest(TestCase):
         self.assertEqual(len(s),3)
 
 class ModuleTest(TestCase):
+    """
+    Tests related to creating and looking up Module objects.
+    """
 
     def setUp(self):
         self.moduleName = "Test Module"
@@ -117,6 +126,10 @@ class ModuleTest(TestCase):
         self.assertEqual(m, None)
 
 class UtilTest(TestCase):
+    """
+    Tests validating utility functions not related to Sprint, Release and
+    Module objects
+    """
 
     def setUp(self):
         self.defaultText = "Test"
@@ -154,6 +167,9 @@ class UtilTest(TestCase):
         self.assertEqual(x, "Project Deliverable")
 
 class StoryTest(TestCase):
+    """
+    Tests related to creating and looking up Story objects.
+    """
 
     def setUp(self):
         self.goodNumber = "US12345"

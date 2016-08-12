@@ -9,6 +9,10 @@ class ModuleAdmin(admin.ModelAdmin):
     ordering = ('moduleName',)
 
 class BlogAdmin(admin.ModelAdmin):
+    """
+    Need to override the default widget for the Blog entry to use a Textarea.
+    This will make it easier to edit information.
+    """
     def formfield_for_dbfield(self, db_field, **kwargs):
         formfield = super(BlogAdmin, self).formfield_for_dbfield(db_field, **kwargs)
         if db_field.name == 'note':

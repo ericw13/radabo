@@ -2,6 +2,9 @@ from django import forms
 from radabo.models import Story
 
 class SearchForm(forms.Form):
+    """
+    Defines the form for the Sync Story function
+    """
     class Meta:
         model = Story
 
