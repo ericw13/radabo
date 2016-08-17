@@ -11,7 +11,7 @@ RUN pip install --upgrade pip
 
 # Install necesary libraries
 RUN yum install -y mariadb-devel gcc
-RUN yum install -y httpd mod_wsgi
+RUN yum install -y httpd mod_wsgi patch
 # For diagnostics
 RUN yum install -y net-tools
 RUN yum install -y iproute
@@ -29,6 +29,11 @@ ADD docker/conf/radabo_apache.conf /etc/httpd/conf.d/
 
 ADD docker/conf/run.sh /opt/radabo/
 ADD app/ /opt/radabo/app
+# The Pinger class does not work in containers and should be removed
+# cf. https://github.com/RallyTools/RallyRestToolkitForPython/pull/64
+ADD docker/conf/context.patch /opt/radabo/app
+
+RUN patch /usr/lib/python2.7/site-packages/pyral/context.py /opt/radabo/app/context.patch
 
 RUN echo yes | python /opt/radabo/app/manage.py collectstatic
 

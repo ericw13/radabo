@@ -396,6 +396,11 @@ def EpicView(request):
     """
 
     status, data = getEpics()
+    if status == 'N':
+        print str(data)
+    else:
+        print "Everything is awesome"
+
     c = {'data': data}
     return render(request, 'radabo/projects.html', c)
 
