@@ -304,7 +304,12 @@ def fetchStoryFromRally(storyNumber):
     try:
         rally = initRally()
         q="FormattedID = %s" % (storyNumber)
-        response=rally.get('UserStory',query=q,fetch="FormattedID,ObjectID,Name,Description,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked,BlockedReason")
+        f="FormattedID,ObjectID,Name,Description,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked,BlockedReason,CreationDate"
+
+        response=rally.get(
+                     'UserStory',
+                     query=q,
+                     fetch=f)
 
     except Exception as e:
         raise Exception(e)
@@ -337,9 +342,9 @@ def getOrCreateStory(storyNumber):
                 createStory(story, session)
             else:
                 updateStory(this, story, session)
-        except:
+        except Exception as e:
             action = "update" if this else "create"
-            return 'N', "Failed to %s story." % (action)
+            return 'N', "Failed to %s story: %s" % (action, str(e))
 
     session.close()
     return 'Y', "Success!"
