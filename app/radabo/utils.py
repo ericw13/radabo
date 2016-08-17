@@ -247,6 +247,7 @@ def createStory(story,session):
                  initialSprint=sprint,
                  currentSprint=sprint,
                  release=release,
+                 rallyCreationDate=story.CreationDate,
                  blocked="Y" if story.Blocked else "N",
                  track=tag,
                  session=session,
@@ -278,6 +279,7 @@ def updateStory(this, that, session):
     this.blockedReason = that.BlockedReason
     this.session = session
     this.storyURL = storyURL
+    this.rallyCreationDate = that.CreationDate
     if that.Iteration:
         this.currentSprint = getSprint(that.Iteration.Name)
     if this.initialSprint == None:

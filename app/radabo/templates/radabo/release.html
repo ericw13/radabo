@@ -107,6 +107,7 @@ $(function() {
               {% endif %}
               <th>Investment Theme</th>
               <th>User Story</th>
+              <th>Created On</th>
               {% if showStatus == "Y" %}
               <th>Status</th>
               {% endif %}
@@ -143,6 +144,7 @@ $(function() {
             {% endif %}
             <td>{{ x.theme }}</td>
             <td><a href="{{ x.storyURL }}" target="_blank">{{ x.rallyNumber }}</a></td>
+            <td>{{ x.rallyCreationDate|date:"d-M-Y" }}</td>
             {% if showStatus == "Y" %}
             <td>{{ x.get_status_display }}</td>
             {% endif %}

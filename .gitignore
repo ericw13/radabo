@@ -6,3 +6,5 @@
 .project
 .pydevproject
 tmp/*
+app/radabo/migrations/*
+lstart.sh

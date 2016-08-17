@@ -108,6 +108,7 @@ class Story(models.Model):
                                 related_name='release',
                                 null=True, 
                                 blank=True)
+    rallyCreationDate = models.DateTimeField(null=True,blank=True)
     completionDate = models.DateTimeField(null=True, blank=True)
     module = models.ForeignKey(Module, 
                                on_delete=models.SET_NULL, 

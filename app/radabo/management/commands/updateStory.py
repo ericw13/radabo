@@ -23,7 +23,7 @@ class Command(BaseCommand):
         # Queries enhancements not yet released OR project grooming stories
         # not in Completed Archive status
         q='((Feature.FormattedID = "1467") AND (Release = "")) OR ((Feature.FormattedID = "3841") AND (c_ITFinanceConsultingKanbanState != "Completed Archive"))'
-        f="FormattedID,ObjectID,Name,Description,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked,BlockedReason"
+        f="FormattedID,ObjectID,Name,Description,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked,BlockedReason,CreationDate"
 
         response = rallyServer.get(
                        'UserStory',
