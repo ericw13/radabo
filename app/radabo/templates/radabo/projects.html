@@ -34,6 +34,9 @@
           <thead>
             <tr>
               <th>Project Name</th>
+              <th>Sponsor</th>
+              <th>Region</th>
+              <th>Project Manager</th>
               <th>State</th>
               <th>Story Count</th>
               <th>Percent Complete</th>
@@ -43,6 +46,9 @@
         {% for x in data %}
             <tr>
               <td><a href="{% url 'activeProjects' %}/{{x.id}}">{{x.name}}</a></td>
+              <td>{{x.sponsor}}</td>
+              <td>{{x.region}}</td>
+              <td>{{x.pm|default:""}}</td>
               <td>{{x.status}}</td>
               <td>{{x.count}}</td>
               <td>

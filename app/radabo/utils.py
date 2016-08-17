@@ -375,7 +375,12 @@ def getEpics():
            'State.Name != "Done"',
            'FormattedID != "E258"',
           ]
-        data = rally.get('PortfolioItem/BusinessEpic', query=q, fetch="FormattedID,Name,State,PercentDoneByStoryCount,LeafStoryCount")
+        f="FormattedID,Name,State,PercentDoneByStoryCount,LeafStoryCount,c_Region,c_ProjectManager,c_Requester"
+        data = rally.get(
+                   'PortfolioItem/BusinessEpic', 
+                   query=q, 
+                   fetch=f,
+                   order="FormattedID")
     except Exception as e:
         return str(e), None
 
@@ -391,6 +396,9 @@ def getEpics():
             'percent': int(round(item.PercentDoneByStoryCount*100,0)),
             'count': item.LeafStoryCount,
             'status': status,
+            'region': item.c_Region,
+            'sponsor': item.c_Requester,
+            'pm': item.c_ProjectManager,
         }
         results.append(rec)
 
