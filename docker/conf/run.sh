@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # Sets up DB
-python /opt/radabo/app/manage.py initadmin && python /opt/radabo/app/manage.py makemigrations && python /opt/radabo/app/manage.py migrate
+python /opt/radabo/app/manage.py initadmin 
+python /opt/radabo/app/manage.py makemigrations && python /opt/radabo/app/manage.py migrate
 
 echo "Finished migrations"
 set -e
