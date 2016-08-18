@@ -416,7 +416,7 @@ def getProjectStories(epic):
     try:
         rally = initRally()
     except Exception as e:
-        return 'N', None
+        return 'N', str(e)
 
     """
     TODO
@@ -427,10 +427,10 @@ def getProjectStories(epic):
         q=['Feature.Parent.FormattedId = "%s"' % (epic)]
         data = rally.get('User Story',query=q, fetch="FormattedID,Name,ScheduleState,PlanEstimate,Feature,Owner",order="Feature")
     except Exception as e:
-        return str(e), None
+        return 'N', str(e)
 
     if data.resultCount == 0:
-        return "Invalid project identifier: %s" % (epic), None
+        return 'N', "Invalid project identifier: %s" % (epic)
 
     results = []
     for item in data:
@@ -448,3 +448,44 @@ def getProjectStories(epic):
 
     return 'Y', results
 
+def getAllStoriesInSprint(sprint):
+    """
+    Function to get a consolidated list of all stories being worked in the
+    specified sprint
+    """
+    try:
+        rally = initRally()
+    except Exception as e:
+        return 'N', str(e)
+
+    try:
+        q=['Iteration.Name = "%s"' % (sprint)]
+        f='FormattedID,Name,Project,ScheduleState,PlanEstimate'
+        o='Project.Name'
+        data=rally.get(
+                 'UserStory',
+                 query=q,
+                 fetch=f,
+                 order=o)
+    except Exception as e:
+        return 'N', str(e)
+
+    if data.resultCount == 0:
+        return 'N', "Invalid sprint name: %s" % (sprint)
+
+    results = []
+    for item in data:
+        if item.Project.Name == "Team: IT Finance":
+            project = "Enhancements"
+        else:
+            project = item.Project.Name
+        rec = {
+            'id': item.FormattedID,
+            'name': item.Name,
+            'project': project,
+            'status': item.ScheduleState,
+            'points': int(item.PlanEstimate) if item.PlanEstimate else 0,
+        }
+        results.append(rec)
+
+    return 'Y', results

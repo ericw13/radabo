@@ -1,4 +1,4 @@
-{% extends 'radabo/base.html' %}
+{% extends 'radabo/export.html' %}
 {% block pagetitle %}User Stories{% endblock %}
 {% block title %}
   <div class="row">
@@ -9,27 +9,11 @@
   <div class="col-sm-2"></div>
 </div>
 {% endblock %}
-{% block picker %}
-  <div class="row">
-    <div class="col-sm-2 col-xs-4"></div>
-    <div id="export" style="display:none" class="col-sm-8 col-xs-6">
-    {% if data %}
-      <span title="Download"><button id="btnExport" class="btn btn-success glyphicon glyphicon-download-alt pull-right" onclick="window.open('data:application/vnd.ms-excel,'+encodeURIComponent(document.getElementById('data').outerHTML));"></button></span>
-    {% endif %}
-    </div>
-    <script>
-      var ua=window.navigator.userAgent;
-      if(ua.indexOf('Chrome') != -1){document.getElementById('export').style.display='none'}
-      else {document.getElementById('export').style.display=''}
-    </script>
-    <div class="col-sm-2 col-xs-2"></div>
-  </div>
-{% endblock %}
 {% block primary %}
   <div class="row">
     <div class="col-sm-1"></div>
     <div id="data" class="col-sm-9">
-      {% if data %}
+      {% if story %}
         <table class="table table-striped table-hover" style="font-size: 16px">
           <thead>
             <tr>
@@ -43,7 +27,7 @@
             </tr>
           </thead>
           <tbody>
-        {% for x in data %}
+        {% for x in story %}
             <tr>
               <td><a href="{% url 'activeProjects' %}/{{x.id}}">{{x.name}}</a></td>
               <td>{{x.sponsor}}</td>

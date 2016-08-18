@@ -2,7 +2,7 @@ import re,json
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from radabo.models import Sprint, Story, Release, Blog
-from radabo.utils import getSprintList, getReleaseList, getCurrentSprint, getCurrentRelease, getOrCreateStory, getEpics, getProjectStories, getPriorRelease, getSprint, getModuleList
+from radabo.utils import getSprintList, getReleaseList, getCurrentSprint, getCurrentRelease, getOrCreateStory, getEpics, getProjectStories, getPriorRelease, getSprint, getModuleList, getAllStoriesInSprint
 from radabo.forms import SearchForm
 from django.utils import timezone
 from django.views import generic
@@ -259,16 +259,16 @@ def Backlog(request):
         theme = request.POST.get('theme')
         if track:
             kwargs.update({'track': track})
-            filter = " (Track = %s): " % (request.POST['track'])
+            filter = " (Track = %s): " % (track)
         elif module:
-            kwargs.update({'module': module})
-            filter = " (Module = %s): " % (request.POST['module'])
+            kwargs.update({'module__moduleName': module})
+            filter = " (Module = %s): " % (module)
         elif size:
-            kwargs.update({'solutionSize': request.POST['size']})
-            filter = " (Story Size = %s): " % (request.POST['size'])
+            kwargs.update({'solutionSize': size})
+            filter = " (Story Size = %s): " % (size)
         elif theme:
-            kwargs.update({'theme': request.POST['theme']})
-            filter = " (Investment Theme = %s): " % (request.POST['theme'])
+            kwargs.update({'theme': theme})
+            filter = " (Investment Theme = %s): " % (theme)
  
     story=Story.objects.filter(**kwargs).order_by('-businessValue','theme','rallyNumber')
     c = {
@@ -398,10 +398,8 @@ def EpicView(request):
     status, data = getEpics()
     if status == 'N':
         print str(data)
-    else:
-        print "Everything is awesome"
 
-    c = {'data': data}
+    c = {'story': data}
     return render(request, 'radabo/projects.html', c)
 
 def ProjectStories(request, epic):
@@ -412,9 +410,44 @@ def ProjectStories(request, epic):
     status, data = getProjectStories(epic)
     if status == "Y":
         projectName = data[0]['project']
-        c = {'data': data,
-             'projectName': projectName,
+        c = {'story': data,
+             'header': projectName,
             }
         return render(request, 'radabo/project_stories.html', c)
     else:
         return render(request, 'radabo/error.html', {})
+
+def FullSprint(request):
+    """
+    Page that dynamically pulls all stories in a sprint from Rally
+    """
+
+    sprintList = getSprintList()
+    if request.method == 'POST':
+        sprintName=request.POST.get('choice')
+        sprint = getSprint(sprintName)
+        startDate = sprint.startDate
+        endDate = sprint.endDate
+        status, data = getAllStoriesInSprint(sprintName)
+        vel = 0
+        for i in data:
+            vel += i['points']
+        header = 'All stories assigned to sprint %s (%s points)' % (sprintName, vel)
+        exc = 'Nothing has been assigned to sprint %s' % (sprintName)
+    elif request.method == 'GET':
+        header = 'Please select a sprint from the list'
+        startDate = None
+        endDate = None
+        data = None
+        exc = None
+
+    c = {
+        'story': data,
+        'header': header,
+        'buttonText': 'Select Sprint',
+        'startDate': startDate,
+        'endDate': endDate,
+        'exception': exc,
+        'list': sprintList,
+        }
+    return render(request, 'radabo/full_sprint.html', c)

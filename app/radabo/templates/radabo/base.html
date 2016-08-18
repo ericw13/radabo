@@ -63,8 +63,9 @@
           <ul class="dropdown-menu">
             <!-- Removed July 7 2016, not a great agile metric -->
             <!--<li><a href="/radabo/success/">Success Rates</a></li>-->
-            <li><a href="{% url 'velocity' %}">Team Velocity</a></li>
-            <li><a href="{% url 'oldvelocity' %}">(Old) Team Velocity-Monthly</a></li>
+            <li><a href="{% url 'full_sprint' %}">Team Velocity by Sprint</a></li>
+            <li><a href="{% url 'velocity' %}">Team Velocity Chart</a></li>
+            <li><a href="{% url 'oldvelocity' %}">(Monthly) Team Velocity Chart</a></li>
           </ul>
         </li>
         <li><a href="{% url 'updateStory' %}">Refresh Story</a></li>

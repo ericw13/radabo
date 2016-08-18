@@ -15,5 +15,6 @@ urlpatterns = [
     url(r'^projects/active/?$', views.EpicView, name='activeProjects'),
     url(r'^velocity/old/?$', views.OldVelocityChart, name='oldvelocity'),
     url(r'^velocity/?$', views.VelocityChart, name='velocity'),
+    url(r'^sprint/?$', views.FullSprint, name='full_sprint'),
     url(r'^syncstory/?$', views.updateStory, name='updateStory'),
 ]
