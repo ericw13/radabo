@@ -426,20 +426,26 @@ def FullSprint(request):
     if request.method == 'POST':
         sprintName=request.POST.get('choice')
         sprint = getSprint(sprintName)
-        startDate = sprint.startDate
-        endDate = sprint.endDate
-        status, data = getAllStoriesInSprint(sprintName)
-        vel = 0
-        for i in data:
-            vel += i['points']
-        header = 'All stories assigned to sprint %s (%s points)' % (sprintName, vel)
-        exc = 'Nothing has been assigned to sprint %s' % (sprintName)
+        if sprint:
+            startDate = sprint.startDate
+            endDate = sprint.endDate
+            status, data = getAllStoriesInSprint(sprintName)
+            if status == 'Y':
+                vel = 0
+                for i in data:
+                    vel += i['points']
+                header = 'All stories assigned to sprint %s (%s points)' % (sprintName, vel)
+            else:
+                header = 'Nothing has been assigned to sprint %s' % (sprintName)
+                data = None
+        else:
+            header = '%s is not a valid sprint name' % (sprintName)
+            data = None
     elif request.method == 'GET':
         header = 'Please select a sprint from the list'
         startDate = None
         endDate = None
         data = None
-        exc = None
 
     c = {
         'story': data,
@@ -447,7 +453,6 @@ def FullSprint(request):
         'buttonText': 'Select Sprint',
         'startDate': startDate,
         'endDate': endDate,
-        'exception': exc,
         'list': sprintList,
         }
     return render(request, 'radabo/full_sprint.html', c)

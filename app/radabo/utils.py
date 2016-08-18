@@ -471,7 +471,7 @@ def getAllStoriesInSprint(sprint):
         return 'N', str(e)
 
     if data.resultCount == 0:
-        return 'N', "Invalid sprint name: %s" % (sprint)
+        return 'N', None
 
     results = []
     for item in data:
