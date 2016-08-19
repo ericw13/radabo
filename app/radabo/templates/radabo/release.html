@@ -64,9 +64,9 @@ $(function() {
           {% for x in story %}
             {% if x.blocked == "Y" %}
             <tr class="alert-danger">
-            {% elif x.color == "R" %}
+            {% elif x.age_color == "R" %}
             <tr class="alert-danger">
-            {% elif x.color == "Y" %}
+            {% elif x.age_color == "Y" %}
             <tr class="alert-warning">
             {% else %}
             <tr>

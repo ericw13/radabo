@@ -224,13 +224,7 @@ def PendingUAT(request):
         'status': 'C',
     }
 
-    # I would love a different way to handle this... maybe explore any possible
-    # template-based solutions
-    extra = {
-        'color': "select case when datediff(now(),endDate) > 28 then 'R' when datediff(now(),endDate) > 14 then 'Y' else 'G' end from radabo_sprint where id = radabo_story.currentSprint_id",
-        }
-
-    story=Story.objects.filter(**kwargs).extra(select=extra).order_by('theme','currentSprint__endDate','rallyNumber')
+    story=Story.objects.filter(**kwargs).order_by('currentSprint__endDate','businessValue','rallyNumber')
 
     c = {
          'story': story, 
@@ -426,26 +420,27 @@ def FullSprint(request):
     if request.method == 'POST':
         sprintName=request.POST.get('choice')
         sprint = getSprint(sprintName)
-        if sprint:
-            startDate = sprint.startDate
-            endDate = sprint.endDate
-            status, data = getAllStoriesInSprint(sprintName)
-            if status == 'Y':
-                vel = 0
-                for i in data:
-                    vel += i['points']
-                header = 'All stories assigned to sprint %s (%s points)' % (sprintName, vel)
-            else:
-                header = 'Nothing has been assigned to sprint %s' % (sprintName)
-                data = None
-        else:
-            header = '%s is not a valid sprint name' % (sprintName)
-            data = None
     elif request.method == 'GET':
-        header = 'Please select a sprint from the list'
+        sprint = getCurrentSprint()
+        sprintName = sprint.name
+
+    if sprint:
+        startDate = sprint.startDate
+        endDate = sprint.endDate
+        status, data = getAllStoriesInSprint(sprintName)
+        if status == 'Y':
+            vel = 0
+            for i in data:
+                vel += i['points']
+            header = 'All stories assigned to sprint %s (%s points)' % (sprintName, vel)
+        else:
+            header = 'Nothing has been assigned to sprint %s' % (sprintName)
+            data = None
+    else:
+        header = '%s is not a valid sprint name' % (sprintName)
+        data = None
         startDate = None
         endDate = None
-        data = None
 
     c = {
         'story': data,

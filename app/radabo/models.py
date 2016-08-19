@@ -133,6 +133,16 @@ class Story(models.Model):
     def _on_schedule(self):
         # Use of this function is deprecated, but left for reference
         return self.initialSprint == self.currentSprint
+    def age_color(self):
+        color = 'W'
+        if self.status == 'C' and self.completionDate:
+            delta = (timezone.now() - self.currentSprint.endDate).days
+            if delta > 28:
+                color = 'R'
+            elif delta > 14:
+                color = 'Y'
+
+        return color
 
 class Blog(models.Model):
     """
