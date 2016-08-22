@@ -84,7 +84,7 @@ $(function() {
             {% endif %}
             <td>{{ x.module }} </td>
             <td>{{ x.solutionSize }}</td>
-            <td>{{ x.region }}</td>
+            <td>{{ x.region|default_if_none:"" }}</td>
             <td>{{ x.stakeholders|default_if_none:"" }}</td>
             {% if gpo == "Y" %}
             <td>{{ x.module.globalLead|default_if_none:"" }}</td>
