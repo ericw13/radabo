@@ -47,7 +47,7 @@ $(function() {
               {% endif %}
               <th>Business Area</th>
               <th>Solution Size</th>
-              <th>Track</th>
+              <th>Region</th>
               <th>Stakeholders</th>
               {% if gpo == "Y" %}
               <th>Process Lead</th>
@@ -84,7 +84,7 @@ $(function() {
             {% endif %}
             <td>{{ x.module }} </td>
             <td>{{ x.solutionSize }}</td>
-            <td>{{ x.track }}</td>
+            <td>{{ x.region }}</td>
             <td>{{ x.stakeholders|default_if_none:"" }}</td>
             {% if gpo == "Y" %}
             <td>{{ x.module.globalLead|default_if_none:"" }}</td>

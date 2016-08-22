@@ -247,6 +247,7 @@ def createStory(story,session):
                  initialSprint=sprint,
                  currentSprint=sprint,
                  release=release,
+                 region=story.c_Region,
                  rallyCreationDate=story.CreationDate,
                  blocked="Y" if story.Blocked else "N",
                  track=tag,
@@ -279,6 +280,7 @@ def updateStory(this, that, session):
     this.blockedReason = that.BlockedReason
     this.session = session
     this.storyURL = storyURL
+    this.region = that.c_Region
     this.rallyCreationDate = that.CreationDate
     if that.Iteration:
         this.currentSprint = getSprint(that.Iteration.Name)
@@ -304,7 +306,7 @@ def fetchStoryFromRally(storyNumber):
     try:
         rally = initRally()
         q="FormattedID = %s" % (storyNumber)
-        f="FormattedID,ObjectID,Name,Description,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked,BlockedReason,CreationDate"
+        f="FormattedID,ObjectID,Name,Description,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked,BlockedReason,CreationDate,c_Region"
 
         response=rally.get(
                      'UserStory',

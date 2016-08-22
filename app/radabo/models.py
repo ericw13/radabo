@@ -117,6 +117,7 @@ class Story(models.Model):
                                blank=True)
     track = models.CharField(max_length=30, null=True, blank=True)
     theme = models.CharField(max_length=50, null=True, blank=True)
+    region = models.CharField(max_length=20, null=True, blank=True)
     stakeholders = models.CharField(max_length=255, null=True, blank=True)
     solutionSize = models.CharField(max_length=20, null=True, blank=True)
     blocked = models.CharField(max_length=1, default='N')
