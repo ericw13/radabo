@@ -1,14 +1,37 @@
-import os, re
-from radabo.models import Sprint, Story, Release, Session, Module
+import os
+import re
+
 from django.db.models import Q
 from django.utils import timezone
 from pyral import Rally, rallyWorkset
 from datetime import datetime, timedelta
 
+from radabo.models import Sprint, Story, Release, Session, Module
+
 _ENH = "F1467"
 _PRJ = "F3841"
+_OPER = "E258"
 
-def getApiKey():
+__all__ = [
+           'getSprintList',
+           'getReleaseList',
+           'getCurrentSprint',
+           'getCurrentRelease',
+           'getOrCreateStory',
+           'getEpics',
+           'getProjectStories',
+           'getPriorRelease',
+           'getSprint',
+           'getModuleList',
+           'getAllStoriesInSprint',
+           'createStory',
+           'updateStory',
+          ]
+
+"""
+Functions for internal use only, not defined in __all__
+"""
+def _getApiKey():
     """
     Find the Rally WSAPI key ... I will be glad to move to OpenShift v3 and
     get rid of all but the first option
@@ -22,12 +45,106 @@ def getApiKey():
 
     return api_key
     
+def _getProjectID(projectWSURL):
+    """
+    Function used to identify the project id to build a URL for the story.
+    """
+    projectMatch = re.search(r'\d+$',projectWSURL)
+    return projectMatch.group(0)
+
+def _getStoryURL(projectID, storyID):
+    """
+    Function that builds the URL based on projectID returned by _getProjectID()
+    """
+    return ("https://rally1.rallydev.com/#/" 
+           + str(projectID) 
+           + "d/detail/userstory/"
+           + str(storyID))
+
+def _getSolutionSize(points, verbiage):
+    """
+    Function that returns solution size based on the story point estimate where
+    available.  Otherwise, the original S/M/L estimate is returned.  If no
+    sizing was ever done, Unknown is returned.
+    """
+    if not points:
+       solSize = verbiage if verbiage else 'Unknown'
+    elif points <= 3:
+       solSize = "Small"
+    elif points <= 8:
+       solSize = "Medium"
+    elif points <= 99:
+       solSize = "Large"
+
+    return solSize
+
+def _getLongDesc(text):
+    """
+    Function that parses the long description and ensures it fits within the
+    2000 character limit.
+    """
+    x=re.sub(r'<b>Solution.*$','',text)
+    if len(x) > 2000:
+        return x[:1997]+"...".decode('utf-8')
+    else:
+        return x.decode('utf-8')
+
+def _getFeatureDesc(feature):
+    """
+    Function that sets storyType based on the Feature Parent FormattedID.
+    There is a bug in pyral where direct references don't work.  Management
+    command updateStory specifically looks for E258/_OPER and sets this 
+    before calling utils package.  The sync story page doesn't have this luxury
+    so epic is hardcoded in the except block for now.
+    """
+    try:
+        epic = feature.Parent.FormattedID
+    except:
+        # TODO figure out how to work around bug for generic stories
+        epic = _OPER
+
+    if epic == _OPER:
+        if feature.FormattedID == _PRJ:
+            return "Project Grooming"
+        else:
+            return "Enhancement"
+    else:
+        return "Project Deliverable"
+
+def _fetchStoryFromRally(storyNumber):
+    """
+    Function that will get the information for a single story from Rally.
+    """
+    try:
+        rally = initRally()
+        q="FormattedID = %s" % (storyNumber)
+        f="FormattedID,ObjectID,Name,Description,PlanEstimate," \
+          "c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature," \
+          "c_SolutionSize,c_Stakeholders,Iteration,Release,Tags," \
+          "RevisionHistory,c_Theme,Blocked,BlockedReason,CreationDate,c_Region"
+
+        response=rally.get(
+                     'UserStory',
+                     query=q,
+                     fetch=f)
+
+    except Exception as e:
+        raise Exception(e)
+
+    if response.resultCount == 0:
+        raise Exception("User story %s not found." % (storyNumber))
+
+    return response
+
+"""
+Public methods exposed in __all__
+"""
 def initRally():
     """
     Convenience function to get WSAPI key and instantiate a server instance
     """
     try:
-        api_key = getApiKey()
+        api_key = _getApiKey()
     except Exception as e:
         raise Exception("Cannot read api key from file: %s." % (str(e)))
 
@@ -114,7 +231,8 @@ def getPriorSprint():
     """
     try:
         cur = getCurrentSprint()
-        return Sprint.objects.filter(endDate__lt=cur.startDate).order_by('-startDate')[0]
+        return (Sprint.objects.filter(endDate__lt=cur.startDate)
+                .order_by('-startDate')[0])
     except Sprint.DoesNotExist:
         return None
 
@@ -126,7 +244,8 @@ def getPriorRelease():
     """
     try:
         cur = getCurrentRelease()
-        return Release.objects.filter(endDate__lt=cur.startDate).order_by('-startDate')[0]
+        return (Release.objects.filter(endDate__lt=cur.startDate)
+                .order_by('-startDate')[0])
     except Release.DoesNotExist:
         return None
 
@@ -137,7 +256,8 @@ def getReleaseList():
     """
     try:
         t=timezone.now() + timedelta(days=-182)
-        return Release.objects.filter(startDate__gte=t).values_list('name',flat=True).order_by('-startDate')
+        return (Release.objects.filter(startDate__gte=t)
+                .values_list('name',flat=True).order_by('-startDate'))
     except:
         return None
 
@@ -148,7 +268,8 @@ def getSprintList():
     """
     try:
         t=timezone.now() + timedelta(days=-91)
-        return Sprint.objects.filter(startDate__gte=t).values_list('name',flat=True).order_by('-startDate')
+        return (Sprint.objects.filter(startDate__gte=t)
+                .values_list('name',flat=True).order_by('-startDate'))
     except:
         return None
 
@@ -158,72 +279,21 @@ def getModuleList():
     selector list.
     """
     try:
-        return Module.objects.all().values_list('moduleName',flat=True).order_by('moduleName')
+        return (Module.objects.all().values_list('moduleName',flat=True)
+                .order_by('moduleName'))
     except:
         return None
-
-def getProjectID(projectWSURL):
-    """
-    Function used to identify the project id to build a URL for the story.
-    """
-    projectMatch = re.search(r'\d+$',projectWSURL)
-    return projectMatch.group(0)
-
-def getStoryURL(projectID, storyID):
-    """
-    Function that builds the URL based on projectID returned by getProjectID()
-    """
-    return "https://rally1.rallydev.com/#/" + str(projectID) + "d/detail/userstory/"+ str(storyID)
-
-def getSolutionSize(points, verbiage):
-    """
-    Function that returns solution size based on the story point estimate where
-    available.  Otherwise, the original S/M/L estimate is returned.  If no
-    sizing was ever done, Unknown is returned.
-    """
-    if not points:
-       solSize = verbiage if verbiage else 'Unknown'
-    elif points <= 3:
-       solSize = "Small"
-    elif points <= 8:
-       solSize = "Medium"
-    elif points <= 99:
-       solSize = "Large"
-
-    return solSize
-
-def getFeatureDesc(text):
-    """
-    Function that sets storyType based on the Feature.FormattedID value.
-    """
-    if text == _ENH:
-        return "Enhancement"
-    elif text == _PRJ:
-        return "Project Grooming"
-    else:
-        return "Project Deliverable"
-
-def getLongDesc(text):
-    """
-    Function that parses the long description and ensures it fits within the
-    2000 character limit.
-    """
-    x=re.sub(r'<b>Solution.*$','',text)
-    if len(x) > 2000:
-        return x[:1997]+"...".decode('utf-8')
-    else:
-        return x.decode('utf-8')
 
 def createStory(story,session):
     """
     Function that will create a new Story object in the local DB if it does
     not already exist.
     """
-    solSize = getSolutionSize(story.PlanEstimate, story.c_SolutionSize)
+    solSize = _getSolutionSize(story.PlanEstimate, story.c_SolutionSize)
     tag=story.Tags[0].Name if story.Tags else None
 
-    projectID = getProjectID(story.Project._ref)
-    storyURL = getStoryURL(projectID, story.ObjectID)
+    projectID = _getProjectID(story.Project._ref)
+    storyURL = _getStoryURL(projectID, story.ObjectID)
     module = getModule(story.c_Module)
     sprint = None
     release = None
@@ -235,8 +305,8 @@ def createStory(story,session):
     print "Creating " + story.FormattedID
     this = Story(rallyNumber=story.FormattedID,
                  description=story.Name,
-                 longDescription=getLongDesc(story.Description),
-                 storyType=getFeatureDesc(story.Feature.FormattedID),
+                 longDescription=_getLongDesc(story.Description),
+                 storyType=_getFeatureDesc(story.Feature),
                  points=story.PlanEstimate,
                  businessValue=story.c_BusinessValueBV,
                  status=story.ScheduleStatePrefix,                   
@@ -260,22 +330,22 @@ def updateStory(this, that, session):
     """
     Function that updates an existing Story object with the latest details.
     """
-    projectID = getProjectID(that.Project._ref)
-    storyURL = getStoryURL(projectID, that.ObjectID)
+    projectID = _getProjectID(that.Project._ref)
+    storyURL = _getStoryURL(projectID, that.ObjectID)
     module = getModule(that.c_Module)
 
     print "Updating %s" % (this.rallyNumber)
 
     this.description = that.Name
-    this.longDescription = getLongDesc(that.Description)
-    this.storyType = getFeatureDesc(that.Feature.FormattedID)
+    this.longDescription = _getLongDesc(that.Description)
+    this.storyType = _getFeatureDesc(that.Feature)
     this.points = that.PlanEstimate
     this.businessValue = that.c_BusinessValueBV
     this.status = that.ScheduleStatePrefix
     this.module = module
     this.theme = that.c_Theme
     this.stakeholders = that.c_Stakeholders
-    this.solutionSize = getSolutionSize(that.PlanEstimate, that.c_SolutionSize)
+    this.solutionSize = _getSolutionSize(that.PlanEstimate, that.c_SolutionSize)
     this.blocked = "Y" if that.Blocked else "N"
     this.blockedReason = that.BlockedReason
     this.session = session
@@ -299,31 +369,9 @@ def updateStory(this, that, session):
                 break
     this.save()
 
-def fetchStoryFromRally(storyNumber):
-    """
-    Function that will get the information for a single story from Rally.
-    """
-    try:
-        rally = initRally()
-        q="FormattedID = %s" % (storyNumber)
-        f="FormattedID,ObjectID,Name,Description,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked,BlockedReason,CreationDate,c_Region"
-
-        response=rally.get(
-                     'UserStory',
-                     query=q,
-                     fetch=f)
-
-    except Exception as e:
-        raise Exception(e)
-
-    if response.resultCount == 0:
-        raise Exception("User story %s not found." % (storyNumber))
-
-    return response
-
 def getOrCreateStory(storyNumber):
     """
-    Function used by the Sync Story form.  It calls fetchStoryFromRally() and
+    Function used by the Sync Story form.  It calls _fetchStoryFromRally() and
     will then call createStory() or updateStory() as needed.
     """
     try:
@@ -333,7 +381,7 @@ def getOrCreateStory(storyNumber):
         return 'N', "Create session failed."
 
     try:
-        response = fetchStoryFromRally(storyNumber)
+        response = _fetchStoryFromRally(storyNumber)
     except Exception as e:
         return 'N', e
 
@@ -359,7 +407,7 @@ def storyDetail(storyNumber):
     wants to make that function dynamic.
     """
     try:
-        response = fetchStoryFromRally(storyNumber)
+        response = _fetchStoryFromRally(storyNumber)
     except Exception as e:
         return 'N', e
 
@@ -382,7 +430,8 @@ def getEpics():
            'State.Name != "Done"',
            'FormattedID != "E258"',
           ]
-        f="FormattedID,Name,State,PercentDoneByStoryCount,LeafStoryCount,c_Region,c_ProjectManager,c_Requester"
+        f="FormattedID,Name,State,PercentDoneByStoryCount,LeafStoryCount," \
+          "c_Region,c_ProjectManager,c_Requester"
         data = rally.get(
                    'PortfolioItem/BusinessEpic', 
                    query=q, 
@@ -426,8 +475,13 @@ def getProjectStories(epic):
     generic error page.  I should fix that some day.
     """
     try:
-        q=['Feature.Parent.FormattedId = "%s"' % (epic)]
-        data = rally.get('User Story',query=q, fetch="FormattedID,Name,ScheduleState,PlanEstimate,Feature,Owner",order="Feature")
+        q='Feature.Parent.FormattedId = "%s"' % (epic)
+        f="FormattedID,Name,ScheduleState,PlanEstimate,Feature,Owner"
+        data = rally.get(
+            'User Story',
+            query=q, 
+            fetch=f,
+            order="Feature")
     except Exception as e:
         return 'N', str(e)
 

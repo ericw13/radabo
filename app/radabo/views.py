@@ -1,15 +1,19 @@
-import re,json
+import re
+import json
+
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
-from radabo.models import Sprint, Story, Release, Blog
-from radabo.utils import getSprintList, getReleaseList, getCurrentSprint, getCurrentRelease, getOrCreateStory, getEpics, getProjectStories, getPriorRelease, getSprint, getModuleList, getAllStoriesInSprint
-from radabo.forms import SearchForm
 from django.utils import timezone
 from django.views import generic
 from django.db.models import F, Q, Avg, Count
 from django.template import Context
 from django.template.loader import get_template
 from datetime import timedelta
+
+from radabo.models import Sprint, Story, Release, Blog
+from radabo.forms import SearchForm
+# imports 11 functions defined in radabo.utils.__all__
+from radabo.utils import *
 
 # Create your views here.
 class IndexView(generic.ListView):
@@ -33,7 +37,9 @@ def _drawVelocity(request, kwargs, template):
     Google Charts API
     """
 
-    results=Sprint.objects.filter(**kwargs).order_by('startDate').values('name','velocity')[:24]
+    results=(Sprint.objects.filter(**kwargs)
+             .order_by('startDate')
+             .values('name','velocity')[:24])
     avg = results.aggregate(Avg('velocity'))['velocity__avg']
     c = {'velocity':
          json.dumps([dict(item) for item in results]),
@@ -72,7 +78,8 @@ def OldVelocityChart(request):
               #'initialSprint__startDate__gte': dateLimit,
               #'storyType': 'Enhancement',
              #}
-    #results=Story.objects.filter(*args, **kwargs).order_by('initialSprint__id')
+    #results=(Story.objects.filter(*args, **kwargs)
+    #         .order_by('initialSprint__id')
     #c = {'story': results}
     #return render_to_response('radabo/lateStories.html',c)
 
@@ -119,14 +126,16 @@ def _buildRelease(request):
     if request.method == 'POST':
         releaseName = request.POST.get('choice')
     if releaseName == None:
-        releaseName = str(defaultRelease.name) if defaultRelease else releaseList[0]
+        releaseName = (str(defaultRelease.name) if defaultRelease 
+                         else releaseList[0])
 
     kwargs = {
               'release__name': releaseName,
               'status': 'A',
               'storyType': 'Enhancement',
              }
-    story=Story.objects.filter(**kwargs).order_by('-businessValue','theme','rallyNumber')
+    story=(Story.objects.filter(**kwargs)
+           .order_by('-businessValue','theme','rallyNumber'))
     c = {
          'story': story, 
          'current': releaseName,
@@ -161,7 +170,8 @@ def _buildSprint(request):
         'storyType': 'Enhancement',
     }
 
-    story=Story.objects.filter(**kwargs).order_by('-businessValue','theme','rallyNumber')
+    story=(Story.objects.filter(**kwargs)
+           .order_by('-businessValue','theme','rallyNumber'))
     c = {
          'story': story, 
          'current': sprint,
@@ -223,8 +233,13 @@ def PendingUAT(request):
         'storyType': 'Enhancement',
         'status': 'C',
     }
+    myord=[
+           'currentSprint__endDate',
+           '-businessValue',
+           'rallyNumber',
+          ]
 
-    story=Story.objects.filter(**kwargs).order_by('currentSprint__endDate','businessValue','rallyNumber')
+    story=Story.objects.filter(**kwargs).order_by(*myord)
 
     c = {
          'story': story, 
@@ -264,11 +279,17 @@ def Backlog(request):
             kwargs.update({'theme': theme})
             filter = " (Investment Theme = %s): " % (theme)
  
-    story=Story.objects.filter(**kwargs).order_by('-businessValue','theme','rallyNumber')
+    myord=[
+           '-businessValue',
+           'theme',
+           'rallyNumber',
+          ]
+    story=Story.objects.filter(**kwargs).order_by(*myord)
     c = {
          'story': story, 
          'current': None,
-         'header': 'Enhancement Backlog' + filter + str(len(story)) + ' stories',
+         'header': ('Enhancement Backlog' + filter 
+                    + str(len(story)) + ' stories'),
          'exception': 'No enhancements are in the backlog!',
          'gpo': 'Y',
          'list': None,
@@ -279,10 +300,19 @@ def _allGraphs(request, **kwargs):
     """
     Function retrieving data for all four charts
     """
-    theme=Story.objects.filter(**kwargs).values('theme').annotate(scount=Count('theme')).annotate(metric=F('theme')).order_by('-scount','theme')
-    size=Story.objects.filter(**kwargs).values('solutionSize').annotate(scount=Count('solutionSize')).annotate(metric=F('solutionSize')).order_by('solutionSize')
-    track=Story.objects.filter(**kwargs).values('track').annotate(scount=Count('track')).annotate(metric=F('track')).order_by('-scount','track')
-    module=Story.objects.filter(**kwargs).values('module__moduleName').annotate(scount=Count('module__moduleName')).annotate(metric=F('module__moduleName')).order_by('-scount','module__moduleName')
+    theme=(Story.objects.filter(**kwargs).values('theme')
+           .annotate(scount=Count('theme')).annotate(metric=F('theme'))
+           .order_by('-scount','theme'))
+    size=(Story.objects.filter(**kwargs).values('solutionSize')
+           .annotate(scount=Count('solutionSize'))
+           .annotate(metric=F('solutionSize')).order_by('solutionSize'))
+    track=(Story.objects.filter(**kwargs).values('track')
+           .annotate(scount=Count('track'))
+           .annotate(metric=F('track')).order_by('-scount','track'))
+    module=(Story.objects.filter(**kwargs).values('module__moduleName')
+            .annotate(scount=Count('module__moduleName'))
+            .annotate(metric=F('module__moduleName'))
+            .order_by('-scount','module__moduleName'))
 
     allStories=Story.objects.filter(**kwargs)
     storyCount = len(allStories)
@@ -330,7 +360,9 @@ def BacklogGraphs(request, chartType):
         var = None
         
     if var:
-        data=Story.objects.filter(**kwargs).values(var).annotate(scount=Count(var)).annotate(metric=F(var)).order_by(*myOrder)
+        data=(Story.objects.filter(**kwargs).values(var)
+              .annotate(scount=Count(var))
+              .annotate(metric=F(var)).order_by(*myOrder))
         allStories=Story.objects.filter(**kwargs)
         storyCount = len(allStories)
     
@@ -350,7 +382,12 @@ def ProjectGrooming(request):
     kwargs = {
         'storyType': 'Project Grooming',
     }
-    story=Story.objects.filter(**kwargs).order_by('track','module','rallyNumber')
+    myord = [
+             'track',
+             'module',
+             'rallyNumber',
+            ]
+    story=Story.objects.filter(**kwargs).order_by(*myord)
     c = {'story': story,
          'header': "Project grooming (%s stories)" % (len(story)),
          'exception': 'No project grooming stories'}
@@ -371,7 +408,8 @@ def updateStory(request):
                 if re.match(r'^US\d+$',request.POST['story']):
                     status, result = getOrCreateStory(request.POST['story'])
                 else:
-                    result = "%s is not a valid Rally user story number." % (request.POST['story'])
+                    result = ("%s is not a valid Rally user story number." 
+                               % (request.POST['story']))
             else:
                 result = "Parameter story not passed in."
         else:
@@ -432,7 +470,8 @@ def FullSprint(request):
             vel = 0
             for i in data:
                 vel += i['points']
-            header = 'All stories assigned to sprint %s (%s points)' % (sprintName, vel)
+            header = ('All stories assigned to sprint %s (%s points)' 
+                      % (sprintName, vel))
         else:
             header = 'Nothing has been assigned to sprint %s' % (sprintName)
             data = None

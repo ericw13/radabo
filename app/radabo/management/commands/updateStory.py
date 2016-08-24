@@ -22,8 +22,14 @@ class Command(BaseCommand):
 
         # Queries enhancements not yet released OR project grooming stories
         # not in Completed Archive status
-        q='((Feature.FormattedID = "1467") AND (Release = "")) OR ((Feature.FormattedID = "3841") AND (c_ITFinanceConsultingKanbanState != "Completed Archive"))'
-        f="FormattedID,ObjectID,Name,Description,PlanEstimate,c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature,c_SolutionSize,c_Stakeholders,Iteration,Release,Tags,RevisionHistory,c_Theme,Blocked,BlockedReason,CreationDate,c_Region"
+        # Not splitting this line in case it breaks Rally's picky formatting
+        q='(Feature.Parent.FormattedID = "E258") AND (((Feature.FormattedID != "F3841") AND (Release = "")) OR ((Feature.FormattedID = "F3841") AND (c_ITFinanceConsultingKanbanState != "Completed Archive")))'
+
+        f="FormattedID,ObjectID,Name,Description,PlanEstimate," \
+          "c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project," \
+          "Feature,c_SolutionSize,c_Stakeholders,Iteration,Release," \
+          "Tags,RevisionHistory,c_Theme,Blocked,BlockedReason," \
+          "CreationDate,c_Region"
 
         response = rallyServer.get(
                        'UserStory',
@@ -39,6 +45,11 @@ class Command(BaseCommand):
             sys.exit(1)
 
         for story in response:
+            """
+            Horrible hack for the fact that referencing 
+            Feature.Parent.FormattedID throws an error
+            """
+            story.Feature.Parent.FormattedID = "E258"
             try:
                 this=getStory(story.FormattedID)
                 if this:
@@ -48,11 +59,14 @@ class Command(BaseCommand):
                     # Create a new story
                     createStory(story, session)
             except Exception as e:
-                print "Failure to save story %s: %s" % (story.FormattedID, str(e))
+                print "Failure to save story %s: %s" % 
+                    (story.FormattedID, str(e))
                 sys.exit(2)
 
         # Query items not already updated in this session and update/delete
-        stories = Story.objects.filter(~Q(session=session) | Q(session__isnull=True), Q(release__status__in=['Active','Planning']) | Q(release=None))
+        stories = Story.objects.filter(
+              ~Q(session=session) | Q(session__isnull=True), 
+              Q(release__status__in=['Active','Planning']) | Q(release=None))
 
         for this in stories:
  
@@ -69,7 +83,9 @@ class Command(BaseCommand):
                 this.delete()
             else:
                 for story in response:
-                    if story.c_ITFinanceConsultingKanbanState == "Completed Archive":
+                    if story.c_ITFinanceConsultingKanbanState == 
+                        "Completed Archive":
+                        # Log fact story is deleted
                         print "Deleting archived story %s" % (story.FormattedID)
                     else:
                         updateStory(this, story, session)
