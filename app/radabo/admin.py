@@ -15,7 +15,7 @@ class BlogAdmin(admin.ModelAdmin):
     """
     def formfield_for_dbfield(self, db_field, **kwargs):
         formfield = (super(BlogAdmin, self)
-                    .formfield_for_dbfield(db_field, **kwargs)
+                    .formfield_for_dbfield(db_field, **kwargs))
         if db_field.name == 'note':
             formfield.widget = forms.Textarea(attrs=formfield.widget.attrs)
         return formfield
