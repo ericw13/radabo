@@ -4,3 +4,4 @@ django
 MySQL-python
 requests
 pyral
+dateparser
