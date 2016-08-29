@@ -23,6 +23,7 @@
               <th>Project Manager</th>
               <th>State</th>
               <th>Story Count</th>
+              <th>Planned Duration</th>
               <th>Percent Complete</th>
             </tr>
           </thead>
@@ -35,6 +36,7 @@
               <td>{{x.pm|default:""}}</td>
               <td>{{x.status}}</td>
               <td>{{x.count}}</td>
+              <td>{{x.duration|default:""}}</td>
               <td>
                 <div class="progress">
                   {% if x.percent == 100 %}

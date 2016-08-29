@@ -128,6 +128,7 @@ class Story(models.Model):
                                 blank=True)
     storyURL = models.CharField(max_length=200,null=True, blank=True)
     blockedReason = models.CharField(max_length=512,null=True,blank=True)
+    ready = models.CharField(max_length=1,default='N')
 
     def __str__(self):
         return "%s: %s" % (self.rallyNumber, self.description)

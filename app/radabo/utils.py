@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.utils import timezone
 from pyral import Rally, rallyWorkset
 from datetime import datetime, timedelta
+from dateutil.parser import parse
 
 from radabo.models import Sprint, Story, Release, Session, Module
 
@@ -89,19 +90,41 @@ def _getLongDesc(text):
     else:
         return x.decode('utf-8')
 
+def _getEpicID(featureID):
+    """ 
+    Hacky workaround to the fact that Story.Feature.Parent.FormattedID
+    references fail
+    """
+    try:
+        s=initRally()
+        f="FormattedID,Parent"
+        q='FormattedID = "%s"' % (featureID)
+        data=s.get('Feature',query=q,fetch=f)
+        if data.resultCount == 1:
+            for x in data:
+                epicID = x.Parent.FormattedID
+        else:
+            epicID = None
+
+        return epicID
+    except:
+        return None
 def _getFeatureDesc(feature):
     """
     Function that sets storyType based on the Feature Parent FormattedID.
     There is a bug in pyral where direct references don't work.  Management
     command updateStory specifically looks for E258/_OPER and sets this 
-    before calling utils package.  The sync story page doesn't have this luxury
-    so epic is hardcoded in the except block for now.
+    before calling utils package.  The sync story page doesn't have this luxury.
+    _getEpicID hacked in for now
     """
     try:
         epic = feature.Parent.FormattedID
     except:
         # TODO figure out how to work around bug for generic stories
-        epic = _OPER
+        try:
+            epic = _getEpicID(feature.FormattedID)
+        except:
+            epic = _OPER
 
     if epic == _OPER:
         if feature.FormattedID == _PRJ:
@@ -121,7 +144,8 @@ def _fetchStoryFromRally(storyNumber):
         f="FormattedID,ObjectID,Name,Description,PlanEstimate," \
           "c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project,Feature," \
           "c_SolutionSize,c_Stakeholders,Iteration,Release,Tags," \
-          "RevisionHistory,c_Theme,Blocked,BlockedReason,CreationDate,c_Region"
+          "RevisionHistory,c_Theme,Blocked,BlockedReason,CreationDate," \
+          "c_Region,Ready"
 
         response=rally.get(
                      'UserStory',
@@ -323,6 +347,7 @@ def createStory(story,session):
                  track=tag,
                  session=session,
                  storyURL=storyURL,
+                 ready='Y' if story.Ready else 'N',
                  blockedReason=story.BlockedReason)
     this.save()
 
@@ -350,6 +375,7 @@ def updateStory(this, that, session):
     this.blockedReason = that.BlockedReason
     this.session = session
     this.storyURL = storyURL
+    this.ready = "Y" if that.Ready else "N"
     this.region = that.c_Region
     this.rallyCreationDate = that.CreationDate
     if that.Iteration:
@@ -431,7 +457,8 @@ def getEpics():
            'FormattedID != "E258"',
           ]
         f="FormattedID,Name,State,PercentDoneByStoryCount,LeafStoryCount," \
-          "c_Region,c_ProjectManager,c_Requester"
+          "c_Region,c_ProjectManager,c_Requester,PlannedStartDate," \
+          "PlannedEndDate"
         data = rally.get(
                    'PortfolioItem/BusinessEpic', 
                    query=q, 
@@ -446,12 +473,24 @@ def getEpics():
             status = item.State.Name
         else:
             status = 'Undefined'
+
+        if item.PlannedStartDate and item.PlannedEndDate:
+            startDate = parse(item.PlannedStartDate, ignoretz=True)
+            endDate = parse(item.PlannedEndDate, ignoretz=True)
+            dateRange = "%s - %s" % (startDate.strftime('%d-%b-%Y')
+                                    ,endDate.strftime('%d-%b-%Y'))
+
+            today = datetime.now()
+        else:
+            dateRange = None
+
         rec = {
             'id': item.FormattedID,
             'name': item.Name,
             'percent': int(round(item.PercentDoneByStoryCount*100,0)),
             'count': item.LeafStoryCount,
             'status': status,
+            'duration': dateRange,
             'region': item.c_Region,
             'sponsor': item.c_Requester,
             'pm': item.c_ProjectManager,

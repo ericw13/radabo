@@ -44,17 +44,16 @@ $(function() {
               <th></th>
               <th>Name</th>
               <th>Earned Value</th>
+              <th>Investment Theme</th>
+              <th>Region</th>
               {% if showSprint == "Y" %}
               <th>Sprint End Date</th>
               {% endif %}
               <th>Business Area</th>
-              <th>Solution Size</th>
-              <th>Region</th>
               <th>Stakeholders</th>
               {% if gpo == "Y" %}
               <th>Process Lead</th>
               {% endif %}
-              <th>Investment Theme</th>
               <th>User Story</th>
               <th>Created On</th>
               {% if showStatus == "Y" %}
@@ -81,21 +80,23 @@ $(function() {
               {{ x.description|safe }}{% if x.blocked == "Y" %}&nbsp;</span><span class="glyphicon glyphicon-ban-circle"></span>{% endif%}
             </td>
             <td>{{ x.businessValue|default_if_none:"" }}</td>
+            <td>{{ x.theme }}</td>
+            <td>{{ x.region|default_if_none:"" }}</td>
             {% if showSprint == "Y" %}
             <td>{{ x.currentSprint.endDate|date:"d-M-Y" }}</td>
             {% endif %}
             <td>{{ x.module }} </td>
-            <td>{{ x.solutionSize }}</td>
-            <td>{{ x.region|default_if_none:"" }}</td>
             <td>{{ x.stakeholders|default_if_none:"" }}</td>
             {% if gpo == "Y" %}
             <td>{{ x.module.globalLead|default_if_none:"" }}</td>
             {% endif %}
-            <td>{{ x.theme }}</td>
             <td><a href="{{ x.storyURL }}" target="_blank">{{ x.rallyNumber }}</a></td>
             <td>{{ x.rallyCreationDate|date:"d-M-Y" }}</td>
             {% if showStatus == "Y" %}
-            <td>{{ x.get_status_display }}</td>
+            <td>{{ x.get_status_display }}
+            {% if x.ready == "Y" %}
+            <span class="glyphicon glyphicon-ok-circle text-success"></span>
+            {% endif %}</td>
             {% endif %}
             </tr>
           {% endfor %}

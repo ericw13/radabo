@@ -33,8 +33,8 @@ def routeToError(request):
 
 def _drawVelocity(request, kwargs, template):
     """
-    Common function that fetches data and json-ifies it for use with the
-    Google Charts API
+    Common function that fetches sprint velocity data and json-ifies it for use 
+    with the Google Charts API
     """
 
     results=(Sprint.objects.filter(**kwargs)
@@ -266,6 +266,8 @@ def Backlog(request):
         module = request.POST.get('module')
         size = request.POST.get('size')
         theme = request.POST.get('theme')
+        region = request.POST.get('region')
+        # Only one parameter can be passed in via chart click, so this is fine
         if track:
             kwargs.update({'track': track})
             filter = " (Track = %s): " % (track)
@@ -278,6 +280,9 @@ def Backlog(request):
         elif theme:
             kwargs.update({'theme': theme})
             filter = " (Investment Theme = %s): " % (theme)
+        elif region:
+            kwargs.update({'region': region})
+            filter = " (Geographic Region = %s): " % (region)
  
     myord=[
            '-businessValue',
@@ -293,6 +298,7 @@ def Backlog(request):
          'exception': 'No enhancements are in the backlog!',
          'gpo': 'Y',
          'list': None,
+         'showStatus': 'Y',
          }
     return render(request,'radabo/release.html',c)
 
@@ -309,6 +315,9 @@ def _allGraphs(request, **kwargs):
     track=(Story.objects.filter(**kwargs).values('track')
            .annotate(scount=Count('track'))
            .annotate(metric=F('track')).order_by('-scount','track'))
+    region=(Story.objects.filter(**kwargs).values('region')
+           .annotate(scount=Count('region'))
+           .annotate(metric=F('region')).order_by('-scount','region'))
     module=(Story.objects.filter(**kwargs).values('module__moduleName')
             .annotate(scount=Count('module__moduleName'))
             .annotate(metric=F('module__moduleName'))
@@ -322,6 +331,7 @@ def _allGraphs(request, **kwargs):
          'size': json.dumps([dict(item) for item in size]),
          'track': json.dumps([dict(item) for item in track]),
          'module': json.dumps([dict(item) for item in module]),
+         'region': json.dumps([dict(item) for item in region]),
          'header': "%s total stories" % (storyCount),
          'title': "Enhancement backlog by ",
         }
@@ -338,7 +348,7 @@ def BacklogGraphs(request, chartType):
         'storyType': 'Enhancement',
     }
 
-    if chartType in ["track","theme"]:
+    if chartType in ["track","theme","region"]:
         var = chartType
         myOrder = ['-scount', var,]
         myDesc = var

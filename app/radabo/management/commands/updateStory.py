@@ -29,7 +29,7 @@ class Command(BaseCommand):
           "c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project," \
           "Feature,c_SolutionSize,c_Stakeholders,Iteration,Release," \
           "Tags,RevisionHistory,c_Theme,Blocked,BlockedReason," \
-          "CreationDate,c_Region"
+          "CreationDate,c_Region,Ready"
 
         response = rallyServer.get(
                        'UserStory',
@@ -59,8 +59,8 @@ class Command(BaseCommand):
                     # Create a new story
                     createStory(story, session)
             except Exception as e:
-                print "Failure to save story %s: %s" % 
-                    (story.FormattedID, str(e))
+                print "Failure to save story %s: %s" % (
+                    story.FormattedID, str(e))
                 sys.exit(2)
 
         # Query items not already updated in this session and update/delete
@@ -83,7 +83,7 @@ class Command(BaseCommand):
                 this.delete()
             else:
                 for story in response:
-                    if story.c_ITFinanceConsultingKanbanState == 
+                    if story.c_ITFinanceConsultingKanbanState == \
                         "Completed Archive":
                         # Log fact story is deleted
                         print "Deleting archived story %s" % (story.FormattedID)

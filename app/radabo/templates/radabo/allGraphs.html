@@ -30,6 +30,9 @@
 
           djangoData = JSON.parse('{{ module|safe }}');
           drawThisChart(djangoData, 'module');
+
+          djangoData = JSON.parse('{{ region|safe }}');
+          drawThisChart(djangoData, 'region');
       }
       function drawThisChart(djangoData, chartType) {
           var data = new google.visualization.DataTable();
@@ -113,6 +116,16 @@
     </div>
     <div class="col-sm-4">
       <div id="module" class="chart"></div>
+    </div>
+    <div class="col-sm-2"></div>
+  </div>
+  <div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-4">
+      <div id="region" class="chart"></div>
+    </div>
+    <div class="col-sm-4">
+      <!--Next chart goes here -->
     </div>
     <div class="col-sm-2"></div>
   </div>
