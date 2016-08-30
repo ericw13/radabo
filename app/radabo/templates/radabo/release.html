@@ -56,9 +56,7 @@ $(function() {
               {% endif %}
               <th>User Story</th>
               <th>Created On</th>
-              {% if showStatus == "Y" %}
               <th>Status</th>
-              {% endif %}
             </tr>
           </thead>
           <tbody>
@@ -92,12 +90,10 @@ $(function() {
             {% endif %}
             <td><a href="{{ x.storyURL }}" target="_blank">{{ x.rallyNumber }}</a></td>
             <td>{{ x.rallyCreationDate|date:"d-M-Y" }}</td>
-            {% if showStatus == "Y" %}
             <td>{{ x.get_status_display }}
             {% if x.ready == "Y" %}
             <span class="glyphicon glyphicon-ok-circle text-success"></span>
             {% endif %}</td>
-            {% endif %}
             </tr>
           {% endfor %}
           </tbody>

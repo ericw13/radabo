@@ -181,7 +181,6 @@ def _buildSprint(request):
          'exception': 'No enhancements have yet been scheduled for '+ sprint,
          'buttonText': 'Select Sprint',
          'list': sprintList,
-         'showStatus': 'Y',
         }
 
     return c
@@ -218,7 +217,6 @@ def enhByModule(request):
          'header': header,
          'exception': exc,
          'buttonText': 'Select Module',
-         'showStatus': 'Y',
          'list': modList,
         }
     return render(request,'radabo/release.html',c)
@@ -298,7 +296,6 @@ def Backlog(request):
          'exception': 'No enhancements are in the backlog!',
          'gpo': 'Y',
          'list': None,
-         'showStatus': 'Y',
          }
     return render(request,'radabo/release.html',c)
 

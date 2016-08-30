@@ -160,6 +160,88 @@ def _fetchStoryFromRally(storyNumber):
 
     return response
 
+def _workDaysInRange(fromDate, toDate):
+    """
+    Function that determines the number of work days between start and end
+    date.  This function adds one to resolve the fence-post issue (29 Aug - 29
+    Aug is 1 day, not 0).
+    """
+    fromWorkday = fromDate.weekday()
+    toWorkday = toDate.weekday()
+    # if start or end date is after Friday, modify it to Monday
+    if fromWorkday > 5:
+        fromWorkday = 0
+    if toWorkday > 5:
+        toWorkday = 0
+
+    dayDiff = toWorkday - fromWorkday
+    weeks = ((toDate - fromDate).days - dayDiff) / 7
+    days1 = weeks * 5
+    correction = min(dayDiff,5) - (max(toDate.weekday() - 4,0) % 5) + 1
+    days = days1 + correction
+    return days
+
+def _calculateColor(story):
+    """
+    Function that implements logic documented at
+    https://help.rallydev.com/track-portfolio-items
+    This defines the progress of a project based on the % complete by story
+    count and where we are in the project duration.
+    """
+
+    today = datetime.now()
+    pctComplete = 100 * story.PercentDoneByStoryCount
+
+    if story.ActualStartDate:
+        startDate = parse(story.ActualStartDate, ignoretz=True)
+    elif story.PlannedStartDate:
+        startDate = parse(story.PlannedStartDate, ignoretz=True)
+    else:
+        startDate = today
+
+    if pctComplete == 100:
+        if story.ActualEndDate:
+            endDate = parse(story.ActualEndDate, ignoretz=True)
+        elif story.PlannedEndDate:
+            endDate = parse(story.PlannedEndDate, ignoretz=True)
+        else:
+            endDate = today
+    else:
+        if story.PlannedEndDate:
+            endDate = parse(story.PlannedEndDate, ignoretz=True)
+        else:
+            endDate = today
+        
+    totalDuration = _workDaysInRange(endDate, startDate)
+    elapsedDuration = _workDaysInRange(today, startDate)
+    acceptanceStartDelay = totalDuration * 0.2
+    warningDelay = totalDuration * 0.2
+
+    if today < startDate:
+        return 'white'
+
+    if today >= endDate:
+        if pctComplete >= 100.0:
+            return 'blue'
+        else:
+            return 'red'
+
+    redXIntercept = 1 + acceptanceStartDelay + warningDelay
+    redSlope = 100.0 / (totalDuration - redXIntercept)
+    redYIntercept = -1.0 * redXIntercept * redSlope
+    redThreshold = redSlope * elapsedDuration + redYIntercept
+    if pctComplete < redThreshold:
+        return 'red'
+
+    yellowXIntercept = 1 + acceptanceStartDelay
+    yellowSlope = 100.0 / (totalDuration - yellowXIntercept)
+    yellowYIntercept = -1.0 * yellowXIntercept * yellowSlope
+    yellowThreshold = yellowSlope * elapsedDuration + yellowYIntercept
+    if pctComplete < yellowThreshold:
+        return 'yellow'
+
+    return 'green'
+
 """
 Public methods exposed in __all__
 """
@@ -458,7 +540,7 @@ def getEpics():
           ]
         f="FormattedID,Name,State,PercentDoneByStoryCount,LeafStoryCount," \
           "c_Region,c_ProjectManager,c_Requester,PlannedStartDate," \
-          "PlannedEndDate"
+          "PlannedEndDate,ActualStartDate,ActualEndDate"
         data = rally.get(
                    'PortfolioItem/BusinessEpic', 
                    query=q, 
@@ -474,15 +556,7 @@ def getEpics():
         else:
             status = 'Undefined'
 
-        if item.PlannedStartDate and item.PlannedEndDate:
-            startDate = parse(item.PlannedStartDate, ignoretz=True)
-            endDate = parse(item.PlannedEndDate, ignoretz=True)
-            dateRange = "%s - %s" % (startDate.strftime('%d-%b-%Y')
-                                    ,endDate.strftime('%d-%b-%Y'))
-
-            today = datetime.now()
-        else:
-            dateRange = None
+        color = _calculateColor(item)
 
         rec = {
             'id': item.FormattedID,
@@ -490,8 +564,8 @@ def getEpics():
             'percent': int(round(item.PercentDoneByStoryCount*100,0)),
             'count': item.LeafStoryCount,
             'status': status,
-            'duration': dateRange,
             'region': item.c_Region,
+            'color': "progress-bar-"+color,
             'sponsor': item.c_Requester,
             'pm': item.c_ProjectManager,
         }

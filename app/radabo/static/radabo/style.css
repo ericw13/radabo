@@ -54,3 +54,9 @@ img.left{float:left; margin: 0px 20px}
 .nav {
     -webkit-backface-visibility: hidden;
 }
+
+.progress-bar-green {background: rgba(92,184,92,1);}
+.progress-bar-yellow {background: rgba(248,148,6,1);}
+.progress-bar-red {background: rgba(217,83,79,1);}
+.progress-bar-white {background: rgba(249,249,249,1);}
+.progress-bar-blue {background: rgba(66,139,202,1);}

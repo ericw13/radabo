@@ -23,7 +23,6 @@
               <th>Project Manager</th>
               <th>State</th>
               <th>Story Count</th>
-              <th>Planned Duration</th>
               <th>Percent Complete</th>
             </tr>
           </thead>
@@ -36,16 +35,9 @@
               <td>{{x.pm|default:""}}</td>
               <td>{{x.status}}</td>
               <td>{{x.count}}</td>
-              <td>{{x.duration|default:""}}</td>
               <td>
                 <div class="progress">
-                  {% if x.percent == 100 %}
-                  <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{x.percent}}" aria-valuemin="0" aria-valuemax="100" style="width:{{x.percent}}%">
-                  {% elif x.percent == 0 %}
-                  <div class="progress-bar progress-bar-custom" role="progressbar" aria-valuenow="{{x.percent}}" aria-valuemin="0" aria-valuemax="100" style="width:{{x.percent}}%">
-                  {% else %}
-                  <div class="progress-bar" role="progressbar" aria-valuenow="{{x.percent}}" aria-valuemin="0" aria-valuemax="100" style="width:{{x.percent}}%">
-                  {% endif %}
+                  <div class="progress-bar {{x.color}}" role="progressbar" aria-valuenow="{{x.percent}}" aria-valuemin="0" aria-valuemax="100" style="width:{{x.percent}}%">
                     {{x.percent}}%
                   </div>
                 </div>
