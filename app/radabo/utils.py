@@ -181,7 +181,7 @@ def _workDaysInRange(fromDate, toDate):
     days = days1 + correction
     return days
 
-def _calculateColor(story):
+def _calculateProgress(story):
     """
     Function that implements logic documented at
     https://help.rallydev.com/track-portfolio-items
@@ -216,31 +216,43 @@ def _calculateColor(story):
     elapsedDuration = _workDaysInRange(today, startDate)
     acceptanceStartDelay = totalDuration * 0.2
     warningDelay = totalDuration * 0.2
+    elapsedPct = int(100 * elapsedDuration / totalDuration)
+    rv = {
+       'startDate': startDate,
+       'endDate': endDate,
+       'elapsed': elapsedPct,
+    }
 
     if today < startDate:
-        return 'white'
+        rv.update({'color':'progress-bar-white'})
+        return rv
 
     if today >= endDate:
         if pctComplete >= 100.0:
-            return 'blue'
+            rv.update({'color':'progress-bar-blue'})
+            return rv
         else:
-            return 'red'
+            rv.update({'color':'progress-bar-red'})
+            return rv
 
     redXIntercept = 1 + acceptanceStartDelay + warningDelay
     redSlope = 100.0 / (totalDuration - redXIntercept)
     redYIntercept = -1.0 * redXIntercept * redSlope
     redThreshold = redSlope * elapsedDuration + redYIntercept
     if pctComplete < redThreshold:
-        return 'red'
+        rv.update({'color':'progress-bar-red'})
+        return rv
 
     yellowXIntercept = 1 + acceptanceStartDelay
     yellowSlope = 100.0 / (totalDuration - yellowXIntercept)
     yellowYIntercept = -1.0 * yellowXIntercept * yellowSlope
     yellowThreshold = yellowSlope * elapsedDuration + yellowYIntercept
     if pctComplete < yellowThreshold:
-        return 'yellow'
+        rv.update({'color':'progress-bar-yellow'})
+        return rv
 
-    return 'green'
+    rv.update({'color':'progress-bar-green'})
+    return rv
 
 """
 Public methods exposed in __all__
@@ -545,31 +557,28 @@ def getEpics():
                    'PortfolioItem/BusinessEpic', 
                    query=q, 
                    fetch=f,
-                   order="FormattedID")
+                   order="PlannedEndDate")
     except Exception as e:
         return str(e), None
 
     results = []
     for item in data:
         if item.State != None:
-            status = item.State.Name
-        else:
-            status = 'Undefined'
+            # Allow use of Undefined State to block RADABO from displaying.
+            # Useful for projects put on hold.
+            rec = _calculateProgress(item)
 
-        color = _calculateColor(item)
-
-        rec = {
-            'id': item.FormattedID,
-            'name': item.Name,
-            'percent': int(round(item.PercentDoneByStoryCount*100,0)),
-            'count': item.LeafStoryCount,
-            'status': status,
-            'region': item.c_Region,
-            'color': "progress-bar-"+color,
-            'sponsor': item.c_Requester,
-            'pm': item.c_ProjectManager,
-        }
-        results.append(rec)
+            rec.update({
+                'id': item.FormattedID,
+                'name': item.Name,
+                'percent': int(round(item.PercentDoneByStoryCount*100,0)),
+                'count': item.LeafStoryCount,
+                'status': item.State.Name,
+                'region': item.c_Region,
+                'sponsor': item.c_Requester,
+                'pm': item.c_ProjectManager,
+            })
+            results.append(rec)
 
     return 'Y', results
         

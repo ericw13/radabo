@@ -60,3 +60,32 @@ img.left{float:left; margin: 0px 20px}
 .progress-bar-red {background: rgba(217,83,79,1);}
 .progress-bar-white {background: rgba(249,249,249,1);}
 .progress-bar-blue {background: rgba(66,139,202,1);}
+
+.bar-wrap {
+    position: relative;
+}
+.progress-marker {
+    width: 2px;
+    height: 10px;
+    position: absolute;
+    background: black;
+    bottom: -5px;
+}
+.time-axis {
+    display: block;
+    float: left;
+    width: 100%;
+    /*margin: 0px 0 10px 0;*/
+}
+.time-spot {
+    display: block;
+    float: left;
+    width: 50%;
+    font-size:10px;
+}
+.time-spot-end {
+    display: block;
+    float: left;
+    width: 25%;
+    font-size:10px;
+}

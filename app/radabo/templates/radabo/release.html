@@ -35,8 +35,7 @@ $(function() {
 });
 </script>
   <div class="row">
-    <div class="col-sm-1 col-xs-2"></div>
-    <div id="data" class="col-sm-9 col-xs-7" style="float: left">
+    <div id="data" class="col-sm-10 col-sm-offset-1 col-xs-8 col-xs-offset-2" style="float: left">
       {% if story %}
         <table class="table table-hover" style="font-size: 16px">
           <thead>
@@ -101,14 +100,6 @@ $(function() {
       {% else %}
         <p>{{ exception }}
       {% endif %}
-    </div>
-    <div class="col-sm-2 col-xs-3">
-    {% if showSprint == "Y" %}
-      <h4>Legend</h4>
-      <span>Pending UAT 0-14 days</span><br>
-      <span class="alert-warning">Pending UAT for 15-28 days</span><br>
-      <span class="alert-danger">Pending UAT for 29+ days</span>
-    {% endif %}
     </div>
   </div>
 {% endblock %}
