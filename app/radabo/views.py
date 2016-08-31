@@ -25,6 +25,13 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         return Blog.objects.order_by('-created_at')[:10]
 
+def Info(request):
+    """
+    View that displays various information about the site.  It doesn't actually
+    pull any data from the database.
+    """
+    return render_to_response('radabo/info.html', {})
+
 def routeToError(request):
     """
     Used for any unrecognized URL patterns

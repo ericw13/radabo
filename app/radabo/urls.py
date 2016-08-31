@@ -17,4 +17,5 @@ urlpatterns = [
     url(r'^velocity/?$', views.VelocityChart, name='velocity'),
     url(r'^sprint/?$', views.FullSprint, name='full_sprint'),
     url(r'^syncstory/?$', views.updateStory, name='updateStory'),
+    url(r'^info/?$', views.Info, name='info'),
 ]

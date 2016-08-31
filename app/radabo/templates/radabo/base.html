@@ -10,16 +10,15 @@
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
-
-    <style>
-        .affix {
-            top: 0;
-            width: 100%;
-        }
-        .affix + .container-fluid {
-            padding-top: 80px;
-        }
-    </style>
+  <style>
+      .affix {
+          top: 0;
+          width: 100%;
+      }
+      .affix + .container-fluid {
+          padding-top: 80px;
+      }
+  </style>
 <!--link rel="apple-touch-icon" sizes="144x144" href="{% static 'radabo/rh144x144.png' %}"/>
 <link rel="apple-touch-icon" sizes="72x72" href="{% static 'radabo/rh72x72.png' %}"/>
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" type='text/css'-->
@@ -33,44 +32,49 @@
       </div>
     </div>
     <nav class="navbar navbar-inverse navbar-static-top" data-spy="affix" data-offset-top="100" data-offset-bottom="250">
-      <ul class="nav navbar-nav">
-        <li><a class="navbar-brand" href="#"><span title="IT Finance RAlly DAshBOard">RADABO</span></a></li>
-        <li><a href="{% url 'index' %}"><span class="glyphicon glyphicon-home"></span></a></li>
-        <li class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Enhancements<span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="{% url 'backlog' %}">Backlog</a></li>
-            <li><a href="{% url 'backlog' %}/module/">... by Module</a></li>
-            <li><a href="{% url 'backlog' %}/track/">... by Track</a></li>
-            <li><a href="{% url 'backlog' %}/region/">... by Region</a></li>
-            <li><a href="{% url 'backlog' %}/theme/">... by Investment Theme</a></li>
-            <li><a href="{% url 'backlog' %}/size/">... by Estimated Size</a></li>
-            <li><a href="{% url 'backlog' %}/all/">... All Charts</a></li>
-            <li><a href="{% url 'sprint' %}">Planned Sprints</a></li>
-            <li><a href="{% url 'UAT' %}">Pending UAT</a></li>
-            <li><a href="{% url 'release' %}">Releases</a></li>
-            <li><a href="{% url 'allbymod' %}">By Module</a></li>
-          </ul>
-        </li>
-        <li class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Projects<span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="{% url 'projectGrooming' %}">Project Grooming</a></li>
-            <li><a href="{% url 'activeProjects' %}">Active Projects</a></li>
-          </ul>
-        </li>
-        <li class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Metrics <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <!-- Removed July 7 2016, not a great agile metric -->
-            <!--<li><a href="/radabo/success/">Success Rates</a></li>-->
-            <li><a href="{% url 'full_sprint' %}">Team Velocity by Sprint</a></li>
-            <li><a href="{% url 'velocity' %}">Team Velocity Chart</a></li>
-            <li><a href="{% url 'oldvelocity' %}">(Monthly) Team Velocity Chart</a></li>
-          </ul>
-        </li>
-        <li><a href="{% url 'updateStory' %}">Refresh Story</a></li>
-      </ul>
+      <div class="container-fluid">
+        <ul class="nav navbar-nav">
+          <li><a class="navbar-brand" href="#"><span title="IT Finance RAlly DAshBOard">RADABO</span></a></li>
+          <li><a href="{% url 'index' %}"><span class="glyphicon glyphicon-home"></span></a></li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Enhancements<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="{% url 'backlog' %}">Backlog</a></li>
+              <li><a href="{% url 'backlog' %}/module/">... by Module</a></li>
+              <li><a href="{% url 'backlog' %}/track/">... by Track</a></li>
+              <li><a href="{% url 'backlog' %}/region/">... by Region</a></li>
+              <li><a href="{% url 'backlog' %}/theme/">... by Investment Theme</a></li>
+              <li><a href="{% url 'backlog' %}/size/">... by Estimated Size</a></li>
+              <li><a href="{% url 'backlog' %}/all/">... All Charts</a></li>
+              <li><a href="{% url 'sprint' %}">Planned Sprints</a></li>
+              <li><a href="{% url 'UAT' %}">Pending UAT</a></li>
+              <li><a href="{% url 'release' %}">Releases</a></li>
+              <li><a href="{% url 'allbymod' %}">By Module</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Projects<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="{% url 'projectGrooming' %}">Project Grooming</a></li>
+              <li><a href="{% url 'activeProjects' %}">Active Projects</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Metrics <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <!-- Removed July 7 2016, not a great agile metric -->
+              <!--<li><a href="/radabo/success/">Success Rates</a></li>-->
+              <li><a href="{% url 'full_sprint' %}">Team Velocity by Sprint</a></li>
+              <li><a href="{% url 'velocity' %}">Team Velocity Chart</a></li>
+              <li><a href="{% url 'oldvelocity' %}">(Monthly) Team Velocity Chart</a></li>
+            </ul>
+          </li>
+          <li><a href="{% url 'updateStory' %}">Refresh Story</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="{% url 'info' %}">Site Info &nbsp;<span class="glyphicon glyphicon-info-sign"></span></a></li>
+        </ul>
+      </div>
     </nav>
     {% block picker %}{% endblock %}
     {% block title %}{% endblock %}
@@ -81,5 +85,34 @@
       <div class="col-sm-3"></div>
     </div>
     {% block hidden %}{% endblock %}
+  <script>
+    $("#openinfo").click(function() {
+      opendialog("{% url 'info' %}");
+    });
+
+    function opendialog(page) {
+      var $dialog = $('#openinfo')
+      .html('<iframe style="border: 0px; " src="' + page + '" width="100%" height="100%"></iframe>')
+      .dialog({
+        title: "Information",
+        autoOpen: false,
+        dialogClass: 'dialog_fixed,ui-widget-header',
+        modal: true,
+        draggable:true,
+        width: 'auto',
+        height: 800,
+        show: {
+            effect: "blind",
+            duration: 1000
+        },
+        hide: {
+            effect: "explode",
+            duration: 1000
+        },
+      });
+      $dialog.dialog('open');
+    } 
+  </script>
+
   </body>
 </html>
