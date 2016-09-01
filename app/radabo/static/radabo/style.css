@@ -89,3 +89,33 @@ img.left{float:left; margin: 0px 20px}
     width: 25%;
     font-size:10px;
 }
+
+.panel-custom-1 {
+    border-color: #fff2cc;
+}
+
+.panel-custom-1 > .panel-heading {
+    background: #fff2cc;
+    color: #000000;
+    border-color: #fff2cc;
+}
+
+.panel-custom-2 {
+    border-color: #d0e0e3;
+}
+
+.panel-custom-2 > .panel-heading {
+    background: #d0e0e3;
+    color: #000000;
+    border-color: #d0e0e3;
+}
+
+.panel-custom-3 {
+    border-color: #d9e2e9;
+}
+
+.panel-custom-3 > .panel-heading {
+    background: #d9d2e9;
+    color: #000000;
+    border-color: #d9d2e9;
+}

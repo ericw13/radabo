@@ -7,6 +7,7 @@
       <li class="active"><a data-toggle="tab" href="#pageinfo">Pages</a></li>
       <li><a data-toggle="tab" href="#status">Statuses</a></li>
       <li><a data-toggle="tab" href="#uat">Pending UAT</a></li>
+      <li><a data-toggle="tab" href="#ev">Earned Value</a></li>
     </ul>
     <div class="tab-content">
       <div id="pageinfo" class="tab-pane fade in active">
@@ -149,6 +150,60 @@
           </div>
         </div>
       </div>  <!-- End of uat div -->
+      <div id="ev" class="tab-pane fade">
+        <div class="row">
+          <div class="col-sm-12">
+            <h3>Earned Value Definitions</h3>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <p style="font-size:18px">Each response from the three categories defined below is given a specific numerical score from 1-5.  The Earned Value (<i>EV</i>) is calculated by multiplying these three values together <i>EV = J x R x V</i>.  This score should be used <b><i>as guidance</i></b> to prioritize grooming.  If there is a compelling business reason to prioritize a story with a lower calculated earned value, this should be addresesd by the GPO steering committee.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <div class="panel panel-custom-1">
+              <div class="panel-heading" style="font-size:18px"><u>J</u>ustification</div>
+              <div class="panel-body" style="font-size:18px">Why are we doing this work?
+                <ul>
+                  <li><b>Controls Improvement</b>: Improvement of accounting controls for compliance.</li>
+                  <li><b>Efficiency Improvement</b>: Decrease waste.</li>
+                  <li><b>Reduce Time to Close</b>: Decrease waste specific to closing Red Hat books.</li>
+                  <li><b>Regulatory Requirement</b>: Legislation, Tax ruling, etc.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <div class="panel panel-custom-2">
+              <div class="panel-heading" style="font-size:18px"><u>R</u>eason</div>
+              <div class="panel-body" style="font-size:18px">This response provides more details into the Justification and, in some cases, defines a success metric.
+                <ul>
+                  <li><b>Controls Improvement</b>: Is it an internal or external control that will be improved?</li>
+                  <li><b>Efficiency Improvement</b>: Will we save 0-5 hours/month, 5-10, 10-20 or 20+?</li>
+                  <li><b>Reduce Time to Close</b>: As above, but savings must be related to closing the financial books.</li>
+                  <li><b>Regulatory Requirement</b>: Free-form response indicating the specific requirement we must meet.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <div class="panel panel-custom-3">
+              <div class="panel-heading" style="font-size:18px"><u>V</u>alue/Impact</div>
+              <div class="panel-body" style="font-size:18px">This response provides information on what segment of Red Hat will be impacted.
+                <ul>
+                  <li><b>Local Department</b>: Impacts one local department within the greater EBE organization (eg. China Tax).</li>
+                  <li><b>Regional Department</b>: Impacts a department within EBE across all countries within a specific region (eg. LATAM Credit).</li>
+                  <li><b>Global Department</b>: Impacts a department within EBE across all regions (eg. GBD Project Accounting).</li>
+                  <li><b>All of Red Hat</b>: Potential impact to all associates, not isolated to EBE (eg. iExpenses).</li>
+                  <li><b>Customer/Supplier</b>: External impact to members of Red Hat's trading community (eg. Customer Statements).</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>  <!-- End of tab-content div -->
   </div>
   <div class="col-sm-1 col-xs-2"></div>

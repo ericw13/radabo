@@ -1,20 +1,17 @@
 {% extends 'radabo/base.html' %}
 {% block title %}
   <div class="row">
-    <div class="col-sm-1"></div>
-    <div class="col-sm-9">
+    <div class="col-sm-11 col-sm-offset-1">
       <h2>{{header}}</h2>
       {% if startDate %}
       <h3>{{startDate|date:"d-M-Y"}} - {{endDate|date:"d-M-Y"}}</h3>
       {% endif %}
     </div>
-    <div class="col-sm-2"></div>
   </div>
 {% endblock %}
 {% block picker %}
   <div class="row">
-    <div class="col-sm-1 col-xs-2"></div>
-    <div class="col-sm-1 col-xs-2">
+    <div class="col-sm-1 col-sm-offset-1 col-xs-2 col-xs-offset-2">
     {% if list %}
       <form name="relForm" id="relForm" action="" method=POST>
         {% csrf_token %}
@@ -30,7 +27,7 @@
       </form>
     {% endif %}
     </div>
-    <div id="export" style="display:none" class="col-sm-8 col-xs-6">
+    <div id="export" style="display:none" class="col-sm-9 col-xs-7">
     {% if story %}
       <span title="Download">
         <button id="btnExport" class="btn btn-success glyphicon glyphicon-download-alt pull-right" onclick="window.open('data:application/vnd.ms-excel,'+encodeURIComponent(document.getElementById('data').outerHTML));"></button>
@@ -42,7 +39,6 @@
       if(ua.indexOf('Chrome') != -1){document.getElementById('export').style.display='none'}
       else{document.getElementById('export').style.display=''}
     </script>
-    <div class="col-sm-2 col-xs-2"></div>
   </div>
 {% endblock %}
 {% block primary %}{% endblock %}
