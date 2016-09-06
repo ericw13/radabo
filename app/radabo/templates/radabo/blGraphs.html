@@ -1,10 +1,5 @@
 {% extends 'radabo/base.html' %}
 {% block pagetitle %}Backlog Metrics{% endblock %}
-{% block title %}
-  <div class="row">
-    <div class="col-sm-5 col-sm-offset-1 col-xs-4 col-xs-offset-4 text-center"><h2>{{ header }}</h2></div>
-  </div>
-{% endblock %}
 {% block js %}
     <!--Load the AJAX API-->
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -21,7 +16,6 @@
           var data = new google.visualization.DataTable();
           data.addColumn('string','Metric');
           data.addColumn('number','Story Count');
-          var chartTitle = "{{ title }}";
 
           if (djangoData.length == 0) {
               document.getElementById('piechart').innerHTML = "Something went wrong, no data passed in.";
@@ -30,10 +24,7 @@
                  data.addRows([[djangoData[i].metric,djangoData[i].scount]]);
               } 
           }
-          var options = {
-             titleTextStyle: {fontSize:20},
-             title: chartTitle,
-          };
+          var options = { };
 
           var chart = new google.visualization.PieChart(document.getElementById('piechart'));
           chart.draw(data, options);
@@ -80,8 +71,13 @@
 {% endblock %}
 {% block primary %}
   <div class="row">
-    <div class="col-sm-5 col-sm-offset-1 col-xs-4 col-xs-offset-4">
-        <div id="piechart" class="chart"></div>
+    <div class="col-sm-4 col-sm-offset-1 col-xs-4 col-xs-offset-4">
+      <div class="panel panel-primary">
+        <div class="panel-heading" style="font-size:18px">{{ title }}</div>
+        <div class="panel-body" style="text-align:center"><h3>{{ header }}</h3>
+          <div id="piechart" class="chart"></div>
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}

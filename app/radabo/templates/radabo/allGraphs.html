@@ -38,7 +38,6 @@
           var data = new google.visualization.DataTable();
           data.addColumn('string','Metric');
           data.addColumn('number','Story Count');
-          var chartTitle = "{{ title }}";
 
           if (djangoData.length == 0) {
               document.getElementById('piechart').innerHTML = "Something went wrong, no data passed in.";
@@ -48,12 +47,7 @@
               } 
           }
           
-          chartTitle = chartTitle + chartType;
-          console.log(chartTitle);
-          var options = {
-             titleTextStyle: {fontSize:20},
-             title: chartTitle,
-          };
+          var options = {};
 
           var chart = new google.visualization.PieChart(document.getElementById(chartType));
           chart.draw(data, options);
@@ -100,33 +94,52 @@
 {% endblock %}
 {% block primary %}
   <div class="row">
-    <div class="col-sm-2"></div>
-    <div class="col-sm-4">
-      <div id="theme" class="chart"></div>
+    <div class="col-sm-8 col-sm-offset-2">
+      <div class="row">
+        <div class="col-sm-6 col-xs-12">
+          <div class="panel panel-primary">
+            <div class="panel panel-heading" style="font-size:18px">Enhancement backlog by theme</div>
+            <div class="panel panel-body">
+              <div id="theme" class="chart"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xs-12">
+          <div class="panel panel-primary">
+            <div class="panel panel-heading" style="font-size:18px">Enhancement backlog by estimated size</div>
+            <div class="panel panel-body">
+              <div id="size" class="chart"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xs-12">
+          <div class="panel panel-primary">
+            <div class="panel panel-heading" style="font-size:18px">Enhancement backlog by track</div>
+            <div class="panel-body">
+              <div id="track" class="chart"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xs-12">
+          <div class="panel panel-primary">
+            <div class="panel panel-heading" style="font-size:18px">Enhancement backlog by module</div>
+            <div class="panel panel-body">
+              <div id="module" class="chart"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xs-12">
+          <div class="panel panel-primary">
+            <div class="panel panel-heading" style="font-size:18px">Enhancement backlog by region</div>
+            <div class="panel panel-body">
+              <div id="region" class="chart"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xs-12">
+          <!--Next chart goes here -->
+        </div>
+      </div>
     </div>
-    <div class="col-sm-4">
-      <div id="size" class="chart"></div>
-    </div>
-    <div class="col-sm-2"></div>
-  </div>
-  <div class="row">
-    <div class="col-sm-2"></div>
-    <div class="col-sm-4">
-      <div id="track" class="chart"></div>
-    </div>
-    <div class="col-sm-4">
-      <div id="module" class="chart"></div>
-    </div>
-    <div class="col-sm-2"></div>
-  </div>
-  <div class="row">
-    <div class="col-sm-2"></div>
-    <div class="col-sm-4">
-      <div id="region" class="chart"></div>
-    </div>
-    <div class="col-sm-4">
-      <!--Next chart goes here -->
-    </div>
-    <div class="col-sm-2"></div>
   </div>
 {% endblock %}
