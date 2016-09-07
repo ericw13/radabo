@@ -176,11 +176,12 @@ def _buildSprint(request):
         'currentSprint__name': sprint,
         'storyType': 'Enhancement',
     }
+    myord = ['-businessValue','theme','rallyNumber']
 
-    story=(Story.objects.filter(**kwargs)
-           .order_by('-businessValue','theme','rallyNumber'))
+    story=Story.objects.filter(**kwargs).order_by(*myord)
+    sortedStory = sorted(story, key=lambda p: p.status_sort())
     c = {
-         'story': story, 
+         'story': sortedStory, 
          'current': sprint,
          'header': 'Enhancement stories scheduled for ' + sprint,
          'startDate': selectedSprint.startDate,
