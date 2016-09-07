@@ -145,6 +145,28 @@ class Story(models.Model):
                 color = 'Y'
 
         return color
+    def status_sort(self):
+        """
+        Function designed to allow custom sorting via lambda function where
+        needed
+        """
+        if self.status == 'B':
+            order = 1
+        elif self.status == 'D':
+            order = 2
+        elif self.status == 'P':
+            order = 3
+        elif self.status == 'C':
+            order = 4
+        elif self.status == 'A':
+            order = 5
+        else:
+            order = 99
+
+        if self.ready == 'Y':
+            order += 0.5
+
+        return order
 
 class Blog(models.Model):
     """

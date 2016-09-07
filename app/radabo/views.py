@@ -295,8 +295,9 @@ def Backlog(request):
            'rallyNumber',
           ]
     story=Story.objects.filter(**kwargs).order_by(*myord)
+    sortedStory = sorted(story, key=lambda p: p.status_sort())
     c = {
-         'story': story, 
+         'story': sortedStory, 
          'current': None,
          'header': ('Enhancement Backlog' + filter 
                     + str(len(story)) + ' stories'),

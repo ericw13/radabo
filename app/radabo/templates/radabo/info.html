@@ -19,28 +19,28 @@
         <div class="row">
           <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
             <div class="panel panel-info">
-              <div class="panel panel-heading" style="font-size:18px">Enhancements</div>
-              <div class="panel panel-body" style="font-size:18px">The information on pages under this menu heading are restricted only to enhancement work.  These are work items defined as up to 80 hours of IT effort.  Charts within this menu display the breakdown of the backlog by various metrics.  Sections of the chart are clickable, which will filter the backlog table by the specified metric.</div>
+              <div class="panel-heading" style="font-size:18px">Enhancements</div>
+              <div class="panel-body" style="font-size:18px">The information on pages under this menu heading are restricted to enhancement work.  These are work items defined as up to 80 hours of IT effort.  Charts within this menu display the breakdown of the backlog by various metrics.  Sections of the chart are clickable, which will filter the backlog table by the specified metric.</div>
             </div>
           </div>
           <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
             <div class="panel panel-info">
-              <div class="panel panel-heading" style="font-size:18px">Projects</div>
-              <div class="panel panel-body" style="font-size:18px">Pages under this menu heading are restricted only to project-related work.  Project grooming will take place after GPO approval, but before senior management approval.  Active projects and their component stories are pulled real-time from Rally.  As such, you may experience a slight delay in page load time.</div>
+              <div class="panel-heading" style="font-size:18px">Projects</div>
+              <div class="panel-body" style="font-size:18px">Pages under this menu heading are restricted to project-related work.  Project grooming will take place after GPO approval, but before senior management approval.  Active projects and their component stories are pulled real-time from Rally.  As such, you may experience a slight delay in page load time.</div>
             </div>
           </div>
           <div class="clearfix visible-md-block"></div>
           <div class="clearfix visible-lg-block"></div>
           <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
             <div class="panel panel-info">
-              <div class="panel panel-heading" style="font-size:18px">Metrics</div>
-              <div class="panel panel-body" style="font-size:18px">Team velocity, or total story points delivered per sprint, is the key metric of an agile team.  This menu heading contains a consolidated list of all project and enhancement stories delivered or scheduled in a sprint as well as a graph of the team's historical velocity.</div>
+              <div class="panel-heading" style="font-size:18px">Metrics</div>
+              <div class="panel-body" style="font-size:18px">Team velocity, or total story points delivered per sprint, is the key metric of an agile team.  This menu heading contains a consolidated list of all project and enhancement stories delivered or scheduled in a sprint as well as a graph of the team's historical velocity.</div>
             </div>
           </div>
           <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
             <div class="panel panel-info">
-              <div class="panel panel-heading" style="font-size:18px">Refresh Story</div>
-              <div class="panel panel-body" style="font-size:18px">Due to the large volume of data, enhancement and project grooming stories are stored in a local database that is refreshed from Rally once an hour.  This form can be used to force synchronization of data for one specific story.</div>
+              <div class="panel-heading" style="font-size:18px">Refresh Story</div>
+              <div class="panel-body" style="font-size:18px">Due to the large volume of data, enhancement and project grooming stories are stored in a local database that is refreshed from Rally once an hour.  This form can be used to force synchronization of data for one specific story.</div>
             </div>
           </div>
         </div>
@@ -116,6 +116,12 @@
               <div class="panel-body" style="font-size:18px">Delivery lead has accepted work, resources can move on to the next story.</div>
             </div>
           </div>
+          <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+            <div class="panel panel-danger">
+              <div class="panel-heading" style="font-size:18px">Blocked <span class="glyphicon glyphicon-ban-circle"></span></div>
+              <div class="panel-body" style="font-size:18px">Stories at any stage can be blocked if the IT Finance team cannot get information it needs to move forward with grooming, delivery or testing.</div>
+            </div>
+          </div>
         </div>
       </div>  <!-- End of status div -->
       <div id="uat" class="tab-pane fade">
@@ -153,7 +159,7 @@
         </div>
         <div class="row">
           <div class="col-sm-12">
-            <p style="font-size:18px">Each response from the three categories defined below is given a specific numerical score from 1-5.  The Earned Value (<i>EV</i>) is calculated by multiplying these three values together <i>EV = J x R x V</i>.  This score should be used <b><i>as guidance</i></b> to prioritize grooming.  If there is a compelling business reason to prioritize a story with a lower calculated earned value, this should be addresesd by the GPO steering committee.</p>
+            <p style="font-size:18px">Each response from the three categories defined below is given a specific numerical score from 1-5, with the value shown in parenthesis below.  The Earned Value (<i>EV</i>) is calculated by multiplying these three values together <i>EV = J x R x V</i>.  This score should be used <b><i>as guidance</i></b> to prioritize grooming.  If there is a compelling business reason to prioritize a story with a lower calculated earned value, this should be addresesd by the GPO steering committee.<br><br>For more details on the scoring model and a sample calculator, please click <a href="https://docs.google.com/spreadsheets/d/1zQvnwCMYzqmz7klS-sKP_8wMYGcN5hcvp33DFaQ9DEs/edit#gid=0" target=_blank>here</a>.</p>
           </div>
         </div>
         <div class="row">
@@ -162,10 +168,10 @@
               <div class="panel-heading" style="font-size:18px"><u>J</u>ustification</div>
               <div class="panel-body" style="font-size:18px">Why are we doing this work?
                 <ul>
-                  <li><b>Controls Improvement</b>: Improvement of accounting controls for compliance.</li>
-                  <li><b>Efficiency Improvement</b>: Decrease waste.</li>
-                  <li><b>Reduce Time to Close</b>: Decrease waste specific to closing Red Hat books.</li>
-                  <li><b>Regulatory Requirement</b>: Legislation, Tax ruling, etc.</li>
+                  <li><b>Controls Improvement (5)</b>: Improvement of accounting controls for compliance.</li>
+                  <li><b>Efficiency Improvement (1)</b>: Decrease waste.</li>
+                  <li><b>Reduce Time to Close (2)</b>: Decrease waste specific to closing Red Hat books.</li>
+                  <li><b>Regulatory Requirement (5)</b>: Legislation, Tax ruling, etc.</li>
                 </ul>
               </div>
             </div>
@@ -175,10 +181,10 @@
               <div class="panel-heading" style="font-size:18px"><u>R</u>eason</div>
               <div class="panel-body" style="font-size:18px">This response provides more details into the Justification and, in some cases, defines a success metric.
                 <ul>
-                  <li><b>Controls Improvement</b>: Is it an internal or external control that will be improved?</li>
-                  <li><b>Efficiency Improvement</b>: Will we save 0-5 hours/month, 5-10, 10-20 or 20+?</li>
+                  <li><b>Controls Improvement</b>: Is it an internal (2 points) or external (4) control that will be improved?</li>
+                  <li><b>Efficiency Improvement</b>: Will we save 0-5 hours/month (1 point), 5-10 hours/month (2), 10-20 hours/month (3) or 20+ hours/month (4)?</li>
                   <li><b>Reduce Time to Close</b>: As above, but savings must be related to closing the financial books.</li>
-                  <li><b>Regulatory Requirement</b>: Free-form response indicating the specific requirement we must meet.</li>
+                  <li><b>Regulatory Requirement</b>: Free-form response indicating the specific requirement we must meet (2 points).</li>
                 </ul>
               </div>
             </div>
@@ -188,11 +194,11 @@
               <div class="panel-heading" style="font-size:18px"><u>V</u>alue/Impact</div>
               <div class="panel-body" style="font-size:18px">This response provides information on what segment of Red Hat will be impacted.
                 <ul>
-                  <li><b>Local Department</b>: Impacts one local department within the greater EBE organization (eg. China Tax).</li>
-                  <li><b>Regional Department</b>: Impacts a department within EBE across all countries within a specific region (eg. LATAM Credit).</li>
-                  <li><b>Global Department</b>: Impacts a department within EBE across all regions (eg. GBD Project Accounting).</li>
-                  <li><b>All of Red Hat</b>: Potential impact to all associates, not isolated to EBE (eg. iExpenses).</li>
-                  <li><b>Customer/Supplier</b>: External impact to members of Red Hat's trading community (eg. Customer Statements).</li>
+                  <li><b>Local Department (1)</b>: Impacts one local department within the greater EBE organization (eg. China Tax).</li>
+                  <li><b>Regional Department (2)</b>: Impacts a department within EBE across all countries within a specific region (eg. LATAM Credit).</li>
+                  <li><b>Global Department (3)</b>: Impacts a department within EBE across all regions (eg. GBD Project Accounting).</li>
+                  <li><b>All of Red Hat (4)</b>: Potential impact to all associates, not isolated to EBE (eg. iExpenses).</li>
+                  <li><b>Customer/Supplier (5)</b>: External impact to members of Red Hat's trading community (eg. Customer Statements).</li>
                 </ul>
               </div>
             </div>
