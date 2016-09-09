@@ -3,6 +3,7 @@ from radabo import views
 
 urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
+    url(r'^prioritization/?$', views.Priority, name='priority'),
     url(r'^enhancements/release/?$', views.ReleaseReport, name='release'),
     url(r'^enhancements/sprint/?$', views.SprintReport, name='sprint'),
     url(r'^enhancements/pending/?$', views.PendingUAT, name='UAT'),

@@ -2,39 +2,32 @@
 {% block pagetitle %}Welcome{% endblock %}
 {% block title %}
   <div class="row">
-    <div class="col-sm-1"></div>
-    <div class="col-sm-9"><h2>IT Finance Dashboard</h2></div>
-    <div class="col-sm-2"></div>
+    <div class="col-sm-9 col-sm-offset-1"><h2>IT Finance Dashboard</h2></div>
   </div>
 {% endblock %}
 {% block primary %}
 <div class="row">
-  <div class="col-sm-1"></div>
-  <div class="col-sm-9">
+  <div class="col-sm-10 col-sm-offset-1">
   <p class="lead">Welcome to RADABO, the IT-Finance project and enhancement dashboard.  Several canned reports and charts are available via the menu bar at the top.  In case of questions or to request new features, please reach out to Eric Wright (<a class="mail" href="mailto:ewright@redhat.com">ewright@redhat.com</a>).</p>
   </div>
-  <div class="col-sm-2"></div>
 </div>
 {% if entries %}
   <div class="row">
-    <div class="col-sm-1"></div>
-    <div class="col-sm-9">
+    <div class="col-sm-10 col-sm-offset-1">
     <h3>Recent Updates</h3>
-    <ul class="list-group" style="font-size: 20px">
     {% for x in entries %}
       {% if x.noteType == "I" %}
-        <li class="list-group-item list-group-item-info">
+        <div class="panel panel-info">
       {% elif x.noteType == "R" %}
-        <li class="list-group-item list-group-item-success">
+        <div class="panel panel-success">
       {% elif x.noteType == "W" %}
-        <li class="list-group-item list-group-item-danger">
+        <div class="panel panel-danger">
       {% endif %}
-      {{ x.created_at|date:"d-M-Y" }} - {{ x.note|safe }}
-      </li>
+          <div class="panel-heading" style="font-size:18px">{{ x.created_at|date:"d-M-Y" }}</div>
+          <div class="panel-body" style="font-size:18px">{{ x.note|safe }}</div>
+        </div>
     {% endfor %}
-    </ul>
     </div>
-    <div class="col-sm-2"></div>
   </div>
 {% endif %}
 {% endblock %}

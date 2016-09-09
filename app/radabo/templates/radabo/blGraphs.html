@@ -1,72 +1,24 @@
 {% extends 'radabo/base.html' %}
+{% load staticfiles %}
 {% block pagetitle %}Backlog Metrics{% endblock %}
 {% block js %}
     <!--Load the AJAX API-->
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="{% static 'radabo/chart.js' %}"></script>
     <script type="text/javascript">
 
+      var djangoData = JSON.parse('{{ data|safe }}');
+      var chartType = '{{ chartType }}';
+      var url = '{% url "backlog" %}';
+      var token = "{{ csrf_token }}";
       // Load the Visualization API and the corechart package.
       google.charts.load('current', {'packages':['corechart']});
 
       // Set a callback to run when the Google Visualization API is loaded.
-      google.charts.setOnLoadCallback(drawChart);
+      google.charts.setOnLoadCallback(function() {
+                 drawChart(djangoData, chartType, url, token, 1);
+      });
 
-      function drawChart() {
-          var djangoData = JSON.parse('{{ data|safe }}');
-          var data = new google.visualization.DataTable();
-          data.addColumn('string','Metric');
-          data.addColumn('number','Story Count');
-
-          if (djangoData.length == 0) {
-              document.getElementById('piechart').innerHTML = "Something went wrong, no data passed in.";
-          } else {
-              for (var i=0;i<djangoData.length;i++) {
-                 data.addRows([[djangoData[i].metric,djangoData[i].scount]]);
-              } 
-          }
-          var options = { };
-
-          var chart = new google.visualization.PieChart(document.getElementById('piechart'));
-          chart.draw(data, options);
-          google.visualization.events.addListener(chart, 'select', function () {selectHandler(chart,data,'{{ chartType }}')});
-
-          function resizeHandler() {
-              chart.draw(data, options);
-          }
-          if (window.addEventListener) {
-              window.addEventListener('resize', resizeHandler, false);
-          }
-          else if (window.attachEvent) {
-              window.attachEvent('onresize', resizeHandler);
-          }
-      }
-      function selectHandler(metaChart,metaData,option) {
-          var selection = metaChart.getSelection();
-             if (selection.length) {
-                 var pieSliceLabel = metaData.getValue(selection[0].row,0);
-                 post(option, pieSliceLabel)
-          }
-      }
-      function post(tag, value) {
-             var form = document.createElement("form");
-             form.setAttribute("method", "post");
-             form.setAttribute("action", "{% url 'backlog' %}");
-             var hiddenField = document.createElement("input");
-             var hiddenField2 = document.createElement("input");
-             hiddenField.setAttribute("type", "hidden");
-             hiddenField.setAttribute("name", tag);
-             hiddenField.setAttribute("value", value);
-             form.appendChild(hiddenField);
-             hiddenField2.setAttribute("type", "hidden");
-             hiddenField2.setAttribute("name", "csrfmiddlewaretoken");
-             hiddenField2.setAttribute("value", "{{csrf_token}}");
-             form.appendChild(hiddenField2);
-             document.body.appendChild(form);
-             form.submit();
-      }
-      $(window).resize(function(){
-          drawChart();
-      }); 
     </script>
 {% endblock %}
 {% block primary %}
@@ -75,7 +27,7 @@
       <div class="panel panel-primary">
         <div class="panel-heading" style="font-size:18px">{{ title }}</div>
         <div class="panel-body" style="text-align:center"><h3>{{ header }}</h3>
-          <div id="piechart" class="chart"></div>
+          <div id="chart1" class="chart"></div>
         </div>
       </div>
     </div>

@@ -1,0 +1,148 @@
+{% extends 'radabo/base.html' %}
+{% load staticfiles %}
+<!-- Does not extend export as there are multiple tabs with table data.  Need
+a dynamic way to determine the table on the active tab. -->
+{% block pagetitle %}Prioritization and Grooming{% endblock %}
+{% block js %}
+<script type="text/javascript" src="{% static 'radabo/modal.js' %}"></script>
+<script type="text/javascript" src="{% static 'radabo/ua.js' %}"></script>
+<script type="text/javascript" src="{% static 'radabo/export.js' %}"></script>
+{% endblock %}
+{% block title %}
+  <div class="row">
+    <div class="col-sm-9 col-sm-offset-1">
+      <h2>{{header}}</h2>
+    </div>
+    <div id="export" class="col-sm-1" style="display:none">
+      <span title="Download">
+        <button id="btnExport" onclick="doExport()" class="btn btn-success glyphicon glyphicon-download-alt pull-right"></button>
+      </span>
+    </div>
+  </div>
+{% endblock %}
+
+{% block primary %}
+  <div class="row">
+    <div class="col-sm-10 col-sm-offset-1" style="float: left">
+      <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#prioritized">Prioritized</a></li>
+        <li><a data-toggle="tab" href="#notstarted">Not Prioritized</a></li>
+      </ul>
+      <div id="tabPages" class="tab-content">
+        <div id="prioritized" class="tab-pane fade in active">
+        {% if stories_not_done %}
+          <table id="data1" class="table table-hover" style="font-size: 16px">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Story Type</th>
+                <th>Earned Value</th>
+                <th>Investment Theme</th>
+                <th>Region</th>
+                <th>Business Area</th>
+                <th>Stakeholders</th>
+                <th>Global Lead</th>
+                <th>User Story</th>
+                <th>Created On</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for x in stories_not_done %}
+              <tr{% if x.blocked == "Y" %} class="alert-danger"{% endif %}>
+              <td><a href="#" class="opener" id="detail-{{forloop.counter}}"><button class="btn glyphicon glyphicon-search"></button></a></td>
+              <td>
+                {% if x.blocked == "Y" %}
+                  <span title="{{ x.blockedReason }}">
+                {% endif %}
+                {{ x.description|safe }}{% if x.blocked == "Y" %}&nbsp;</span><span class="glyphicon glyphicon-ban-circle"></span>{% endif%}
+              </td>
+              <td>{{ x.storyType }}</td>
+              <td>{{ x.businessValue|default_if_none:"" }}</td>
+              <td>{{ x.theme }}</td>
+              <td>{{ x.region|default_if_none:"" }}</td>
+              <td>{{ x.module }} </td>
+              <td>{{ x.stakeholders|default_if_none:"" }}</td>
+              <td>{{ x.module.globalLead|default_if_none:"" }}</td>
+              <td><a href="{{ x.storyURL }}" target="_blank">{{ x.rallyNumber }}</a></td>
+              <td>{{ x.rallyCreationDate|date:"d-M-Y" }}</td>
+              <td>{{ x.get_status_display }}
+              {% if x.ready == "Y" %}
+              <span class="glyphicon glyphicon-ok-circle text-success"></span>
+              {% endif %}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>{{ exception }}
+        {% endif %}
+        </div>  <!-- End of notstarted -->
+        <div id="notstarted" class="tab-pane fade">
+        {% if stories_not_started %}
+          <table id="data2" class="table table-hover" style="font-size: 16px">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Story Type</th>
+                <th>Earned Value</th>
+                <th>Investment Theme</th>
+                <th>Region</th>
+                <th>Business Area</th>
+                <th>Stakeholders</th>
+                <th>Global Lead</th>
+                <th>User Story</th>
+                <th>Created On</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for x in stories_not_started %}
+              <tr{% if x.blocked == "Y" %} class="alert-danger"{% endif %}>
+              <td><a href="#" class="opener" id="detail2-{{forloop.counter}}"><button class="btn glyphicon glyphicon-search"></button></a></td>
+              <td>
+                {% if x.blocked == "Y" %}
+                  <span title="{{ x.blockedReason }}">
+                {% endif %}
+                {{ x.description|safe }}{% if x.blocked == "Y" %}&nbsp;</span><span class="glyphicon glyphicon-ban-circle"></span>{% endif%}
+              </td>
+              <td>{{ x.storyType }}</td>
+              <td>{{ x.businessValue|default_if_none:"" }}</td>
+              <td>{{ x.theme }}</td>
+              <td>{{ x.region|default_if_none:"" }}</td>
+              <td>{{ x.module }} </td>
+              <td>{{ x.stakeholders|default_if_none:"" }}</td>
+              <td>{{ x.module.globalLead|default_if_none:"" }}</td>
+              <td><a href="{{ x.storyURL }}" target="_blank">{{ x.rallyNumber }}</a></td>
+              <td>{{ x.rallyCreationDate|date:"d-M-Y" }}</td>
+              <td>{{ x.get_status_display }}
+              {% if x.ready == "Y" %}
+              <span class="glyphicon glyphicon-ok-circle text-success"></span>
+              {% endif %}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+      {% else %}
+        <p>{{exception}}</p>
+      {% endif %}
+        </div> <!-- End of prioritized -->
+      </div>
+    </div>
+  </div>
+  <script>
+    hideExport();
+  </script>
+{% endblock %}
+{% block hidden %}
+  <div class="row">
+  {% for x in stories_not_done %}
+    <div class="dialog" id="story-detail-{{forloop.counter}}" style="display:none" title="Story details">{{x.longDescription|safe}}</div>
+  {% endfor %}
+  {% for x in stories_not_started %}
+    <div class="dialog" id="story-detail2-{{forloop.counter}}" style="display:none" title="Story details">{{x.longDescription|safe}}</div>
+  {% endfor %}
+  </div>
+{% endblock %}

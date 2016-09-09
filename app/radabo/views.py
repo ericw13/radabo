@@ -9,6 +9,7 @@ from django.db.models import F, Q, Avg, Count
 from django.template import Context
 from django.template.loader import get_template
 from datetime import timedelta
+from itertools import chain
 
 from radabo.models import Sprint, Story, Release, Blog
 from radabo.forms import SearchForm
@@ -506,3 +507,67 @@ def FullSprint(request):
         'list': sprintList,
         }
     return render(request, 'radabo/full_sprint.html', c)
+
+def Priority(request):
+    """
+    Page that shows items not yet prioritized or prioritized but not yet
+    groomed.
+    """
+
+    header = "Prioritization and grooming status"
+    exc = "Something has gone horribly wrong!"
+
+    # Get everything not prioritized
+    kwargs = {
+        'status': 'B',
+        'ready': 'N',
+        }
+    myOrd = [
+        '-storyType',
+        '-businessValue',
+        'theme',
+        'rallyNumber',
+        ]
+    snp = Story.objects.filter(**kwargs).order_by(*myOrd)
+
+    # Get prioritized enhancements not yet groomed
+    kwargs = {
+        'status': 'B',
+        'ready': 'Y',
+        'storyType': 'Enhancement',
+        }
+    myOrd = [
+        '-businessValue',
+        'theme',
+        'rallyNumber',
+        ]
+    eng = Story.objects.filter(**kwargs).order_by(*myOrd)
+
+    # Get prioritized project groomings not yet completed - this takes two steps
+    # 1. Status = Backlog, Ready = Yes
+    # 2. Status in Defined, In-Progress
+
+    # 1. Update storyType, keep same ordering
+    kwargs['storyType'] = 'Project Grooming'
+    pgns = Story.objects.filter(**kwargs).order_by(*myOrd)
+
+    # 2.
+    kwargs = {
+        'status__in': ['D','P'],
+        'storyType': 'Project Grooming',
+    }
+    pgip = Story.objects.filter(**kwargs).order_by(*myOrd)
+
+    # Merge and sort the two project lists with the enhancements not groomed.
+    inprogress = sorted(
+                    chain(eng, pgns, pgip),
+                    key=lambda x: x.status_sort())
+
+    c = {
+        'stories_not_started': snp,
+        'stories_not_done': inprogress,
+        'header': header,
+        'exception': exc,
+        'story': 'Y', # Ugly hack to make export.html show the export button!
+    }
+    return render(request, 'radabo/priority.html', c)

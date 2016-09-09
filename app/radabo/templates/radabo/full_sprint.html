@@ -3,8 +3,7 @@
 {% block pagetitle %}Sprint Details{% endblock %}
 {% block primary %}
   <div class="row">
-    <div class="col-sm-1"></div>
-    <div id="data" class="col-sm-9">
+    <div id="data" class="col-sm-10 col-sm-offset-1">
       {% if story %}
         <table class="table table-striped table-hover" style="font-size: 16px">
           <thead>
@@ -30,6 +29,5 @@
         </table>
       {% endif %}
     </div>
-    <div class="col-sm-2"></div>
   </div>
 {% endblock %}
