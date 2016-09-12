@@ -12,10 +12,13 @@ class Command(BaseCommand):
 
         rallyServer = initRally()
 
+        # This ignores accepted sprints.  At times, a correction to velocity
+        # is made in Rally and not represented in RADABO.  Also, this logic
+        # prevents pulling historical data into a new system
         q = '(State = "Planning") OR (State = "Confirmed")'
         response = rallyServer.get(
                        'Iteration',
-                       query=q,
+        #               query=q,
                        fetch="Name,StartDate,EndDate,PlanEstimate,State"
                    )
 
