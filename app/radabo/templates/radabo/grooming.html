@@ -16,13 +16,7 @@
           <th>Status</th>
         </tr>
         {% for x in story %}
-          {% if x.blocked == "Y" %}
-          <tr class="alert-danger">
-          {% elif x.get_status_display == "Accepted" %}
-          <tr class="alert-success">
-          {% else %}
-          <tr>
-          {% endif %}
+          <tr{% if x.blocked == "Y" %} class="alert-danger"{% elif x.get_status_display == "Accepted" %} class="alert-success"{% endif %}>
           <td>{{ x.track|default_if_none:"Unknown" }}</td>
           <td>{{ x.module|default_if_none:"All" }} </td>
           <td>

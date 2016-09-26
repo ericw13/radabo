@@ -84,7 +84,7 @@ def _getLongDesc(text):
     Function that parses the long description and ensures it fits within the
     2000 character limit.
     """
-    x=re.sub(r'<b>Solution.*$','',text)
+    x=re.sub(r'<b>(<[\w\s]+/>)?Solution.*$','',text)
     if len(x) > 2000:
         return x[:1997]+"...".decode('utf-8')
     else:
