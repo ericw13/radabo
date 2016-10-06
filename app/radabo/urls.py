@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^enhancements/backlog/?$', views.Backlog, name='backlog'),
     url(r'^enhancements/backlog/(?P<chartType>[a-zA-Z]+)/?$', views.BacklogGraphs, name='blgraphs'),
     url(r'^enhancements/bymodule/?$', views.enhByModule, name='allbymod'),
+    url(r'^enhancements/other/?$', views.NonFinance, name='nonfin'),
     url(r'^backlog/(?P<chartType>[a-zA-Z]+)/?$', views.BacklogGraphs, name='oldblgraphs'),
     url(r'^projects/grooming/?$', views.ProjectGrooming, name='projectGrooming'),
     url(r'^projects/active/(?P<epic>E[0-9]+)/?$', views.ProjectStories, name='projectStories'),

@@ -12,6 +12,7 @@ from radabo.models import Sprint, Story, Release, Session, Module
 _ENH = "F1467"
 _PRJ = "F3841"
 _OPER = "E258"
+_NONFIN = "F5275"
 
 __all__ = [
            'getSprintList',
@@ -129,6 +130,8 @@ def _getFeatureDesc(feature):
     if epic == _OPER:
         if feature.FormattedID == _PRJ:
             return "Project Grooming"
+        elif feature.FormattedID == _NONFIN:
+            return "Non-Finance"
         else:
             return "Enhancement"
     else:

@@ -1,0 +1,50 @@
+{% extends 'radabo/export.html' %}
+{% load staticfiles %}
+{% block pagetitle %}Non-IT Finance Stories{% endblock %}
+{% block js %}
+{{ block.super }}
+<script type="text/javascript" src="{% static 'radabo/modal.js' %}"></script>
+{% endblock %}
+{% block primary %}
+  <div class="row">
+    <div id="data" class="col-sm-10 col-sm-offset-1">
+    {% if story %}
+      <table class="table table-hover" style="font-size: 16px">
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Business Area</th>
+          <th>Region</th>
+          <th>Process Lead</th>
+          <th>User Story</th>
+          <th>Status</th>
+        </tr>
+        {% for x in story %}
+          <tr{% if x.blocked == "Y" %} class="alert-danger"{% elif x.get_status_display == "Accepted" %} class="alert-success"{% endif %}>
+          <td><a href="#" class="opener" id="detail{{forloop.counter}}"><button class="btn glyphicon glyphicon-search"></button></a></td>
+          <td>
+            {% if x.blocked == "Y" %}
+              <span title="{{ x.blockedReason }}">
+            {% endif %}
+            {{ x.description|safe }}{% if x.blocked == "Y" %}&nbsp;</span><span class="glyphicon glyphicon-ban-circle"></span>{% endif %}</td>
+          <td>{{ x.module|default_if_none:"All" }} </td>
+          <td>{{ x.region|default_if_none:"" }}</td>
+          <td>{{ x.module.globalLead|default_if_none:"" }}</td>
+          <td><a href="{{ x.storyURL }}" target="_blank">{{ x.rallyNumber }}</a></td>
+          <td>{{ x.get_status_display }}</td>
+          </tr>
+        {% endfor %}
+        </tr></table>
+      {% else %}
+        <p style="font-size:16px">{{ exception }}</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+{% block hidden %}
+  <div class="row">
+    {% for x in story %}
+    <div class="dialog" id="story-detail{{forloop.counter}}" style="display:none" title="Story details">{{x.longDescription|safe}}</div>
+    {% endfor %}
+  </div>
+{% endblock %}

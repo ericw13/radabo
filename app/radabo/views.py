@@ -571,3 +571,20 @@ def Priority(request):
         'story': 'Y', # Ugly hack to make export.html show the export button!
     }
     return render(request, 'radabo/priority.html', c)
+
+def NonFinance(request):
+    header = "Non-IT Finance stories"
+    exc = "There are no active stories owned by other teams that are being tracked by IT-Finance"
+    kwargs = {
+        'status__in': ['B','D','P','C'],
+        'storyType': 'Non-Finance',
+    }
+    story = Story.objects.filter(**kwargs).order_by('-rallyNumber')
+
+    c = {
+         'story':  story,
+         'header': header,
+         'exception': exc,
+        }
+
+    return render(request, 'radabo/non_finance.html', c)
