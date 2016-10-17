@@ -16,6 +16,12 @@ from radabo.forms import SearchForm
 # imports 11 functions defined in radabo.utils.__all__
 from radabo.utils import *
 
+def _text(count):
+    if count == 1:
+        return str(count) + ' story'
+    else:
+        return str(count) + ' stories'
+
 # Create your views here.
 class IndexView(generic.ListView):
     """
@@ -147,7 +153,7 @@ def _buildRelease(request):
     c = {
          'story': story, 
          'current': releaseName,
-         'header': 'Enhancements released in '+ releaseName,
+         'header': 'Enhancements released in '+ releaseName + ': ' + _text(len(story)),
          'exception': 'No enhancements have yet been released in '+ releaseName,
          'buttonText': 'Select Release',
          'list': releaseList,
@@ -184,7 +190,7 @@ def _buildSprint(request):
     c = {
          'story': sortedStory, 
          'current': sprint,
-         'header': 'Enhancement stories scheduled for ' + sprint,
+         'header': 'Enhancement stories scheduled for ' + sprint + ': ' + _text(len(story)),
          'startDate': selectedSprint.startDate,
          'endDate': selectedSprint.endDate,
          'exception': 'No enhancements have yet been scheduled for '+ sprint,
@@ -210,10 +216,10 @@ def enhByModule(request):
             'storyType': 'Enhancement',
             'module__moduleName': module,
         }
-        header = 'All enhancements for %s module' % (module)
-        exc = 'No enhancements have yet been defined for '+ module,
-
         story=Story.objects.filter(**kwargs).order_by('-rallyNumber')
+        header = 'All enhancements for %s module: %s' % (module, _text(len(story)))
+        exc = 'No enhancements have yet been defined for '+ module
+
     elif request.method == 'GET':
         header = 'Please select a module from the list'
         story = None
@@ -250,7 +256,7 @@ def PendingUAT(request):
 
     c = {
          'story': story, 
-         'header': 'Enhancements Pending UAT',
+         'header': 'Enhancements Pending UAT: ' + _text(len(story)),
          'exception': 'No enhancements are pending UAT.',
          'showSprint': 'Y',
         }
@@ -301,8 +307,7 @@ def Backlog(request):
     c = {
          'story': sortedStory, 
          'current': None,
-         'header': ('Enhancement Backlog' + filter 
-                    + str(len(story)) + ' stories'),
+         'header': 'Enhancement Backlog' + filter + _text(len(story)),
          'exception': 'No enhancements are in the backlog!',
          'gpo': 'Y',
          'list': None,
@@ -406,7 +411,7 @@ def ProjectGrooming(request):
             ]
     story=Story.objects.filter(**kwargs).order_by(*myord)
     c = {'story': story,
-         'header': "Project grooming (%s stories)" % (len(story)),
+         'header': 'Project grooming: ' + _text(len(story)),
          'exception': 'No project grooming stories'}
     return render(request,'radabo/grooming.html',c)
 
@@ -487,7 +492,7 @@ def FullSprint(request):
             vel = 0
             for i in data:
                 vel += i['points']
-            header = ('All stories assigned to sprint %s (%s points)' 
+            header = ('All stories assigned to sprint %s: %s points' 
                       % (sprintName, vel))
         else:
             header = 'Nothing has been assigned to sprint %s' % (sprintName)
@@ -588,3 +593,28 @@ def NonFinance(request):
         }
 
     return render(request, 'radabo/non_finance.html', c)
+
+def Dashboard(request):
+    header = "Enhancement Dashboard"
+    exc = "Something has gone horribly wrong!"
+    kwargs = {
+        'storyType': 'Enhancement',
+    }
+
+    story = (Story.objects.filter(**kwargs).values('status')
+            .annotate(count=Count('status')))
+
+    # Need to re-sort based on SDLC progression
+    data = []
+    for s in ('B','D','P','C','A'):
+        val=filter(lambda x: x['status'] == s, story)[0]
+        if val:
+            data.append(val)
+
+    c = {
+         'data': json.dumps([dict(item) for item in data]),
+         'title': header,
+         'exception': exc,
+        }
+
+    return render(request, 'radabo/dashboard.html', c)
