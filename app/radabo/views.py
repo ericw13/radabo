@@ -268,7 +268,7 @@ def Backlog(request):
     """
 
     kwargs = {
-        'release': None,
+        'currentSprint': None,
         'storyType': 'Enhancement',
         'status__in': ['B','D'],
     }
@@ -598,16 +598,28 @@ def Dashboard(request):
     header = "Enhancement Dashboard"
     exc = "Something has gone horribly wrong!"
     kwargs = {
+        'status__in': ['B','D','P','C'],
         'storyType': 'Enhancement',
     }
 
-    story = (Story.objects.filter(**kwargs).values('status')
+    #Not accepted stories
+    nota = (Story.objects.filter(**kwargs).values('status')
             .annotate(count=Count('status')))
+
+    kwargs = {
+        'status': 'A',
+        'storyType': 'Enhancement',
+        'release__endDate__gte': '2016-03-01 00:00:00',
+    }
+
+    # Accepted in current FY
+    a = (Story.objects.filter(**kwargs).values('status')
+         .annotate(count=Count('status')))
 
     # Need to re-sort based on SDLC progression
     data = []
     for s in ('B','D','P','C','A'):
-        val=filter(lambda x: x['status'] == s, story)[0]
+        val=filter(lambda x: x['status'] == s, chain(nota, a))[0]
         if val:
             data.append(val)
 

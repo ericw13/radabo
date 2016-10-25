@@ -271,7 +271,9 @@ def initRally():
 
     try:
         rallyServer = rallyWorkset([])[0]
-        rally = Rally(rallyServer, apikey = api_key, user=None, password=None)
+        ws='Red Hat IT Workspace'
+        prj='IT Finance and GWS (855)'
+        rally = Rally(rallyServer, apikey = api_key, workspace=ws, project=prj, user=None, password=None)
     except Exception as e:
         raise Exception("Unexpected error contacting Rally: %s." % (str(e)))
 
@@ -556,8 +558,9 @@ def getEpics():
         f="FormattedID,Name,State,PercentDoneByStoryCount,LeafStoryCount," \
           "c_Region,c_ProjectManager,c_Requester,PlannedStartDate," \
           "PlannedEndDate,ActualStartDate,ActualEndDate"
+        # pyral 1.2.0 changed the item type to BusinessEpic
         data = rally.get(
-                   'PortfolioItem/BusinessEpic', 
+                   'BusinessEpic', 
                    query=q, 
                    fetch=f,
                    order="PlannedEndDate")
