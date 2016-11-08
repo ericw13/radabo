@@ -355,7 +355,7 @@ def BacklogGraphs(request, chartType):
     charts was hacked into here, but needs a more elegant solution
     """
     kwargs = {
-        'release': None,
+        'currentSprint': None,
         'status__in': ['B','D'],
         'storyType': 'Enhancement',
     }

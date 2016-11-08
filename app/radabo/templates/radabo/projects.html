@@ -35,7 +35,11 @@
               <td>{{x.pm|default:""}}</td>
               <td>{{x.count}}</td>
               <td>
+                {% if x.color == "progress-bar-purple" %}
+                <div class="progress no-progress">
+                {% else %}
                 <div class="progress">
+                {% endif %}
                   <div class="progress-bar {{x.color}}" role="progressbar" aria-valuenow="{{x.percent}}" aria-valuemin="0" aria-valuemax="100" style="width:{{x.percent}}%">
                     {{x.percent}}%
                   </div>
@@ -45,7 +49,11 @@
               <td>
                 <div class="row">
                   <div class="bar-wrap">
+                    {% if x.color == "progress-bar-purple" %}
+                    <div class="progress no-progress">
+                    {% else %}
                     <div class="progress">
+                    {% endif %}
                       <div class="progress-bar {{x.color}}" role="progressbar" aria-valuenow="{{x.elapsed}}" aria-valuemin="0" aria-valuemax="100" style="width:{{x.elapsed}}%"><span class="sr-only">{{x.elapsed}}%</span></div>
                     </div>
                   </div>
@@ -59,7 +67,7 @@
                 </div>
               </td>
               <td>&nbsp;</td>
-              <td>{{x.status}}</td>
+              <td>{% if x.color == "progress-bar-purple" %}Planned{% else %}{{x.status}}{% endif %}</td>
             </tr>
         {% endfor %}
           </tbody>

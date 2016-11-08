@@ -227,7 +227,7 @@ def _calculateProgress(story):
     }
 
     if today < startDate:
-        rv.update({'color':'progress-bar-white'})
+        rv.update({'color':'progress-bar-purple'})
         return rv
 
     if today >= endDate:
