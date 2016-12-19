@@ -84,31 +84,25 @@ function drawRelease(djangoData) {
     var data = new google.visualization.DataTable();
     data.addColumn('string', 'Release');
     data.addColumn('number', 'Story Count');
-    data.addColumn('number', 'Business Value');
  
     var total = 0;
     for (var i=0;i<djangoData.length;i++) {
         var name = djangoData[i].release__name;
         var trimmedName = name.replace(" - Enh Release","");
-        data.addRows([[trimmedName, djangoData[i].count, djangoData[i].sum]]);
+        data.addRows([[trimmedName, djangoData[i].count]]);
         total += djangoData[i].count;
     }
     var options = {
-              title: "Enhancement Releases - " + total + " total stories",
-              titleFontSize: 20,
               width: 700, 
               height: 480, 
               curveType: 'function',
+              title: "Enhancement Releases - " + total + " total stories",
+              titleFontSize: 24,
+              hAxis: {title: "Release", slantedText: true, titleFontSize: 20},
+              vAxis: {title: "Story Count", baseline: 0, titleFontSize: 20},
               series: {
-                0: {targetAxisIndex: 0, pointSize: 4},
-                1: {targetAxisIndex: 1, pointSize: 4},
-              },
-              hAxis: {title: "Release", slantedText: true, titleFontSize: 16},
-              vAxes: {
-                0: {title: "Story Count", titleFontSize: 16},
-                1: {title: "Earned Business Value", titleFontSize: 16},
-              },
-              legend: {position: "in"},
+                 0: {pointSize: 4}
+                 }
     };
 
     var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
@@ -184,7 +178,6 @@ function getDate(input) {
 }
 
 function drawGanttChart(djangoData) {
-
     var data = new google.visualization.DataTable();
     data.addColumn('string', 'Task ID');
     data.addColumn('string', 'Task Name');
@@ -197,9 +190,9 @@ function drawGanttChart(djangoData) {
 
     var id;
     var name;
-    var pct;
     var startDate;
     var endDate;
+    var pct;
     for (i=0;i<djangoData.length;i++) {
 
         id = djangoData[i].id;
@@ -217,18 +210,13 @@ function drawGanttChart(djangoData) {
                        pct,
                        null]]);
        
-        //console.log(id + " " + name + " runs from " + startDate + " to " + endDate + " and is " + pct + "% complete.");
+        console.log(id + " " + name + " runs from " + startDate + " to " + endDate + " and is " + pct + "% complete.");
     }
     var options = {
       height: 600,
       width: 1000,
       gantt: {
               trackHeight: 50,
-              criticalPathEnabled: false,
-              labelStyle: {
-                           fontName: "Arial",
-                           fontSize: 16,
-                          },
              },
     };
 

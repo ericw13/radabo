@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'^prioritization/?$', views.Priority, name='priority'),
     url(r'^dashboard/?$', views.Dashboard, name='dashboard'),
     url(r'^enhancements/release/?$', views.ReleaseReport, name='release'),
+    url(r'^enhancements/release/chart/?$', views.enhGraph, name='releasechart'),
     url(r'^enhancements/sprint/?$', views.SprintReport, name='sprint'),
     url(r'^enhancements/pending/?$', views.PendingUAT, name='UAT'),
     url(r'^enhancements/backlog/?$', views.Backlog, name='backlog'),

@@ -23,7 +23,8 @@ class Command(BaseCommand):
         # Queries enhancements not yet released OR project grooming stories
         # not in Completed Archive status
         # Not splitting this line in case it breaks Rally's picky formatting
-        q='((Feature.Parent.FormattedID = "E258") AND (((Feature.FormattedID != "F3841") AND (Release = "")) OR ((Feature.FormattedID = "F3841") AND (c_ITFinanceConsultingKanbanState != "Completed Archive"))))'
+        #q='((((Feature.FormattedID != "3841") AND (Release.Name = "February 2016 - Enh Release")) OR ((Feature.FormattedID = "3841") AND (c_ITFinanceConsultingKanbanState != "Completed Archive"))) AND (Feature.Parent.FormattedID = "258"))'
+        q='(Release.Name = "November 2016 - Enh Release")'
 
         f="FormattedID,ObjectID,Name,Description,PlanEstimate," \
           "c_BusinessValueBV,ScheduleStatePrefix,c_Module,Project," \
@@ -45,11 +46,6 @@ class Command(BaseCommand):
             sys.exit(1)
 
         for story in response:
-            """
-            Horrible hack for the fact that referencing 
-            Feature.Parent.FormattedID throws an error
-            story.Feature.Parent.FormattedID = "E258"
-            """
             try:
                 this=getStory(story.FormattedID)
                 if this:
@@ -62,31 +58,5 @@ class Command(BaseCommand):
                 print "Failure to save story %s: %s" % (
                     story.FormattedID, str(e))
                 sys.exit(2)
-
-        stories = Story.objects.filter(
-              ~Q(session=session) | Q(session__isnull=True), 
-              Q(release__status__in=['Active','Planning']) | Q(release=None))
-
-        for this in stories:
- 
-            q = ['FormattedId = "%s"' % this.rallyNumber]
-            f += ',c_ITFinanceConsultingKanbanState'
-            response = rallyServer.get(
-                           'UserStory',
-                           query=q,
-                           fetch=f
-                       )
-
-            if response.resultCount == 0:
-                print "Deleting %s" % (this.rallyNumber)
-                this.delete()
-            else:
-                for story in response:
-                    if story.c_ITFinanceConsultingKanbanState == \
-                        "Completed Archive":
-                        # Log fact story is deleted
-                        print "Deleting archived story %s" % (story.FormattedID)
-                    else:
-                        updateStory(this, story, session)
 
         session.close()

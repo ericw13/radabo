@@ -5,7 +5,7 @@ from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from django.utils import timezone
 from django.views import generic
-from django.db.models import F, Q, Avg, Count
+from django.db.models import F, Q, Avg, Count, Sum
 from django.template import Context
 from django.template.loader import get_template
 from datetime import timedelta
@@ -349,6 +349,26 @@ def _allGraphs(request, **kwargs):
         }
     return render(request,'radabo/allGraphs.html', c)
 
+def enhGraph(request):
+    """
+    Function to graph enhancement release by count
+    """
+    kwargs = {
+              'storyType': 'Enhancement',
+              'release__isnull': False,
+              'release__status': "Accepted",
+              'release__endDate__gte': '2016-03-01 00:00:00',
+             }
+    data = (Story.objects.filter(**kwargs).values('release__name')
+           .annotate(count=Count('release__name'))
+           .annotate(sum=Sum('businessValue'))
+           .order_by('release__startDate'))
+
+    c = {
+         'velocity': json.dumps([dict(item) for item in data]),
+        }
+    return render(request,'radabo/releaseGraph.html', c)
+
 def BacklogGraphs(request, chartType):
     """
     Function for generating a specific chart.  Function for generating all
@@ -450,10 +470,22 @@ def EpicView(request):
     """
 
     status, data = getEpics()
+    gantt = []
     if status == 'N':
         print str(data)
 
-    c = {'story': data}
+    else:
+        key_list = ['id','name','percent','startDate','endDate']
+        for row in data:
+            row['startDate'] = row['startDate'].strftime('%Y-%m-%d')
+            row['endDate'] = row['endDate'].strftime('%Y-%m-%d')
+            record = {k: row[k] for k in key_list if k in row}
+            gantt.append(record)
+
+    c = {
+         'story': data,
+         'gantt': json.dumps([dict(item) for item in gantt]),
+        }
     return render(request, 'radabo/projects.html', c)
 
 def ProjectStories(request, epic):

@@ -1,6 +1,6 @@
 django-modeladmin-reorder
 django
-
+gunicorn
 MySQL-python
 requests
 pyral

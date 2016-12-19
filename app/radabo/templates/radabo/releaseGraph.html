@@ -1,0 +1,31 @@
+{% extends 'radabo/base.html' %}
+{% load staticfiles %}
+{% block pagetitle %}Enhancement Releases{% endblock %}
+{% block title %}
+  <div class="row">
+    <div class="col-sm-12 text-center"><h2>IT Finance Enhancement Releases</h2></div>
+  </div>
+{% endblock %}
+{% block js %}
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="{% static 'radabo/chart.js' %}"></script>
+    <script type="text/javascript">
+
+      var djangoData = JSON.parse('{{ velocity|safe }}');
+      // Load the Visualization API and the corechart package.
+      google.charts.load('current', {'packages':['corechart']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(function() {
+                    drawRelease(djangoData);
+      });
+    </script>
+{% endblock %}
+{% block primary %}
+  <div class="row">
+    <div class="col-sm-5 col-sm-offset-1">
+      <div id="chart_div" style="float:left"></div>
+    </div>
+  </div>
+{% endblock %}

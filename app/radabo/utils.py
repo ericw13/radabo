@@ -575,14 +575,14 @@ def getEpics():
             rec = _calculateProgress(item)
 
             rec.update({
-                'id': item.FormattedID,
-                'name': item.Name,
-                'percent': int(round(item.PercentDoneByStoryCount*100,0)),
-                'count': item.LeafStoryCount,
-                'status': item.State.Name,
-                'region': item.c_Region,
-                'sponsor': item.c_Requester,
-                'pm': item.c_ProjectManager,
+                "id": item.FormattedID,
+                "name": item.Name,
+                "percent": int(round(item.PercentDoneByStoryCount*100,0)),
+                "count": item.LeafStoryCount,
+                "status": item.State.Name,
+                "region": item.c_Region,
+                "sponsor": item.c_Requester,
+                "pm": item.c_ProjectManager,
             })
             results.append(rec)
 
@@ -602,6 +602,27 @@ def getProjectStories(epic):
     Currently, any exception encountered just gets you redirected to the
     generic error page.  I should fix that some day.
     """
+    """
+    2016-12-12 - pyral 1.2.2 no longer likes reference to BusinessEpic
+    level from User Story.  Will look up name separately based on epic
+    """
+
+    try:
+        q='FormattedId = "%s"' % (epic)
+        f="Name"
+        data = rally.get(
+            'BusinessEpic',
+            query=q,
+            fetch=f)
+    except Exception as e:
+        return 'N', str(e)
+
+    if data.resultCount == 0:
+        return 'N', "Invalid project identifier: %s" % (epic)
+
+    prj = data.next()
+    project = str(prj.Name)
+
     try:
         q='Feature.Parent.FormattedId = "%s"' % (epic)
         f="FormattedID,Name,ScheduleState,PlanEstimate,Feature,Owner"
@@ -622,7 +643,7 @@ def getProjectStories(epic):
             'id': item.FormattedID,
             'feature': item.Feature.Name,
             'featureid': item.Feature.FormattedID,
-            'project': item.Feature.Parent.Name,
+            'project': project,
             'name': item.Name,
             'status': item.ScheduleState,
             'points': int(item.PlanEstimate) if item.PlanEstimate else 0,
